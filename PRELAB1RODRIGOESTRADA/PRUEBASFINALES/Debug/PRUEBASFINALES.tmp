@@ -1,0 +1,34 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.2.8</VERSION>
+ <DEVICE>"ATmega328P"</DEVICE>
+ <WORKING_DIR>C:\Users\rodro\OneDrive\Escritorio\PRUEBASFINALES\PRUEBASFINALES\Debug</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc</DIR>
+  <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
+  <DIR></DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>C:\Users\rodro\OneDrive\Escritorio\PRUEBASFINALES\PRUEBASFINALES\main.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc</FILE>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>C:\Users\rodro\OneDrive\Escritorio\PRUEBASFINALES\PRUEBASFINALES\Debug\PRUEBASFINALES.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>PRUEBASFINALES.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>PRUEBASFINALES.map</FILE>
+  <FILE>PRUEBASFINALES.lss</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <SETUP><FILE>C:\Users\rodro\OneDrive\Escritorio\PRUEBASFINALES\PRUEBASFINALES\main.asm</FILE><LINE>20</LINE></SETUP>
+  <LOOP><FILE>C:\Users\rodro\OneDrive\Escritorio\PRUEBASFINALES\PRUEBASFINALES\main.asm</FILE><LINE>35</LINE></LOOP>
+  <DELAY><FILE>C:\Users\rodro\OneDrive\Escritorio\PRUEBASFINALES\PRUEBASFINALES\main.asm</FILE><LINE>39</LINE></DELAY>
+  <SUBDELAY1><FILE>C:\Users\rodro\OneDrive\Escritorio\PRUEBASFINALES\PRUEBASFINALES\main.asm</FILE><LINE>41</LINE></SUBDELAY1>
+  <SUBDELAY2><FILE>C:\Users\rodro\OneDrive\Escritorio\PRUEBASFINALES\PRUEBASFINALES\main.asm</FILE><LINE>46</LINE></SUBDELAY2>
+  <SUBDELAY3><FILE>C:\Users\rodro\OneDrive\Escritorio\PRUEBASFINALES\PRUEBASFINALES\main.asm</FILE><LINE>51</LINE></SUBDELAY3>
+  <SUBDELAY4><FILE>C:\Users\rodro\OneDrive\Escritorio\PRUEBASFINALES\PRUEBASFINALES\main.asm</FILE><LINE>55</LINE></SUBDELAY4>
+ </LABELS>
+</ASSEMBLER_INFO>
