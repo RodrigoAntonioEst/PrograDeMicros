@@ -18,6 +18,11 @@
 
  // Configuración de MCU
  SETUP:
+	LDI R16, 0xF7
+	OUT DDRD, R16 //Configuramos el PORTD como entrada en el bit 3 y en las demas salidas
+	LDI R16, 0X08
+	OUT PORTD, R16 //Apagamos los led en todos los bit menos en el 3 
+
     LDI R16, 0x00 
     OUT DDRB, R16  // PORTB como entrada
     LDI R16, 0xFF
@@ -36,6 +41,19 @@ LOOP:
     IN R16, PINB  //hacemos una lectura en los botones
     CP R16, R17  //Usamos esta funcion para comparar si lo que esta en R17 y R16 es lo mismo
     BREQ LOOP //si es lo mismo se regresa al loop inicial
+	CALL DELAY
+	IN R16, PINB  //se leen de nuevo los botones, luego de cierta cantidad de tiempo 
+    CP R16, R17  //si al hacer la comparacion se detecta que el push sigue en el mismo estado se manda de regreso al loop
+    BREQ LOOP	//si es igual manda de regreso al loop
+	MOV R17, R16 //se guarda el nuevo estado
+	SBRS R17, 0 //si el bit 0 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
+    INC R19 //se realiza el incremento 
+	SBRS R17, 1   ////si el bit 1 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
+    DEC R19 //se realiza el decremento 
+	OUT PORTC, R19 //se mandan los datos 
+    RJMP LOOP //se regresa al bucle infinito
+
+//subrutina de interrupcion 
 DELAY: //usamos la funcion delay para poder evitar rebotes en los push 
 	LDI R18, 0
 SUBDELAY1: //el contador en este delay incrementa hasta 255 y luego pasa a la siguiente etapa 
@@ -60,14 +78,4 @@ SUBDELAY5: //el contador en este delay incrementa hasta 255 y luego pasa a la si
 	INC R18
 	CPI R18, 0
 	BRNE SUBDELAY5 //aqui se terminan los delay para evitar lo rebotes
-
-    IN R16, PINB  //se leen de nuevo los botones, luego de cierta cantidad de tiempo 
-    CP R16, R17  //si al hacer la comparacion se detecta que el push sigue en el mismo estado se manda de regreso al loop
-    BREQ LOOP	//si es igual manda de regreso al loop
-	MOV R17, R16 //se guarda el nuevo estado
-	SBRS R17, 0 //si el bit 0 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
-    INC R19 //se realiza el incremento 
-	SBRS R17, 1   ////si el bit 1 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
-    DEC R19 //se realiza el decremento 
-	OUT PORTC, R19 //se mandan los datos 
-    RJMP LOOP //se regresa al bucle infinito
+	RET
