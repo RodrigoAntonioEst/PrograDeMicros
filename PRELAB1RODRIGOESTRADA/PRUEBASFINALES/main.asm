@@ -41,15 +41,16 @@
     LDI R17, 0xFF  //Estado inicial de botones (todos en pull-up)
     LDI R19, 0x00  //Registro de conteo1
 	LDI R20, 0X00 //Registro de conteo2
-	LDI R21, 0X00
+	LDI R21, 0X00 
 	LDI R22, 0X00
-	LDI R24, 0X00
+	LDI R23, 0X00
+	
 
  // Loop principal
 LOOP:
 	CALL Antirebote
-    CALL ContadorRojo
-	CALL ContadorAzul
+    CALL ContadorAmarillo
+	CALL ContadorBlanco
     CALL Suma
 	RJMP LOOP
 
@@ -58,24 +59,11 @@ LOOP:
 Suma:
     SBRC R17, 4     //Si el bit 4 de R17 es 0, sigue. Si es 1, salta a RETORNO
     RJMP RETORNO
-	MOV R21, R19    //Copiar R19 en R21
-    SWAP R21        //Intercambiar nibbles de R21
-	MOV R22, R20    //Copiar R20 en R22
-	MOV R23, R20
-    SWAP R22        //Intercambiar nibbles de R22
-	ANDI R22, 0XF0
-	ADD R21, R22    //Sumar los valores intercambiados
-	BRBS 0, salto   //Si NO hay carry, salta a 'salto'
-	ANDI R20, 0X0F
-    ADD R20, R21    //Si hubo carry, sumar R21 a R16
-	OUT PORTD, R20
-	RET
-salto:
-    SBI PINC, 4     //Toggle en PB5
-	ADD R23, R24	//Si hubo carry, sumar R21 a R16
-	OUT PORTD, R23
+	BRBS 0, CARRY
+	OUT PORTC, R21
 RETORNO:
-    RET             
+	RET  
+	        
 
 
 //SUB RUTINA DE ANTIREBOTE
@@ -91,38 +79,27 @@ Antirebote:
 	RET 
 
 //Establecemos la subrutina para el contador 2
-ContadorRojo:
+ContadorAmarillo:
 	SBRS R17, 2 //si el bit 2 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
     INC R20 //se realiza el incremento
-	BRBS 1,	ULTIMORECURSO  
 	CPI R20, 0X10
 	BRNE OVERFLOWROJO
 	LDI R20, 0X00
-	ADD R20, R22
 OVERFLOWROJO:
 	SBRS R17, 3   //si el bit 3 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
     DEC R20 //se realiza el decremento
-	CPI R20, 0XEF
-	BREQ ULTIMORECURSO2
-REGRESO:
 	CPI R20, 0XFF
 	BRNE UNDERFLOWROJO
 	LDI R20, 0X0F
-	ADD R20, R22
-UNDERFLOWROJO: 
-	OUT PORTD, R20 //se mandan los datos
-	MOV R25, R20
+UNDERFLOWROJO:
+	MOV R25, R20 
+	MOV R21, R20
+	OUT PORTD, R25 //se mandan los datos
     RET
-ULTIMORECURSO:
-	LDI R20, 0X00
-	ADD R20, R22
-	RJMP OVERFLOWROJO
-ULTIMORECURSO2:
-	LDI R20, 0XFF
-	RJMP REGRESO
+
 
 //Establecemos la subrutina del contador 1
-ContadorAzul:
+ContadorBlanco:
 	SBRS R17, 0 //si el bit 0 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
     INC R19 //se realiza el incremento
 	CPI R19, 0x10
@@ -135,7 +112,11 @@ OVERFLOWAZUL:
 	BRNE UNDERFLOWAZUL
 	LDI R19, 0X0F
 UNDERFLOWAZUL:
-	OUT PORTC, R19 //se mandan los datos 
+	MOV R23, R19
+	MOV R22, R19
+	SWAP R23
+	OR R25, R23
+	OUT PORTD, R25 //se mandan los datos
     RET
 //subrutina de interrupcion 
 DELAY: //usamos la funcion delay para poder evitar rebotes en los push 
