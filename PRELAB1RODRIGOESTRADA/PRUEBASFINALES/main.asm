@@ -118,6 +118,8 @@ UNDERFLOWAZUL:
 	OR R25, R23 //El or lo que permite es poder juntar el valor de ambos contadores y poder mostrarlos en el portD
 	OUT PORTD, R25 //se mandan los datos al portD
     RET
+
+
 //subrutina de interrupcion 
 DELAY: //usamos la funcion delay para poder evitar rebotes en los push 
 	LDI R18, 0

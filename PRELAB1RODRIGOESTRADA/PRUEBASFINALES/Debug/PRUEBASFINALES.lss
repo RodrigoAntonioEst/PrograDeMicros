@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB1RODRIGOESTRADA\PRUEBASFINALES\main.asm Tue Feb 11 23:28:09 2025
+AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB1RODRIGOESTRADA\PRUEBASFINALES\main.asm Wed Feb 12 00:07:40 2025
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
 C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB1RODRIGOESTRADA\PRUEBASFINALES\main.asm(8): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
@@ -1060,7 +1060,7 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00000d b90b                      	OUT PORTD, R16 //Apagamos todos los leds
                                  
 00000e e000                          LDI R16, 0x00 
-00000f b904                          OUT DDRB, R16  // PORTB como entrada menos PB5
+00000f b904                          OUT DDRB, R16  // PORTB como entrada 
 000010 ef0f                          LDI R16, 0xFF
 000011 b905                          OUT PORTB, R16 // Habilitar pull-ups en PORTB, desactivo el led en pb5
                                  
@@ -1149,6 +1149,8 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00004f 2b97                      	OR R25, R23 //El or lo que permite es poder juntar el valor de ambos contadores y poder mostrarlos en el portD
 000050 b99b                      	OUT PORTD, R25 //se mandan los datos al portD
 000051 9508                          RET
+                                 
+                                 
                                  //subrutina de interrupcion 
                                  DELAY: //usamos la funcion delay para poder evitar rebotes en los push 
 000052 e020                      	LDI R18, 0
