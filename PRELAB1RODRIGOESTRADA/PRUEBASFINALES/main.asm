@@ -29,7 +29,7 @@
 	OUT PORTD, R16 //Apagamos todos los leds
 
     LDI R16, 0x00 
-    OUT DDRB, R16  // PORTB como entrada menos PB5
+    OUT DDRB, R16  // PORTB como entrada 
     LDI R16, 0xFF
     OUT PORTB, R16 // Habilitar pull-ups en PORTB, desactivo el led en pb5
 
