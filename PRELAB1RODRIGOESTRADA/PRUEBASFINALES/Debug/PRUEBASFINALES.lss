@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB1RODRIGOESTRADA\PRUEBASFINALES\main.asm Tue Feb 11 16:45:31 2025
+AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB1RODRIGOESTRADA\PRUEBASFINALES\main.asm Tue Feb 11 23:28:09 2025
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
 C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB1RODRIGOESTRADA\PRUEBASFINALES\main.asm(8): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
@@ -1049,10 +1049,10 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  
                                   // Configuración de MCU
                                   SETUP:
-000004 e800                      	LDI R16, (1 << CLKPCE)  ; Cargar el bit CLKPCE en R16
-000005 9300 0061                 	STS CLKPR, R16          ; Habilitar el cambio del prescaler
-000007 e004                      	LDI R16, 0b00000100     ; Cargar el valor del prescaler (división por 16)
-000008 9300 0061                 	STS CLKPR, R16          ; Escribir el nuevo valor en el registro CLKPR
+000004 e800                      	LDI R16, (1 << CLKPCE)  //Cargar el bit CLKPCE en R16
+000005 9300 0061                 	STS CLKPR, R16          //Habilitar el cambio del prescaler
+000007 e004                      	LDI R16, 0b00000100     //Cargar el valor del prescaler (división por 16)
+000008 9300 0061                 	STS CLKPR, R16          //Escribir el nuevo valor en el registro CLKPR
                                  
 00000a ef0f                      	LDI R16, 0XFF 
 00000b b90a                      	OUT DDRD, R16 //Establecemos el PORTD como salida
@@ -1072,28 +1072,29 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000016 ef1f                          LDI R17, 0xFF  //Estado inicial de botones (todos en pull-up)
 000017 e030                          LDI R19, 0x00  //Registro de conteo1
 000018 e040                      	LDI R20, 0X00 //Registro de conteo2
-000019 e050                      	LDI R21, 0X00 
-00001a e060                      	LDI R22, 0X00
-00001b e070                      	LDI R23, 0X00
+000019 e050                      	LDI R21, 0X00 //registros para hacer copias 
+00001a e060                      	LDI R22, 0X00 //registros para hacer copias
+00001b e070                      	LDI R23, 0X00 //registros para hacer copias
                                  	
                                  
                                   // Loop principal
                                  LOOP:
-00001c 940e 002a                 	CALL Antirebote
-00001e 940e 0034                     CALL ContadorAmarillo
-000020 940e 0042                 	CALL ContadorBlanco
-000022 940e 0025                     CALL Suma
-000024 cff7                      	RJMP LOOP
+00001c 940e 002a                 	CALL Antirebote //subrutina de antirebote 
+00001e 940e 0034                     CALL ContadorAmarillo //subrutina de contador 1
+000020 940e 0042                 	CALL ContadorBlanco //subrutina de contador 2
+000022 940e 0025                     CALL Suma //subrutina de suma 
+000024 cff7                      	RJMP LOOP //de regreso al loop
                                  
                                  
                                  //subrutina de suma con carry 
                                  Suma:
 000025 fd14                          SBRC R17, 4     //Si el bit 4 de R17 es 0, sigue. Si es 1, salta a RETORNO
-000026 c002                          RJMP RETORNO
-000027 0f56                          ADD R21, R22    //Si hubo carry, sumar R21 a R16
-000028 b958                      	OUT PORTC, R21
+000026 c002                          RJMP RETORNO	//si no se cumple la condicion se salta todo el proceso de suma
+000027 0f56                      	ADD R21, R22	//se suma, si en la suma existe un carry, se mostrara ya que agarre todo el puerto C como mi salida del sumador 
+000028 b958                      	OUT PORTC, R21	//se saca el valor del de r21 al portC 
                                  RETORNO:
-000029 9508                      	RET         
+000029 9508                      	RET 
+                                 	        
                                  
                                  
                                  //SUB RUTINA DE ANTIREBOTE
@@ -1112,19 +1113,19 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  ContadorAmarillo:
 000034 ff12                      	SBRS R17, 2 //si el bit 2 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
 000035 9543                          INC R20 //se realiza el incremento
-000036 3140                      	CPI R20, 0X10
-000037 f409                      	BRNE OVERFLOWROJO
+000036 3140                      	CPI R20, 0X10 //se compara con 0x10 para saber si existe overflow en el primer contador y asi regresar la cuenta
+000037 f409                      	BRNE OVERFLOWROJO //si no son iguales salta el comando que carga el valor que quita el overflow 
 000038 e040                      	LDI R20, 0X00
                                  OVERFLOWROJO:
 000039 ff13                      	SBRS R17, 3   //si el bit 3 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
 00003a 954a                          DEC R20 //se realiza el decremento
-00003b 3f4f                      	CPI R20, 0XFF
-00003c f409                      	BRNE UNDERFLOWROJO
+00003b 3f4f                      	CPI R20, 0XFF //se compara con oxff para saber si existe un underflow y asi regresarlo al valor 0x00
+00003c f409                      	BRNE UNDERFLOWROJO //si no son iguales salta la operacion que quita el underflow
 00003d e04f                      	LDI R20, 0X0F
                                  UNDERFLOWROJO:
-00003e 2f94                      	MOV R25, R20 
-00003f 2f54                      	MOV R21, R20
-000040 b99b                      	OUT PORTD, R25 //se mandan los datos
+00003e 2f94                      	MOV R25, R20 //se copia en este registro para poder guardar luego juntar el valor del contador 1 y el 2 ya que estan en el mismo puerto
+00003f 2f54                      	MOV R21, R20 //guardo este valor en este registro para poder hacer la suma entre contadores
+000040 b99b                      	OUT PORTD, R25 //se mandan los datos al portD 
 000041 9508                          RET
                                  
                                  
@@ -1132,21 +1133,21 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  ContadorBlanco:
 000042 ff10                      	SBRS R17, 0 //si el bit 0 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
 000043 9533                          INC R19 //se realiza el incremento
-000044 3130                      	CPI R19, 0x10
-000045 f409                      	BRNE OVERFLOWAZUL
+000044 3130                      	CPI R19, 0x10 //se compara con 0x10 para saber si existe overflow en el segundo contador y asi regresar la cuenta
+000045 f409                      	BRNE OVERFLOWAZUL ////si no son iguales salta el comando que carga el valor que quita el overflow
 000046 e030                      	LDI R19, 0x00
                                  OVERFLOWAZUL: 
 000047 ff11                      	SBRS R17, 1   ////si el bit 1 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
 000048 953a                          DEC R19 //se realiza el decremento 
-000049 3f3f                      	CPI R19, 0XFF
-00004a f409                      	BRNE UNDERFLOWAZUL
+000049 3f3f                      	CPI R19, 0XFF //se compara para quitar en el under flow
+00004a f409                      	BRNE UNDERFLOWAZUL //si no existe underflow salta la accion que salta la carga del valor que quita el underflow 
 00004b e03f                      	LDI R19, 0X0F
                                  UNDERFLOWAZUL:
-00004c 2f73                      	MOV R23, R19
-00004d 2f63                      	MOV R22, R19
-00004e 9572                      	SWAP R23
-00004f 2b97                      	OR R25, R23
-000050 b99b                      	OUT PORTD, R25 //se mandan los datos
+00004c 2f73                      	MOV R23, R19 //se copia este valor para poder poder juntar ambos contadores en el mismo puerto
+00004d 2f63                      	MOV R22, R19 //se mueve este valor para poder hacer la suma 
+00004e 9572                      	SWAP R23 //se usa swap para poder mover los 4 bits menos significativos a los 4 bits mas significativos y asi poder juntar ambos contadores sin que estos interfieran entre si 
+00004f 2b97                      	OR R25, R23 //El or lo que permite es poder juntar el valor de ambos contadores y poder mostrarlos en el portD
+000050 b99b                      	OUT PORTD, R25 //se mandan los datos al portD
 000051 9508                          RET
                                  //subrutina de interrupcion 
                                  DELAY: //usamos la funcion delay para poder evitar rebotes en los push 

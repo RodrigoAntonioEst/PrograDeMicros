@@ -18,10 +18,10 @@
 
  // Configuración de MCU
  SETUP:
-	LDI R16, (1 << CLKPCE)  ; Cargar el bit CLKPCE en R16
-	STS CLKPR, R16          ; Habilitar el cambio del prescaler
-	LDI R16, 0b00000100     ; Cargar el valor del prescaler (división por 16)
-	STS CLKPR, R16          ; Escribir el nuevo valor en el registro CLKPR
+	LDI R16, (1 << CLKPCE)  //Cargar el bit CLKPCE en R16
+	STS CLKPR, R16          //Habilitar el cambio del prescaler
+	LDI R16, 0b00000100     //Cargar el valor del prescaler (división por 16)
+	STS CLKPR, R16          //Escribir el nuevo valor en el registro CLKPR
 
 	LDI R16, 0XFF 
 	OUT DDRD, R16 //Establecemos el PORTD como salida
@@ -41,28 +41,28 @@
     LDI R17, 0xFF  //Estado inicial de botones (todos en pull-up)
     LDI R19, 0x00  //Registro de conteo1
 	LDI R20, 0X00 //Registro de conteo2
-	LDI R21, 0X00 
-	LDI R22, 0X00
-	LDI R23, 0X00
+	LDI R21, 0X00 //registros para hacer copias 
+	LDI R22, 0X00 //registros para hacer copias
+	LDI R23, 0X00 //registros para hacer copias
 	
 
  // Loop principal
 LOOP:
-	CALL Antirebote
-    CALL ContadorAmarillo
-	CALL ContadorBlanco
-    CALL Suma
-	RJMP LOOP
+	CALL Antirebote //subrutina de antirebote 
+    CALL ContadorAmarillo //subrutina de contador 1
+	CALL ContadorBlanco //subrutina de contador 2
+    CALL Suma //subrutina de suma 
+	RJMP LOOP //de regreso al loop
 
 
 //subrutina de suma con carry 
 Suma:
     SBRC R17, 4     //Si el bit 4 de R17 es 0, sigue. Si es 1, salta a RETORNO
-    RJMP RETORNO
-	BRBS 0, CARRY
-	OUT PORTC, R21
+    RJMP RETORNO	//si no se cumple la condicion se salta todo el proceso de suma
+	ADD R21, R22	//se suma, si en la suma existe un carry, se mostrara ya que agarre todo el puerto C como mi salida del sumador 
+	OUT PORTC, R21	//se saca el valor del de r21 al portC 
 RETORNO:
-	RET  
+	RET 
 	        
 
 
@@ -82,19 +82,19 @@ Antirebote:
 ContadorAmarillo:
 	SBRS R17, 2 //si el bit 2 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
     INC R20 //se realiza el incremento
-	CPI R20, 0X10
-	BRNE OVERFLOWROJO
+	CPI R20, 0X10 //se compara con 0x10 para saber si existe overflow en el primer contador y asi regresar la cuenta
+	BRNE OVERFLOWROJO //si no son iguales salta el comando que carga el valor que quita el overflow 
 	LDI R20, 0X00
 OVERFLOWROJO:
 	SBRS R17, 3   //si el bit 3 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
     DEC R20 //se realiza el decremento
-	CPI R20, 0XFF
-	BRNE UNDERFLOWROJO
+	CPI R20, 0XFF //se compara con oxff para saber si existe un underflow y asi regresarlo al valor 0x00
+	BRNE UNDERFLOWROJO //si no son iguales salta la operacion que quita el underflow
 	LDI R20, 0X0F
 UNDERFLOWROJO:
-	MOV R25, R20 
-	MOV R21, R20
-	OUT PORTD, R25 //se mandan los datos
+	MOV R25, R20 //se copia en este registro para poder guardar luego juntar el valor del contador 1 y el 2 ya que estan en el mismo puerto
+	MOV R21, R20 //guardo este valor en este registro para poder hacer la suma entre contadores
+	OUT PORTD, R25 //se mandan los datos al portD 
     RET
 
 
@@ -102,21 +102,21 @@ UNDERFLOWROJO:
 ContadorBlanco:
 	SBRS R17, 0 //si el bit 0 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
     INC R19 //se realiza el incremento
-	CPI R19, 0x10
-	BRNE OVERFLOWAZUL
+	CPI R19, 0x10 //se compara con 0x10 para saber si existe overflow en el segundo contador y asi regresar la cuenta
+	BRNE OVERFLOWAZUL ////si no son iguales salta el comando que carga el valor que quita el overflow
 	LDI R19, 0x00
 OVERFLOWAZUL: 
 	SBRS R17, 1   ////si el bit 1 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
     DEC R19 //se realiza el decremento 
-	CPI R19, 0XFF
-	BRNE UNDERFLOWAZUL
+	CPI R19, 0XFF //se compara para quitar en el under flow
+	BRNE UNDERFLOWAZUL //si no existe underflow salta la accion que salta la carga del valor que quita el underflow 
 	LDI R19, 0X0F
 UNDERFLOWAZUL:
-	MOV R23, R19
-	MOV R22, R19
-	SWAP R23
-	OR R25, R23
-	OUT PORTD, R25 //se mandan los datos
+	MOV R23, R19 //se copia este valor para poder poder juntar ambos contadores en el mismo puerto
+	MOV R22, R19 //se mueve este valor para poder hacer la suma 
+	SWAP R23 //se usa swap para poder mover los 4 bits menos significativos a los 4 bits mas significativos y asi poder juntar ambos contadores sin que estos interfieran entre si 
+	OR R25, R23 //El or lo que permite es poder juntar el valor de ambos contadores y poder mostrarlos en el portD
+	OUT PORTD, R25 //se mandan los datos al portD
     RET
 //subrutina de interrupcion 
 DELAY: //usamos la funcion delay para poder evitar rebotes en los push 
