@@ -1,10 +1,10 @@
 
-AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm Wed Feb 12 15:42:10 2025
+AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\LAB2_RODRIGO_ESTRADA\LAB2_RODRIGO_ESTRADA\main.asm Wed Feb 12 21:46:28 2025
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
-C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm(8): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
+C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\LAB2_RODRIGO_ESTRADA\LAB2_RODRIGO_ESTRADA\main.asm(8): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
-C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm(8): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
+C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\LAB2_RODRIGO_ESTRADA\LAB2_RODRIGO_ESTRADA\main.asm(8): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
                                  
                                  /*
                                  
@@ -987,9 +987,9 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  
                                  ; ***** END OF FILE ******************************************************
                                  
-                                  * Prelab2.asm
+                                  * LAB2.asm
                                   *
-                                  * Creado: 11-Feb-25 11:10 AM
+                                  * Creado: 12-Feb-25 4:04 PM
                                   * Autor: Rodrigo Estrada
                                   */
                                  
@@ -1037,54 +1037,159 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  #endif  /* _M328PDEF_INC_ */
                                  
                                  ; ***** END OF FILE ******************************************************
+                                 .cseg
+                                 .org 0x0000
                                  
-                                  .cseg
-                                  .org 0x0000
-                                 
-                                  //configuracion de la pila
+                                 // Configuración de la pila
 000000 ef0f                      LDI R16, LOW(RAMEND)
 000001 bf0d                      OUT SPL, R16
 000002 e008                      LDI R16, HIGH(RAMEND)
 000003 bf0e                      OUT SPH, R16
-                                 //Configuracion del Micro
+                                 
+                                 //Configuracion de microprocesador
                                  SETUP:
-                                 	//Le bajamos nuestra frecuencia a nuestro procesador
-000004 e800                      	LDI R16, (1 << CLKPCE)
-000005 9300 0061                 	STS CLKPR, R16
-000007 e008                      	LDI R16, 0x08 //Le baje la frecuencia a 62.5KHz para poder operar de mejor manera el timer 0 
-000008 9300 0061                 	STS CLKPR, R16
                                  
-                                 	//inicializamos el timer0
-00000a e003                      	LDI R16, (1 << CS01	| 1 << CS00 ) 
-00000b bd05                      	OUT TCCR0B, R16 // Seteamos el prescaler a 1024 del timer0
-00000c e90e                      	LDI R16, 0x9E
-00000d bd06                      	OUT TCNT0, R16 //Cargo el valor inicial del prescaler
+                                 //configuramos la salida
+000004 ef0f                      LDI R16, 0XFF
+000005 b90a                      OUT DDRD, R16 //Configuramos la el PORTD como una salida 
+000006 e000                      LDI R16, 0X00
+000007 b90b                      OUT PORTD, R16 //Desactivamos todos los leds 
                                  
-                                 	//Configuramos el PORTC como salida
-00000e ef0f                      	LDI R16, 0XFF
-00000f b907                      	OUT DDRC, R16 //establecimos los puertos como salida.
-000010 e000                      	LDI R16, 0X00
-000011 b908                      	OUT PORTC, R16
+                                 //configuramos las entradas para los pushbuttons
+000008 e000                      LDI R16, 0X00
+000009 b904                      OUT DDRB, R16 //Configuramos el PORTB como una entrada 
+00000a ef0f                      LDI R16, 0XFF
+00000b b905                      OUT PORTB, R16 //Habilitamos todos los pull-ups
                                  
-000012 e020                      	LDI R18, 0x00 //Aqui guardamos nuestro conteo de de bits para los leds 
                                  
-                                 //Programa principal
+                                 
+00000c ec40                      LDI R20, 0b11000000 //0
+00000d e0e0                      LDI ZL, 0X00
+00000e e0f1                      LDI ZH, 0X01
+00000f 9341                      ST Z+, R20
+                                 
+000010 ef49                      LDI R20, 0b11111001 //1
+000011 9341                      ST Z+, R20
+                                 
+000012 ea44                      LDI R20, 0b10100100 //2
+000013 9341                      ST Z+, R20
+                                 
+000014 e340                      LDI R20, 0b00110000 //3
+000015 9341                      ST Z+, R20 
+                                 
+000016 e149                      LDI R20, 0b00011001 //4
+000017 9341                      ST Z+, R20 
+                                 
+000018 e142                      LDI R20, 0b00010010 //5
+000019 9341                      ST Z+, R20 
+                                 
+00001a e042                      LDI R20, 0b00000010 //6
+00001b 9341                      ST Z+, R20
+                                 
+00001c e748                      LDI R20, 0b01111000 //7
+00001d 9341                      ST Z+, R20 
+                                 
+00001e e040                      LDI R20, 0b00000000 //8
+00001f 9341                      ST Z+, R20
+                                 
+000020 e140                      LDI R20, 0b00010000//9
+000021 9341                      ST Z+, R20 
+                                 
+000022 e048                      LDI R20, 0b00001000 //A
+000023 9341                      ST Z+, R20 
+                                 
+000024 e043                      LDI R20, 0b00000011 //B
+000025 9341                      ST Z+, R20
+                                 
+000026 e446                      LDI R20, 0b01000110 //C
+000027 9341                      ST Z+, R20 
+                                 
+000028 e241                      LDI R20, 0b00100001 //D
+000029 9341                      ST Z+, R20 
+                                 
+00002a e046                      LDI R20, 0b00000110 //E
+00002b 9341                      ST Z+, R20 
+                                 
+00002c e04e                      LDI R20, 0b00001110 //F
+00002d 9341                      ST Z+, R20 
+                                 
+00002e e0e0                      LDI ZL, 0X00
+00002f e0f1                      LDI ZH, 0X01 
+000030 8140                      LD R20, Z 
+000031 b94b                      OUT PORTD, R20
+                                 
+                                 
+000032 ef1f                      LDI R17, 0XFF
+                                 
+                                 
+                                 //LOOP principal
                                  LOOP:
-000013 b305                      	IN R16, TIFR0 //Leemos el registro TIFR0 para ver si si se llego al valor deseada para interrumpir el timer0
-000014 ff00                      	SBRS R16, TOV0 //esta linea verifica si la bandera de overflow esta activa, y hasta que esta se activa salta.
-000015 cffd                      	RJMP LOOP
-000016 9aa8                      	SBI TIFR0, TOV0 //limpiamos la bandera de overflow, le cargamos un 1 para descativarla
-000017 e90e                      	LDI R16, 0x9E
-000018 bd06                      	OUT TCNT0, R16 //Recargamos el valor al timer0 cada vez que haga overflow 
-000019 9523                      	INC R18 //Incrementamos cada vez que se llega a los 100ms 
-00001a 3120                      	CPI R18, 0X10
-00001b f011                      	BRBS 1, OVERFLOW
-00001c b928                      	OUT PORTC, R18 //sacamos a PORTC lo que tengo guardado en r18
-00001d cff5                      	RJMP LOOP
+000033 940e 0038                 	CALL ANTIREBOTE
+000035 940e 0042                 	CALL CONTADOR_DE_4_BITS
+000037 cffb                      	RJMP LOOP
+                                 
+                                 //Configuramos el antirebote
+                                 ANTIREBOTE: 
+000038 b103                      	IN R16, PINB  //hacemos una lectura en los botones
+000039 1701                      	CP R16, R17  //Usamos esta funcion para comparar si lo que esta en R17 y R16 es lo mismo
+00003a f3e9                      	BREQ ANTIREBOTE //si es lo mismo se regresa al loop inicial
+00003b 940e 0056                 	CALL DELAY
+00003d b103                      	IN R16, PINB  //se leen de nuevo los botones, luego de cierta cantidad de tiempo 
+00003e 1701                          CP R16, R17  //si al hacer la comparacion se detecta que el push sigue en el mismo estado se manda de regreso al loop
+00003f f3c1                          BREQ ANTIREBOTE	//si es igual manda de regreso al loop
+000040 2f10                      	MOV R17, R16 //se guarda el nuevo estado
+000041 9508                      	RET 
+                                 
+                                 //Contador de 4 bits 
+                                 CONTADOR_DE_4_BITS:
+000042 ff10                      	SBRS R17, 0 //Si el bit 0 de R17 esta en 1 saltara y evitara el incremento
+000043 9141                      	LD R20, Z+ 
+000044 3f4f                      	CPI R20, 0XFF
+000045 f031                      	BREQ OVERFLOW
+000046 ff11                      	SBRS R17, 1 //si el bit 1 de R17 esta en "1" este se saltara la siguiente instruccion, esto debido a los pullups, cuando el boton este precionado este mandara un 0
+000047 9142                      	LD R20, -Z
+000048 3040                      	CPI R20, 0X00
+000049 f039                      	BREQ UNDERFLOW
+00004a b94b                      	OUT PORTD, R20 
+00004b 9508                      	RET 
                                  OVERFLOW:
-00001e e020                      	LDI R18, 0X00
-00001f b928                      	OUT PORTC, R18
-000020 cff2                      	RJMP LOOP
+00004c e0e0                      	LDI ZL, 0X00
+00004d e0f1                      	LDI ZH, 0X01 
+00004e 8140                      	LD R20, Z
+00004f b94b                      	OUT PORTD, R20 
+000050 9508                      	RET 
+                                 UNDERFLOW:
+000051 e0ef                      	LDI ZL, 0X0F
+000052 e0f1                      	LDI ZH, 0X01 
+000053 8140                      	LD R20, Z
+000054 b94b                      	OUT PORTD, R20 
+000055 9508                      	RET 
+                                 	
+                                 //subrutina de interrupcion 
+                                 DELAY: //usamos la funcion delay para poder evitar rebotes en los push 
+000056 e020                      	LDI R18, 0
+                                 SUBDELAY1: //el contador en este delay incrementa hasta 255 y luego pasa a la siguiente etapa 
+000057 9523                      	INC R18
+000058 3020                      	CPI R18, 0
+000059 f7e9                      	BRNE SUBDELAY1
+00005a e020                      	LDI R18, 0
+                                 SUBDELAY2://el contador en este delay incrementa hasta 255 y luego pasa a la siguiente etapa
+00005b 9523                      	INC R18
+00005c 3020                      	CPI R18, 0
+00005d f7e9                      	BRNE SUBDELAY2
+00005e e020                      	LDI R18, 0
+                                 SUBDELAY3: //el contador en este delay incrementa hasta 255 y luego pasa a la siguiente etapa
+00005f 9523                      	INC R18
+000060 3020                      	CPI R18, 0
+000061 f7e9                      	BRNE SUBDELAY3
+                                 SUBDELAY4: //el contador en este delay incrementa hasta 255 y luego pasa a la siguiente etapa
+000062 9523                      	INC R18
+000063 3020                      	CPI R18, 0
+000064 f7e9                      	BRNE SUBDELAY4 //aqui se terminan los delay para evitar lo rebotes
+                                 SUBDELAY5: //el contador en este delay incrementa hasta 255 y luego pasa a la siguiente etapa
+000065 9523                      	INC R18
+000066 3020                      	CPI R18, 0
+000067 f7e9                      	BRNE SUBDELAY5 //aqui se terminan los delay para evitar lo rebotes
 
 
 RESOURCE USE INFORMATION
@@ -1102,39 +1207,39 @@ counted separately from r26..r31 here.
 .dseg memory usage only counts static data declared with .byte
 
 "ATmega328P" register use summary:
-x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
+x  :   0 y  :   0 z  :  21 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:  20 r17:   0 r18:   6 r19:   0 r20:   0 
+r13:   0 r14:   0 r15:   0 r16:  17 r17:   6 r18:  13 r19:   0 r20:  43 
 r21:   0 r22:   0 r23:   0 r24:   0 r25:   0 r26:   0 r27:   0 r28:   0 
-r29:   0 r30:   0 r31:   0 
-Registers used: 2 out of 35 (5.7%)
+r29:   0 r30:   4 r31:   4 
+Registers used: 7 out of 35 (20.0%)
 
 "ATmega328P" instruction use summary:
 .lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
-andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   1 
-brcc  :   0 brcs  :   0 break :   0 breq  :   0 brge  :   0 brhc  :   0 
+andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
+brcc  :   0 brcs  :   0 break :   0 breq  :   4 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :   0 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   0 cbr   :   0 
+brne  :   5 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
+brvs  :   0 bset  :   0 bst   :   0 call  :   3 cbi   :   0 cbr   :   0 
 clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 
-clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :   1 cpse  :   0 dec   :   0 eor   :   0 fmul  :   0 fmuls :   0 
-fmulsu:   0 icall :   0 ijmp  :   0 in    :   1 inc   :   1 jmp   :   0 
-ld    :   0 ldd   :   0 ldi   :  11 lds   :   0 lpm   :   0 lsl   :   0 
-lsr   :   0 mov   :   0 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :   9 pop   :   0 
-push  :   0 rcall :   0 ret   :   0 reti  :   0 rjmp  :   3 rol   :   0 
-ror   :   0 sbc   :   0 sbci  :   0 sbi   :   1 sbic  :   0 sbis  :   0 
-sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   1 sec   :   0 seh   :   0 
+clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   2 cpc   :   0 
+cpi   :   7 cpse  :   0 dec   :   0 eor   :   0 fmul  :   0 fmuls :   0 
+fmulsu:   0 icall :   0 ijmp  :   0 in    :   2 inc   :   5 jmp   :   0 
+ld    :   5 ldd   :   0 ldi   :  34 lds   :   0 lpm   :   0 lsl   :   0 
+lsr   :   0 mov   :   1 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
+neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :  10 pop   :   0 
+push  :   0 rcall :   0 ret   :   5 reti  :   0 rjmp  :   1 rol   :   0 
+ror   :   0 sbc   :   0 sbci  :   0 sbi   :   0 sbic  :   0 sbis  :   0 
+sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   2 sec   :   0 seh   :   0 
 sei   :   0 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
-sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :   2 
+sez   :   0 sleep :   0 spm   :   0 st    :  16 std   :   0 sts   :   0 
 sub   :   0 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 10 out of 113 (8.8%)
+Instructions used: 15 out of 113 (13.3%)
 
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000042     66      0     66   32768   0.2%
+[.cseg] 0x000000 0x0000d2    210      0    210   32768   0.6%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 
