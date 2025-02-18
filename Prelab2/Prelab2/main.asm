@@ -72,9 +72,9 @@ SETUP:
 	OUT PORTD, R16//Apagamos todos los leds del display 
 
 	//Configuramos el portB como entradas
-	LDI R16, 0X00
+	LDI R16, 0b00000100
 	OUT DDRB, R16 //Establecemos el port B como entrada 
-	LDI R16, 0XFF
+	LDI R16, 0b11111011
 	OUT PORTB, R16 //Habilitamos todos los pull-ups 
 
 	//guardamos datos para poder hacer el antirebote\
@@ -115,14 +115,14 @@ SETUP:
 //Programa principal
 LOOP:
 	CALL CONTADOR_100MS
-	CALL DISPLAY7SEG
 	CALL COMPARADOR
+	CALL DISPLAY7SEG
 	RJMP LOOP 
-
 //SUBRUTINA DE COMPARACION 
 COMPARADOR:
 	CP R24, R20 
 	BREQ RESET
+	CBI	PINB , 2
 	RET
 RESET:
 	LDI YL, 0X01
@@ -130,9 +130,8 @@ RESET:
 	LD	R24, Y
 	CLR R18
 	OUT PORTC, R18
+	SBI PINB, 2
 	RET
-	 
-
 //Subrutina de display de 7 segmentos 
 DISPLAY7SEG:
 	IN R16, PINB  //hacemos una lectura en los botones
@@ -167,9 +166,6 @@ ATRAS:
 FIN:
 	OUT PORTD, R20
 	RET 
-
-
-
 
 //Subrutina del contador cada 100ms 
 CONTADOR_100MS:
