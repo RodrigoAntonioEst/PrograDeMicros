@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm Mon Feb 17 22:04:53 2025
+AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm Mon Feb 17 22:44:51 2025
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
 C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm(8): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
@@ -1144,7 +1144,6 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000049 e0d1                      	LDI YH, 0X01
 00004a 8188                      	LD R24, Y 
                                  
-                                 
 00004b ef1f                      	LDI R17, 0XFF //Guardamos los estados de nuestros botones
 00004c e020                      	LDI R18, 0x00 //Aqui guardamos nuestro conteo de de bits para los leds 
 00004d e0e0                      	LDI R30, 0X00
@@ -1152,107 +1151,108 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  
                                  //Programa principal
                                  LOOP:
-00004f 940e 007e                 	CALL CONTADOR_100MS
+                                 	
+00004f 940e 007d                 	CALL CONTADOR_100MS
 000051 940e 0056                 	CALL COMPARADOR
-000053 940e 0061                 	CALL DISPLAY7SEG
-000055 cff9                      	RJMP LOOP 
+000053 940e 0060                 	CALL DISPLAY7SEG
+000055 cff9                      	RJMP LOOP
+                                  
                                  //SUBRUTINA DE COMPARACION 
                                  COMPARADOR:
 000056 1784                      	CP R24, R20 
-000057 f011                      	BREQ RESET
-000058 981a                      	CBI	PINB , 2
-000059 9508                      	RET
+000057 f009                      	BREQ RESET
+000058 9508                      	RET
                                  RESET:
-00005a e0c1                      	LDI YL, 0X01
-00005b e0d1                      	LDI YH, 0X01
-00005c 8188                      	LD	R24, Y
-00005d 2722                      	CLR R18
-00005e b928                      	OUT PORTC, R18
-00005f 9a1a                      	SBI PINB, 2
-000060 9508                      	RET
+000059 e0c1                      	LDI YL, 0X01
+00005a e0d1                      	LDI YH, 0X01
+00005b 8188                      	LD	R24, Y
+00005c 2722                      	CLR R18
+00005d b928                      	OUT PORTC, R18
+00005e 9a1a                      	SBI PINB, 2
+00005f 9508                      	RET
                                  //Subrutina de display de 7 segmentos 
                                  DISPLAY7SEG:
-000061 b103                      	IN R16, PINB  //hacemos una lectura en los botones
-000062 1701                      	CP R16, R17  //Usamos esta funcion para comparar si lo que esta en R17 y R16 es lo mismo
-000063 f409                      	BRNE SALTO
-000064 9508                      	RET //si es lo mismo se regresa al loop inicial
+000060 b103                      	IN R16, PINB  //hacemos una lectura en los botones
+000061 1701                      	CP R16, R17  //Usamos esta funcion para comparar si lo que esta en R17 y R16 es lo mismo
+000062 f409                      	BRNE SALTO
+000063 9508                      	RET //si es lo mismo se regresa al loop inicial
                                  SALTO:
-000065 940e 0096                 	CALL DELAY
-000067 b103                      	IN R16, PINB  //se leen de nuevo los botones, luego de cierta cantidad de tiempo 
-000068 1701                          CP R16, R17  //si al hacer la comparacion se detecta que el push sigue en el mismo estado se manda de regreso al loop
-000069 f409                      	BRNE SALTO2
-00006a 9508                          RET	//si es igual manda de regreso al loop
+000064 940e 0095                 	CALL DELAY
+000066 b103                      	IN R16, PINB  //se leen de nuevo los botones, luego de cierta cantidad de tiempo 
+000067 1701                          CP R16, R17  //si al hacer la comparacion se detecta que el push sigue en el mismo estado se manda de regreso al loop
+000068 f409                      	BRNE SALTO2
+000069 9508                          RET	//si es igual manda de regreso al loop
                                  SALTO2:
-00006b 2f10                      	MOV R17, R16 //se guarda el nuevo estado
-00006c fd10                      	SBRC R17, 0 //Analizamos si tenemos que desplazarnos hacia adelante
-00006d c006                      	RJMP ATRAS
-00006e 914d                      	LD R20, X+
-00006f 3f4f                      	CPI R20, 0XFF
-000070 f419                      	BRNE ATRAS
-000071 e0a1                      	LDI XL, 0X01
-000072 e0b2                      	LDI XH, 0X02
-000073 914c                      	LD	R20, X
+00006a 2f10                      	MOV R17, R16 //se guarda el nuevo estado
+00006b fd10                      	SBRC R17, 0 //Analizamos si tenemos que desplazarnos hacia adelante
+00006c c006                      	RJMP ATRAS
+00006d 914d                      	LD R20, X+
+00006e 3f4f                      	CPI R20, 0XFF
+00006f f419                      	BRNE ATRAS
+000070 e0a1                      	LDI XL, 0X01
+000071 e0b2                      	LDI XH, 0X02
+000072 914c                      	LD	R20, X
                                  ATRAS:
-000074 fd11                      	SBRC R17, 1 //Analizamos si tenes que deplzarnos hacia atras 
-000075 c006                      	RJMP FIN
-000076 914e                      	LD R20, -X
-000077 3041                      	CPI R20, 0X01
-000078 f419                      	BRNE FIN
-000079 e1a0                      	LDI XL, 0X10
-00007a e0b2                      	LDI XH, 0X02
-00007b 914c                      	LD R20, X 
+000073 fd11                      	SBRC R17, 1 //Analizamos si tenes que deplzarnos hacia atras 
+000074 c006                      	RJMP FIN
+000075 914e                      	LD R20, -X
+000076 3041                      	CPI R20, 0X01
+000077 f419                      	BRNE FIN
+000078 e1a0                      	LDI XL, 0X10
+000079 e0b2                      	LDI XH, 0X02
+00007a 914c                      	LD R20, X 
                                  FIN:
-00007c b94b                      	OUT PORTD, R20
-00007d 9508                      	RET 
+00007b b94b                      	OUT PORTD, R20
+00007c 9508                      	RET 
                                  
                                  //Subrutina del contador cada 100ms 
                                  CONTADOR_100MS:
-00007e b305                      	IN R16, TIFR0 //Leemos el registro TIFR0 para ver si si se llego al valor deseada para interrumpir el timer0
-00007f ff00                      	SBRS R16, TOV0 //esta linea verifica si la bandera de overflow esta activa, y hasta que esta se activa salta.
-000080 9508                      	RET
-000081 9aa8                      	SBI TIFR0, TOV0 //limpiamos la bandera de overflow, le cargamos un 1 para descativarla
-000082 e90e                      	LDI R16, 0x9E
-000083 bd06                      	OUT TCNT0, R16 //Recargamos el valor al timer0 cada vez que haga overflow 
-000084 95e3                      	INC R30
-000085 30ea                      	CPI R30, 0X0A
-000086 f471                      	BRNE FINCONTADOR
-000087 27ee                      	CLR R30
-000088 9523                      	INC R18 //Incrementamos cada vez que se llega a los 100ms
-000089 9189                      	LD R24, Y+
-00008a 3f8f                      	CPI R24, 0XFF
-00008b f419                      	BRNE NOTOVERFLOW
-00008c e0c1                      	LDI YL, 0X01
-00008d e0d1                      	LDI YH, 0X01
-00008e 918c                      	LD	R24, X
+00007d b305                      	IN R16, TIFR0 //Leemos el registro TIFR0 para ver si si se llego al valor deseada para interrumpir el timer0
+00007e ff00                      	SBRS R16, TOV0 //esta linea verifica si la bandera de overflow esta activa, y hasta que esta se activa salta.
+00007f 9508                      	RET
+000080 9aa8                      	SBI TIFR0, TOV0 //limpiamos la bandera de overflow, le cargamos un 1 para descativarla
+000081 e90e                      	LDI R16, 0x9E
+000082 bd06                      	OUT TCNT0, R16 //Recargamos el valor al timer0 cada vez que haga overflow 
+000083 95e3                      	INC R30
+000084 30ea                      	CPI R30, 0X0A
+000085 f471                      	BRNE FINCONTADOR
+000086 27ee                      	CLR R30
+000087 9523                      	INC R18 //Incrementamos cada vez que se llega a los 100ms
+000088 9189                      	LD R24, Y+
+000089 3f8f                      	CPI R24, 0XFF
+00008a f419                      	BRNE NOTOVERFLOW
+00008b e0c1                      	LDI YL, 0X01
+00008c e0d1                      	LDI YH, 0X01
+00008d 918c                      	LD	R24, X
                                  NOTOVERFLOW:
-00008f 3120                      	CPI R18, 0X10
-000090 f011                      	BRBS 1, OVERFLOW
-000091 b928                      	OUT PORTC, R18 //sacamos a PORTC lo que tengo guardado en r18
-000092 9508                      	RET
+00008e 3120                      	CPI R18, 0X10
+00008f f011                      	BRBS 1, OVERFLOW
+000090 b928                      	OUT PORTC, R18 //sacamos a PORTC lo que tengo guardado en r18
+000091 9508                      	RET
                                  OVERFLOW:
-000093 e020                      	LDI R18, 0X00
-000094 b928                      	OUT PORTC, R18
+000092 e020                      	LDI R18, 0X00
+000093 b928                      	OUT PORTC, R18
                                  FINCONTADOR:
-000095 9508                      	RET
+000094 9508                      	RET
                                  
                                  //subrutina de interrupcion 
                                  DELAY: //usamos la funcion delay para poder evitar rebotes en los push 
-000096 e090                      	LDI R25, 0
+000095 e090                      	LDI R25, 0
                                  SUBDELAY1: //el contador en este delay incrementa hasta 255 y luego pasa a la siguiente etapa 
-000097 9593                      	INC R25
-000098 3090                      	CPI R25, 0
-000099 f7e9                      	BRNE SUBDELAY1
-00009a e090                      	LDI R25, 0
+000096 9593                      	INC R25
+000097 3090                      	CPI R25, 0
+000098 f7e9                      	BRNE SUBDELAY1
+000099 e090                      	LDI R25, 0
                                  SUBDELAY2://el contador en este delay incrementa hasta 255 y luego pasa a la siguiente etapa
-00009b 9593                      	INC R25
-00009c 3090                      	CPI R25, 0
-00009d f7e9                      	BRNE SUBDELAY2
-00009e e090                      	LDI R25, 0
+00009a 9593                      	INC R25
+00009b 3090                      	CPI R25, 0
+00009c f7e9                      	BRNE SUBDELAY2
+00009d e090                      	LDI R25, 0
                                  SUBDELAY3: //el contador en este delay incrementa hasta 255 y luego pasa a la siguiente etapa
-00009f 9593                      	INC R25
-0000a0 3090                      	CPI R25, 0
-0000a1 f7e9                      	BRNE SUBDELAY3
-0000a2 9508                      	RET
+00009e 9593                      	INC R25
+00009f 3090                      	CPI R25, 0
+0000a0 f7e9                      	BRNE SUBDELAY3
+0000a1 9508                      	RET
 
 
 RESOURCE USE INFORMATION
@@ -1283,7 +1283,7 @@ andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   1
 brcc  :   0 brcs  :   0 break :   0 breq  :   3 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
 brne  :   9 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 call  :   4 cbi   :   1 cbr   :   0 
+brvs  :   0 bset  :   0 bst   :   0 call  :   4 cbi   :   0 cbr   :   0 
 clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   2 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   3 cpc   :   0 
 cpi   :  10 cpse  :   0 dec   :   2 eor   :   0 fmul  :   0 fmuls :   0 
@@ -1297,12 +1297,12 @@ sbiw  :   0 sbr   :   0 sbrc  :   2 sbrs  :   1 sec   :   0 seh   :   0
 sei   :   0 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
 sez   :   0 sleep :   0 spm   :   0 st    :   5 std   :   0 sts   :   2 
 sub   :   0 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 23 out of 113 (20.4%)
+Instructions used: 22 out of 113 (19.5%)
 
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000146    310     16    326   32768   1.0%
+[.cseg] 0x000000 0x000144    308     16    324   32768   1.0%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 

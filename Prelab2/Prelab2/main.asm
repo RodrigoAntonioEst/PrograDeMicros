@@ -106,7 +106,6 @@ SETUP:
 	LDI YH, 0X01
 	LD R24, Y 
 
-
 	LDI R17, 0XFF //Guardamos los estados de nuestros botones
 	LDI R18, 0x00 //Aqui guardamos nuestro conteo de de bits para los leds 
 	LDI R30, 0X00
@@ -114,15 +113,16 @@ SETUP:
 
 //Programa principal
 LOOP:
+	
 	CALL CONTADOR_100MS
 	CALL COMPARADOR
 	CALL DISPLAY7SEG
-	RJMP LOOP 
+	RJMP LOOP
+ 
 //SUBRUTINA DE COMPARACION 
 COMPARADOR:
 	CP R24, R20 
 	BREQ RESET
-	CBI	PINB , 2
 	RET
 RESET:
 	LDI YL, 0X01
