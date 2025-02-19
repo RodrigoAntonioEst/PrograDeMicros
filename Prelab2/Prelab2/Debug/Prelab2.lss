@@ -1,10 +1,10 @@
 
-AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm Mon Feb 17 22:44:51 2025
+AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm Wed Feb 19 01:29:25 2025
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
-C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm(8): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
+C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm(9): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
-C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm(8): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
+C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm(9): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
                                  
                                  /*
                                  
@@ -992,8 +992,9 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                   * Creado: 11-Feb-25 11:10 AM
                                   * Autor: Rodrigo Estrada
                                   */
+                                 
                                  //cargamos los datos a la flash
-                                 .include "M328PDEF.inc"
+                                 .include "M328PDEF.inc"              // Incluir definiciones específicas para el ATmega328P
                                  
                                  ;***** Created: 2011-02-09 12:03 ******* Source: ATmega328P.xml **********
                                  ;*************************************************************************
@@ -1037,9 +1038,13 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  #endif  /* _M328PDEF_INC_ */
                                  
                                  ; ***** END OF FILE ******************************************************
-                                 .cseg
-                                 .org 0x0000  
+                                 .cseg                                 // Sección de código
+                                 .org 0x0000                           // Dirección inicial (vector de reset)
+                                 
+                                 // Definimos un valor de 17 para SIZE (16 bytes + 1 para fin de tabla)
                                  .equ SIZE = 17 // Esto se hace para poder finalizar el traslado de flash ya que contamos con 16 bytes 
+                                 
+                                 // Tabla de 16 bytes (MYTABLE) que serán copiados a SRAM
 000000 7940
 000001 3024
 000002 1219
@@ -1047,212 +1052,228 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000004 1000
 000005 0308
 000006 2146
-000007 0e06                      MYTABLE: .DB 0B01000000, 0B01111001, 0B00100100, 0x30, 0x19, 0x12, 0x02, 0x78, 0x00, 0x10, 0x08, 0x03, 0x46, 0x21, 0x06, 0x0E 
-000008 e0f0                      LDI ZH, HIGH(MYTABLE << 1) 
-000009 e0e0                      LDI ZL, LOW(MYTABLE << 1)
-00000a e0b2                      LDI XH, 0X02
-00000b e0a1                      LDI XL, 0X01
-00000c e151                      LDI R21, SIZE //Hacemos la comparacion para poder parar el traslado. 
+000007 0e06                      MYTABLE: .DB 0B01000000, 0B01111001, 0B00100100, 0x30, 0x19, 0x12, 0x02, 0x78, 0x00, 0x10, 0x08, 0x03, 0x46, 0x21, 0x06, 0x0E
+                                 
+000008 e0f0                      LDI ZH, HIGH(MYTABLE << 1)           // Cargar en ZH la parte alta de la dirección de MYTABLE (para LPM)
+000009 e0e0                      LDI ZL, LOW(MYTABLE << 1)            // Cargar en ZL la parte baja de la dirección de MYTABLE (para LPM)
+00000a e0b2                      LDI XH, 0X02                          // Cargar en XH el valor 0x02 (destino en SRAM)
+00000b e0a1                      LDI XL, 0X01                          // Cargar en XL el valor 0x01 (destino en SRAM)
+00000c e151                      LDI R21, SIZE                         // Guardar en R21 el tamaño de la tabla (17)
+                                 
+                                 // Etiqueta COPIAR: Copia desde Flash (Z) hacia SRAM (X) byte a byte
                                  COPIAR:
-00000d 9165                      	LPM R22, Z+
-00000e 955a                      	DEC R21
-00000f 3050                      	CPI R21, 0
-000010 f011                      	BREQ DONE
-000011 936d                      	ST X+, R22
-000012 cffa                      	RJMP COPIAR
+00000d 9165                          LPM R22, Z+                       // LPM carga en R22 el byte de la dirección apuntada por Z, e incrementa Z
+00000e 955a                          DEC R21                           // Decrementar R21 (contador de bytes restantes)
+00000f 3050                          CPI R21, 0                        // Comparar R21 con 0
+000010 f011                          BREQ DONE                         // Si R21 == 0, saltar a DONE (terminar la copia)
+000011 936d                          ST X+, R22                        // Guardar en SRAM (X) el contenido de R22 y luego incrementar X
+000012 cffa                          RJMP COPIAR                       // Repetir el proceso hasta terminar
                                  
+                                 // Etiqueta DONE: fin de la primera copia
                                  DONE:
-000013 e0f0                      LDI ZH, HIGH(MYTABLE << 1)
-000014 e0e0                      LDI ZL, LOW(MYTABLE << 1)
-000015 e0d1                      LDI YH, 0X01
-000016 e0c1                      LDI YL, 0X01
-000017 e151                      LDI R21, SIZE //Hacemos la comparacion para poder parar el traslado.
+000013 e0f0                      LDI ZH, HIGH(MYTABLE << 1)           // Restablecer ZH a la dirección de MYTABLE
+000014 e0e0                      LDI ZL, LOW(MYTABLE << 1)            // Restablecer ZL a la dirección de MYTABLE
+000015 e0d1                      LDI YH, 0X01                          // Cargar en YH el valor 0x01 (otra posición en SRAM)
+000016 e0c1                      LDI YL, 0X01                          // Cargar en YL el valor 0x01 (otra posición en SRAM)
+000017 e151                      LDI R21, SIZE                         // Volver a cargar el tamaño (17) en R21
                                  
+                                 // Etiqueta COPIARY: Copia desde Flash (Z) hacia SRAM (Y)
                                  COPIARY:
-000018 9185                      	LPM R24, Z+ 
-000019 955a                      	DEC R21
-00001a 3050                      	CPI R21, 0
-00001b f011                      	BREQ DONE2
-00001c 9389                      	ST Y+, R24
-00001d cffa                      	RJMP COPIARY
+000018 9185                          LPM R24, Z+                       // Cargar en R24 el byte apuntado por Z, e incrementar Z
+000019 955a                          DEC R21                           // Decrementar R21
+00001a 3050                          CPI R21, 0                        // Comparar con 0
+00001b f011                          BREQ DONE2                        // Si R21 == 0, saltar a DONE2
+00001c 9389                          ST Y+, R24                        // Guardar en SRAM (Y) el contenido de R24 y luego incrementar Y
+00001d cffa                          RJMP COPIARY                      // Repetir hasta terminar
                                  
-                                 DONE2: 
+                                 // Etiqueta DONE2: fin de la segunda copia
+                                 DONE2:
                                  
-                                  //configuracion de la pila
-00001e ef0f                      LDI R16, LOW(RAMEND)
-00001f bf0d                      OUT SPL, R16
-000020 e008                      LDI R16, HIGH(RAMEND)
-000021 bf0e                      OUT SPH, R16
-                                 //Configuracion del Micro
+                                 // Configuración de la pila
+00001e ef0f                      LDI R16, LOW(RAMEND)                 // Cargar en R16 el byte bajo de la última posición de RAM
+00001f bf0d                      OUT SPL, R16                         // Inicializar el puntero de pila bajo (SPL)
+000020 e008                      LDI R16, HIGH(RAMEND)                // Cargar en R16 el byte alto de la última posición de RAM
+000021 bf0e                      OUT SPH, R16                         // Inicializar el puntero de pila alto (SPH)
+                                 
+                                 // Configuración del Micro
                                  SETUP:
-                                 	//Le bajamos nuestra frecuencia a nuestro procesador
-000022 e800                      	LDI R16, (1 << CLKPCE)
-000023 9300 0061                 	STS CLKPR, R16
-000025 e008                      	LDI R16, 0x08 //Le baje la frecuencia a 62.5KHz para poder operar de mejor manera el timer 0 
-000026 9300 0061                 	STS CLKPR, R16
+                                     // Bajar la frecuencia del procesador (CLKPR)
+000022 e800                          LDI R16, (1 << CLKPCE)           // Cargar en R16 el bit para habilitar cambios en CLKPR
+000023 9300 0061                     STS CLKPR, R16                   // Guardar en CLKPR (habilitar cambios)
+000025 e008                          LDI R16, 0x08                    // Cargar en R16 el valor 0x08 (baja frecuencia a 62.5 KHz si CKDIV8)
+000026 9300 0061                     STS CLKPR, R16                   // Guardar en CLKPR el nuevo valor
                                  
-                                 	//inicializamos el timer0
-000028 e003                      	LDI R16, (1 << CS01	| 1 << CS00 ) 
-000029 bd05                      	OUT TCCR0B, R16 // Seteamos el prescaler a 1024 del timer0
-00002a e90e                      	LDI R16, 0x9E
-00002b bd06                      	OUT TCNT0, R16 //Cargo el valor inicial del prescaler
+                                     // Inicializar Timer0
+000028 e003                          LDI R16, (1 << CS01 | 1 << CS00) // Prescaler de 1024 (CS02:0 = 0b011)
+000029 bd05                          OUT TCCR0B, R16                  // Configurar TCCR0B con prescaler 1024
+00002a e90e                          LDI R16, 0x9E                    // Valor inicial para TCNT0 (para desbordar a ~100 ms)
+00002b bd06                          OUT TCNT0, R16                   // Cargar TCNT0 con 0x9E
                                  
-                                 	//Configuramos el PORTC como salida
-00002c ef0f                      	LDI R16, 0XFF
-00002d b907                      	OUT DDRC, R16 //establecimos los puertos como salida.
-00002e e000                      	LDI R16, 0X00
-00002f b908                      	OUT PORTC, R16
+                                     // Configurar PORTC como salida
+00002c ef0f                          LDI R16, 0XFF                    // 0xFF para salidas
+00002d b907                          OUT DDRC, R16                    // DDRC = 0xFF => todo PORTC en salida
+00002e e000                          LDI R16, 0X00                    // Valor inicial 0
+00002f b908                          OUT PORTC, R16                   // Apagar los LEDs en PORTC
                                  
-                                 	//configuramos el PORTD como una salida 
-000030 ef0f                      	LDI R16, 0XFF
-000031 b90a                      	OUT DDRD, R16 //Estabelcemos el PORTD como una salida 
-000032 e000                      	LDI R16, 0X00 
-000033 b90b                      	OUT PORTD, R16//Apagamos todos los leds del display 
+                                     // Configurar PORTD como salida
+000030 ef0f                          LDI R16, 0XFF                    // 0xFF para salidas
+000031 b90a                          OUT DDRD, R16                    // DDRD = 0xFF => todo PORTD en salida
+000032 e000                          LDI R16, 0X00                    // Valor inicial 0
+000033 b90b                          OUT PORTD, R16                   // Apagar todos los LEDs en PORTD
                                  
-                                 	//Configuramos el portB como entradas
-000034 e004                      	LDI R16, 0b00000100
-000035 b904                      	OUT DDRB, R16 //Establecemos el port B como entrada 
-000036 ef0b                      	LDI R16, 0b11111011
-000037 b905                      	OUT PORTB, R16 //Habilitamos todos los pull-ups 
+                                     // Configurar PORTB como entrada
+000034 e004                          LDI R16, 0b00000100              // Solo PB2 como salida, PB0..PB1 y PB3..PB5 como entrada (o viceversa)
+000035 b904                          OUT DDRB, R16                    // DDRB = 0b00000100
+000036 ef0b                          LDI R16, 0b11111011              // Activar pull-ups excepto PB2
+000037 b905                          OUT PORTB, R16                   // PORTB = 0b11111011
                                  
-                                 	//guardamos datos para poder hacer el antirebote\
-000038 e021                      	LDI R18, 0X01 
-000039 e0a0                      	LDI XL, 0X00
-00003a e0b2                      	LDI XH, 0X02
-00003b 932c                      	ST X, R18
+                                     // Guardar datos para antirrebote
+000038 e021                          LDI R18, 0X01                    // Valor a almacenar
+000039 e0a0                          LDI XL, 0X00                     // XL = 0x00
+00003a e0b2                          LDI XH, 0X02                     // XH = 0x02 => dirección en SRAM
+00003b 932c                          ST X, R18                        // Guardar 0x01 en SRAM[X=0x0200]
                                  
-00003c ef2f                      	LDI R18, 0XFF 
-00003d e1a1                      	LDI XL, 0X11
-00003e e0b2                      	LDI XH, 0X02
-00003f 932c                      	ST X, R18
+00003c ef2f                          LDI R18, 0XFF                    // Valor 0xFF
+00003d e1a1                          LDI XL, 0X11                     // XL = 0x11
+00003e e0b2                          LDI XH, 0X02                     // XH = 0x02 => dirección en SRAM
+00003f 932c                          ST X, R18                        // Guardar 0xFF en SRAM[X=0x0211]
                                  
-                                 	//Cargamos un valor para el overflow de Y
-000040 ef2f                      	LDI R18, 0XFF
-000041 e1c1                      	LDI YL, 0X11
-000042 e0d1                      	LDI YH, 0X01
-000043 8328                      	ST Y, R18
+                                     // Cargar un valor para overflow de Y
+000040 ef2f                          LDI R18, 0XFF                    // Valor 0xFF
+000041 e1c1                          LDI YL, 0X11                     // YL = 0x11
+000042 e0d1                          LDI YH, 0X01                     // YH = 0x01 => dirección en SRAM
+000043 8328                          ST Y, R18                        // Guardar 0xFF en SRAM[Y=0x0111]
                                  
+                                     // Apuntar a la dirección donde se encuentran nuestros datos transferidos en X
+000044 e0b2                          LDI XH, 0X02                     // XH = 0x02
+000045 e0a1                          LDI XL, 0X01                     // XL = 0x01 => apunta a 0x0201
+000046 914c                          LD  R20, X                       // Cargar en R20 el byte en SRAM[0x0201]
+000047 b94b                          OUT PORTD, R20                   // Mostrar en PORTD el valor leído
                                  
-                                 	//Apuntamos a la dirrecion donde se encuntran nuestros datos transferidos 
-000044 e0b2                      	LDI XH, 0X02
-000045 e0a1                      	LDI XL, 0X01
-000046 914c                      	LD	R20, X
-000047 b94b                      	OUT PORTD, R20
+                                     // Apuntar a la dirección donde transferimos con Y
+000048 e0c1                          LDI YL, 0X01                     // YL = 0x01
+000049 e0d1                          LDI YH, 0X01                     // YH = 0x01 => apunta a 0x0101
+00004a 8188                          LD R24, Y                        // Cargar en R24 el byte en SRAM[0x0101]
                                  
-                                 	//APUNTAMOS A LA DIRRECION DONDE TRANFERIMOS Y
-000048 e0c1                      	LDI YL, 0X01
-000049 e0d1                      	LDI YH, 0X01
-00004a 8188                      	LD R24, Y 
+00004b ef1f                          LDI R17, 0XFF                    // Guardar en R17 el estado de los botones (valor inicial)
+00004c e020                          LDI R18, 0x00                    // R18 = 0x00 => contador de bits para LEDs
+00004d e0e0                          LDI R30, 0X00                    // R30 = 0 => se usará en subrutinas
+00004e e0d0                          LDI R29, 0X00                    // R29 = 0 => se usará en subrutinas
                                  
-00004b ef1f                      	LDI R17, 0XFF //Guardamos los estados de nuestros botones
-00004c e020                      	LDI R18, 0x00 //Aqui guardamos nuestro conteo de de bits para los leds 
-00004d e0e0                      	LDI R30, 0X00
-00004e e0d0                      	LDI R29, 0X00
-                                 
-                                 //Programa principal
+                                 // Programa principal
                                  LOOP:
-                                 	
-00004f 940e 007d                 	CALL CONTADOR_100MS
-000051 940e 0056                 	CALL COMPARADOR
-000053 940e 0060                 	CALL DISPLAY7SEG
-000055 cff9                      	RJMP LOOP
-                                  
-                                 //SUBRUTINA DE COMPARACION 
+00004f 940e 007d                     CALL CONTADOR_100MS              // Llamar a la subrutina que cuenta ~100 ms
+000051 940e 0056                     CALL COMPARADOR                  // Llamar a la subrutina de comparación
+000053 940e 0060                     CALL DISPLAY7SEG                 // Llamar a la subrutina de display 7 segmentos
+000055 cff9                          RJMP LOOP                        // Repetir infinitamente
+                                 
+                                 // SUBRUTINA DE COMPARACION
                                  COMPARADOR:
-000056 1784                      	CP R24, R20 
-000057 f009                      	BREQ RESET
-000058 9508                      	RET
+000056 1784                          CP R24, R20                      // Comparar R24 con R20
+000057 f009                          BREQ RESET                       // Si son iguales, saltar a RESET
+000058 9508                          RET                              // Si no son iguales, regresar
+                                 
                                  RESET:
-000059 e0c1                      	LDI YL, 0X01
-00005a e0d1                      	LDI YH, 0X01
-00005b 8188                      	LD	R24, Y
-00005c 2722                      	CLR R18
-00005d b928                      	OUT PORTC, R18
-00005e 9a1a                      	SBI PINB, 2
-00005f 9508                      	RET
-                                 //Subrutina de display de 7 segmentos 
+000059 e0c1                          LDI YL, 0X01                     // Resetear el puntero Y a 0x0101
+00005a e0d1                          LDI YH, 0X01
+00005b 8188                          LD  R24, Y                       // Cargar en R24 el valor en SRAM[0x0101]
+00005c 2722                          CLR R18                          // Limpiar R18 (contador)
+00005d b928                          OUT PORTC, R18                   // Apagar LEDs en PORTC
+00005e 9a1a                          SBI PINB, 2                      // Toggle bit 2 de PINB (puede ser para depuración)
+00005f 9508                          RET                              // Regresar
+                                 
+                                 // SUBRUTINA DE DISPLAY DE 7 SEGMENTOS
                                  DISPLAY7SEG:
-000060 b103                      	IN R16, PINB  //hacemos una lectura en los botones
-000061 1701                      	CP R16, R17  //Usamos esta funcion para comparar si lo que esta en R17 y R16 es lo mismo
-000062 f409                      	BRNE SALTO
-000063 9508                      	RET //si es lo mismo se regresa al loop inicial
+000060 b103                          IN R16, PINB                     // Leer el estado de PORTB en R16
+000061 1701                          CP R16, R17                      // Comparar con R17 (estado anterior)
+000062 f409                          BRNE SALTO                       // Si son distintos, saltar a SALTO
+000063 9508                          RET                              // Si son iguales, no hay cambio, regresar
+                                 
                                  SALTO:
-000064 940e 0095                 	CALL DELAY
-000066 b103                      	IN R16, PINB  //se leen de nuevo los botones, luego de cierta cantidad de tiempo 
-000067 1701                          CP R16, R17  //si al hacer la comparacion se detecta que el push sigue en el mismo estado se manda de regreso al loop
-000068 f409                      	BRNE SALTO2
-000069 9508                          RET	//si es igual manda de regreso al loop
+000064 940e 0095                     CALL DELAY                       // Llamar a la subrutina DELAY (antirrebote)
+000066 b103                          IN R16, PINB                     // Leer de nuevo el estado de PORTB
+000067 1701                          CP R16, R17                      // Comparar con el estado anterior
+000068 f409                          BRNE SALTO2                      // Si sigue siendo distinto, saltar a SALTO2
+000069 9508                          RET                              // Si ahora es igual, no hacer nada más
+                                 
                                  SALTO2:
-00006a 2f10                      	MOV R17, R16 //se guarda el nuevo estado
-00006b fd10                      	SBRC R17, 0 //Analizamos si tenemos que desplazarnos hacia adelante
-00006c c006                      	RJMP ATRAS
-00006d 914d                      	LD R20, X+
-00006e 3f4f                      	CPI R20, 0XFF
-00006f f419                      	BRNE ATRAS
-000070 e0a1                      	LDI XL, 0X01
-000071 e0b2                      	LDI XH, 0X02
-000072 914c                      	LD	R20, X
+00006a 2f10                          MOV R17, R16                     // Actualizar R17 con el nuevo estado
+00006b fd10                          SBRC R17, 0                      // "Skip next if bit 0 is cleared" => si bit 0=1, salta la siguiente
+00006c c006                          RJMP ATRAS                       // Si bit 0=0, salta a ATRAS
+00006d 914d                          LD R20, X+                       // Leer de X y luego incrementar X
+00006e 3f4f                          CPI R20, 0XFF                    // Comparar con 0xFF
+00006f f419                          BRNE ATRAS                       // Si no es 0xFF, saltar a ATRAS
+000070 e0a1                          LDI XL, 0X01                     // Reiniciar puntero X a 0x0201
+000071 e0b2                          LDI XH, 0X02
+000072 914c                          LD  R20, X                       // Cargar en R20 el valor en SRAM[0x0201]
+                                 
                                  ATRAS:
-000073 fd11                      	SBRC R17, 1 //Analizamos si tenes que deplzarnos hacia atras 
-000074 c006                      	RJMP FIN
-000075 914e                      	LD R20, -X
-000076 3041                      	CPI R20, 0X01
-000077 f419                      	BRNE FIN
-000078 e1a0                      	LDI XL, 0X10
-000079 e0b2                      	LDI XH, 0X02
-00007a 914c                      	LD R20, X 
+000073 fd11                          SBRC R17, 1                      // "Skip next if bit 1 is cleared" => si bit 1=1, salta
+000074 c006                          RJMP FIN                         // Si bit 1=0, salta a FIN
+000075 914e                          LD R20, -X                       // Leer de X y decrementar X
+000076 3041                          CPI R20, 0X01                    // Comparar con 0x01
+000077 f419                          BRNE FIN                         // Si no es 0x01, saltar a FIN
+000078 e1a0                          LDI XL, 0X10                     // Reiniciar puntero X a 0x0210
+000079 e0b2                          LDI XH, 0X02
+00007a 914c                          LD R20, X                        // Cargar en R20 el valor en SRAM[0x0210]
+                                 
                                  FIN:
-00007b b94b                      	OUT PORTD, R20
-00007c 9508                      	RET 
+00007b b94b                          OUT PORTD, R20                   // Mostrar en PORTD el valor en R20
+00007c 9508                          RET                              // Regresar
                                  
-                                 //Subrutina del contador cada 100ms 
+                                 // SUBRUTINA DEL CONTADOR CADA 100ms
                                  CONTADOR_100MS:
-00007d b305                      	IN R16, TIFR0 //Leemos el registro TIFR0 para ver si si se llego al valor deseada para interrumpir el timer0
-00007e ff00                      	SBRS R16, TOV0 //esta linea verifica si la bandera de overflow esta activa, y hasta que esta se activa salta.
-00007f 9508                      	RET
-000080 9aa8                      	SBI TIFR0, TOV0 //limpiamos la bandera de overflow, le cargamos un 1 para descativarla
-000081 e90e                      	LDI R16, 0x9E
-000082 bd06                      	OUT TCNT0, R16 //Recargamos el valor al timer0 cada vez que haga overflow 
-000083 95e3                      	INC R30
-000084 30ea                      	CPI R30, 0X0A
-000085 f471                      	BRNE FINCONTADOR
-000086 27ee                      	CLR R30
-000087 9523                      	INC R18 //Incrementamos cada vez que se llega a los 100ms
-000088 9189                      	LD R24, Y+
-000089 3f8f                      	CPI R24, 0XFF
-00008a f419                      	BRNE NOTOVERFLOW
-00008b e0c1                      	LDI YL, 0X01
-00008c e0d1                      	LDI YH, 0X01
-00008d 918c                      	LD	R24, X
-                                 NOTOVERFLOW:
-00008e 3120                      	CPI R18, 0X10
-00008f f011                      	BRBS 1, OVERFLOW
-000090 b928                      	OUT PORTC, R18 //sacamos a PORTC lo que tengo guardado en r18
-000091 9508                      	RET
-                                 OVERFLOW:
-000092 e020                      	LDI R18, 0X00
-000093 b928                      	OUT PORTC, R18
-                                 FINCONTADOR:
-000094 9508                      	RET
+00007d b305                          IN R16, TIFR0                    // Leer TIFR0 (Registro de banderas de interrupción del Timer0)
+00007e ff00                          SBRS R16, TOV0                   // "Skip next if bit TOV0 is set" => si TOV0=1, salta
+00007f 9508                          RET                              // Si TOV0=0, regresar (no ha llegado al overflow)
+000080 9aa8                          SBI TIFR0, TOV0                  // Limpiar la bandera TOV0 (escribiendo 1)
+000081 e90e                          LDI R16, 0x9E                    // Recargar TCNT0 con 0x9E
+000082 bd06                          OUT TCNT0, R16                   // Actualizar TCNT0
+000083 95e3                          INC R30                          // Incrementar R30
+000084 30ea                          CPI R30, 0X0A                    // Comparar R30 con 0x0A
+000085 f471                          BRNE FINCONTADOR                 // Si no es 0x0A, saltar a FINCONTADOR
+000086 27ee                          CLR R30                          // Si es 0x0A, reiniciar R30
+000087 9523                          INC R18                          // Incrementar R18 (contador de 100ms)
+000088 9189                          LD R24, Y+                       // Leer de Y y post-incrementar
+000089 3f8f                          CPI R24, 0XFF                    // Comparar con 0xFF
+00008a f419                          BRNE NOTOVERFLOW                 // Si no es 0xFF, saltar
+00008b e0c1                          LDI YL, 0X01                     // Reiniciar puntero Y a 0x0101
+00008c e0d1                          LDI YH, 0X01
+00008d 918c                          LD R24, X                        // Cargar en R24 el valor en X (no muy claro, pero parte de la lógica)
                                  
-                                 //subrutina de interrupcion 
-                                 DELAY: //usamos la funcion delay para poder evitar rebotes en los push 
-000095 e090                      	LDI R25, 0
-                                 SUBDELAY1: //el contador en este delay incrementa hasta 255 y luego pasa a la siguiente etapa 
-000096 9593                      	INC R25
-000097 3090                      	CPI R25, 0
-000098 f7e9                      	BRNE SUBDELAY1
-000099 e090                      	LDI R25, 0
-                                 SUBDELAY2://el contador en este delay incrementa hasta 255 y luego pasa a la siguiente etapa
-00009a 9593                      	INC R25
-00009b 3090                      	CPI R25, 0
-00009c f7e9                      	BRNE SUBDELAY2
-00009d e090                      	LDI R25, 0
-                                 SUBDELAY3: //el contador en este delay incrementa hasta 255 y luego pasa a la siguiente etapa
-00009e 9593                      	INC R25
-00009f 3090                      	CPI R25, 0
-0000a0 f7e9                      	BRNE SUBDELAY3
-0000a1 9508                      	RET
+                                 NOTOVERFLOW:
+00008e 3120                          CPI R18, 0X10                    // Comparar R18 con 0x10 (16 en decimal)
+00008f f011                          BRBS 1, OVERFLOW                 // Si el bit 0 del SREG (carry) no se usa aquí, quizás confuso, pero se asume salto
+000090 b928                          OUT PORTC, R18                   // Mostrar R18 en PORTC
+000091 9508                          RET                              // Regresar
+                                 
+                                 OVERFLOW:
+000092 e020                          LDI R18, 0X00                    // Resetear R18 a 0
+000093 b928                          OUT PORTC, R18                   // Apagar LEDs en PORTC
+                                 
+                                 FINCONTADOR:
+000094 9508                          RET                              // Regresar
+                                 
+                                 // SUBRUTINA DE INTERRUPCION / DELAY (para evitar rebotes)
+                                 DELAY:
+000095 e090                          LDI R25, 0                       // R25 = 0
+                                 SUBDELAY1:
+000096 9593                          INC R25                          // Incrementar R25
+000097 3090                          CPI R25, 0                       // Comparar con 0
+000098 f7e9                          BRNE SUBDELAY1                   // Repetir hasta que R25 dé la vuelta y sea 0
+000099 e090                          LDI R25, 0                       // Reiniciar R25
+                                 
+                                 SUBDELAY2:
+00009a 9593                          INC R25                          // Incrementar R25
+00009b 3090                          CPI R25, 0
+00009c f7e9                          BRNE SUBDELAY2
+00009d e090                          LDI R25, 0
+                                 
+                                 SUBDELAY3:
+00009e 9593                          INC R25                          // Incrementar R25
+00009f 3090                          CPI R25, 0
+0000a0 f7e9                          BRNE SUBDELAY3
+0000a1 9508                          RET                              // Terminar el delay
 
 
 RESOURCE USE INFORMATION

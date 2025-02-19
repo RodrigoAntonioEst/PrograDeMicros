@@ -23,27 +23,27 @@
   <FILE>Prelab2.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <MYTABLE><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>12</LINE></MYTABLE>
-  <COPIAR><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>18</LINE></COPIAR>
-  <DONE><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>26</LINE></DONE>
-  <COPIARY><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>33</LINE></COPIARY>
-  <DONE2><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>41</LINE></DONE2>
-  <SETUP><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>49</LINE></SETUP>
-  <LOOP><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>115</LINE></LOOP>
-  <CONTADOR_100MS><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>171</LINE></CONTADOR_100MS>
-  <COMPARADOR><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>123</LINE></COMPARADOR>
-  <DISPLAY7SEG><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>136</LINE></DISPLAY7SEG>
-  <RESET><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>127</LINE></RESET>
-  <SALTO><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>141</LINE></SALTO>
-  <DELAY><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>201</LINE></DELAY>
-  <SALTO2><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>147</LINE></SALTO2>
-  <ATRAS><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>157</LINE></ATRAS>
-  <FIN><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>166</LINE></FIN>
-  <FINCONTADOR><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>197</LINE></FINCONTADOR>
-  <NOTOVERFLOW><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>189</LINE></NOTOVERFLOW>
-  <OVERFLOW><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>194</LINE></OVERFLOW>
-  <SUBDELAY1><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>203</LINE></SUBDELAY1>
-  <SUBDELAY2><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>208</LINE></SUBDELAY2>
-  <SUBDELAY3><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>213</LINE></SUBDELAY3>
+  <MYTABLE><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>17</LINE></MYTABLE>
+  <COPIAR><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>26</LINE></COPIAR>
+  <DONE><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>35</LINE></DONE>
+  <COPIARY><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>43</LINE></COPIARY>
+  <DONE2><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>52</LINE></DONE2>
+  <SETUP><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>61</LINE></SETUP>
+  <LOOP><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>126</LINE></LOOP>
+  <CONTADOR_100MS><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>187</LINE></CONTADOR_100MS>
+  <COMPARADOR><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>133</LINE></COMPARADOR>
+  <DISPLAY7SEG><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>148</LINE></DISPLAY7SEG>
+  <RESET><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>138</LINE></RESET>
+  <SALTO><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>154</LINE></SALTO>
+  <DELAY><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>220</LINE></DELAY>
+  <SALTO2><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>161</LINE></SALTO2>
+  <ATRAS><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>172</LINE></ATRAS>
+  <FIN><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>182</LINE></FIN>
+  <FINCONTADOR><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>216</LINE></FINCONTADOR>
+  <NOTOVERFLOW><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>206</LINE></NOTOVERFLOW>
+  <OVERFLOW><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>212</LINE></OVERFLOW>
+  <SUBDELAY1><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>222</LINE></SUBDELAY1>
+  <SUBDELAY2><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>228</LINE></SUBDELAY2>
+  <SUBDELAY3><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Prelab2\Prelab2\main.asm</FILE><LINE>234</LINE></SUBDELAY3>
  </LABELS>
 </ASSEMBLER_INFO>
