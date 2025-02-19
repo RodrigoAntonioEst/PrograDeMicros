@@ -1,0 +1,33 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.2.8</VERSION>
+ <DEVICE>"ATmega328P"</DEVICE>
+ <WORKING_DIR>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB3CORREGIDO\PRELAB3CORREGIDO\Debug</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc</DIR>
+  <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
+  <DIR></DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB3CORREGIDO\PRELAB3CORREGIDO\main.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc</FILE>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB3CORREGIDO\PRELAB3CORREGIDO\Debug\PRELAB3CORREGIDO.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>PRELAB3CORREGIDO.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>PRELAB3CORREGIDO.map</FILE>
+  <FILE>PRELAB3CORREGIDO.lss</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <start><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB3CORREGIDO\PRELAB3CORREGIDO\main.asm</FILE><LINE>16</LINE></start>
+  <RUTINA_INTERRUPCION><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB3CORREGIDO\PRELAB3CORREGIDO\main.asm</FILE><LINE>54</LINE></RUTINA_INTERRUPCION>
+  <SETUP><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB3CORREGIDO\PRELAB3CORREGIDO\main.asm</FILE><LINE>24</LINE></SETUP>
+  <LOOP><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB3CORREGIDO\PRELAB3CORREGIDO\main.asm</FILE><LINE>49</LINE></LOOP>
+  <NOINCREMENTAR><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB3CORREGIDO\PRELAB3CORREGIDO\main.asm</FILE><LINE>69</LINE></NOINCREMENTAR>
+  <NODECREMENTAR><FILE>C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB3CORREGIDO\PRELAB3CORREGIDO\main.asm</FILE><LINE>78</LINE></NODECREMENTAR>
+ </LABELS>
+</ASSEMBLER_INFO>
