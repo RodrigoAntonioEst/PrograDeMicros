@@ -11,7 +11,7 @@
 .org PCI0addr
     RJMP RUTINA_INTERRUPCION    // Vector de interrupción de cambio de pin (Pin Change)
 .org OVF0addr					//VECTOR TIMER0 
-	RJMP RUTINA_TIMER0 
+	RJMP RUTINA_TIMER0	//establecemos el nombre de la rutina del timer0
 
 
 // Configuración de la pila
@@ -21,8 +21,8 @@ START:
     LDI R16, HIGH(RAMEND)       // Cargar el byte alto de RAMEND en R16
     OUT SPH, R16                // Inicializar el registro de pila alto (SPH)
 	
-	// Definimos un valor de 17 para SIZE (16 bytes + 1 para fin de tabla)
-	.equ SIZE = 11 // Esto se hace para poder finalizar el traslado de flash ya que contamos con 16 bytes 
+	// Definimos un valor de 11 para SIZE (10 bytes + 1 para fin de tabla)
+	.equ SIZE = 11 // Esto se hace para poder finalizar el traslado de flash ya que contamos con 10 bytes 
 
 	// Tabla de 16 bytes (MYTABLE) que serán copiados a SRAM
 	MYTABLE: .DB 0B01000000, 0B01111001, 0B00100100, 0x30, 0x19, 0x12, 0x02, 0x78, 0x00, 0x10
@@ -30,7 +30,7 @@ START:
 	LDI ZL, LOW(MYTABLE << 1)            // Cargar en ZL la parte baja de la dirección de MYTABLE (para LPM)
 	LDI XH, 0X02                          // Cargar en XH el valor 0x02 (destino en SRAM)
 	LDI XL, 0X01                          // Cargar en XL el valor 0x01 (destino en SRAM)
-	LDI R21, SIZE                         // Guardar en R21 el tamaño de la tabla (17)
+	LDI R21, SIZE                         // Guardar en R21 el tamaño de la tabla (11)
 
 // Etiqueta COPIAR: Copia desde Flash (Z) hacia SRAM (X) byte a byte
 COPIAR:
@@ -44,19 +44,19 @@ COPIAR:
 // Etiqueta DONE: fin de la primera copia
 DONE:
 	
-	LDI ZH, HIGH(MYTABLE << 1)
-	LDI ZL, LOW(MYTABLE << 1)
-	LDI YH, 0X01
+	LDI ZH, HIGH(MYTABLE << 1) //cargamos en ZH la parte alta de la direccion de mytable 
+	LDI ZL, LOW(MYTABLE << 1) //cargamos en Zl la parte baja de mytable 
+	LDI YH, 0X01	//apuntamos a la dirreccion 0x0101 para el registro Y
 	LDI YL, 0X01
 	LDI R21, SIZE
 
 COPIARY:
-
-	LPM R20, Z+
-	DEC R21
-	CPI R21, 0
+	//creamos un bucle que permite copiar en el registro Y los bytes de my table. 
+	LPM R20, Z+ //sacamos el valor de Z a r20 luego avanzamos de direccion en flash
+	DEC R21	//decrementamos r21
+	CPI R21, 0 //si es 0 termina el bucle de escritura
 	BREQ DONE2
-	ST Y+, R20
+	ST Y+, R20 //se guarda con post incremento el valor de r20 en el registro Y 
 	RJMP COPIARY
 
 DONE2:
@@ -118,55 +118,57 @@ SETUP:
     LDI XH, 0X02                     // XH = 0x02
     LDI XL, 0X01                     // XL = 0x01 => apunta a 0x0201
     LD  R20, X                       // Cargar en R20 el byte en SRAM[0x0201]
-    //OUT PORTD, R20                   // Mostrar en PORTD el valor leído 
 
-	LDI YH, 0X01
+	LDI YH, 0X01 //apuntamos al inicio de nuestros datos en el registro Y 
 	LDI YL, 0X01
-	LD R21, Y
+	LD R21, Y // lo cargamos a r21 
     SEI                         // Habilitar interrupciones globales
 
 	 
-	LDI R23, 0XFF
-	OUT PORTD, R20
+
+	OUT PORTD, R20 //sacamos el valor de r20 en el portD 
 // Loop principal (vacío, ya que se usan interrupciones)
 LOOP:
-	SBRS R31, 0
-	RJMP FIN 
-	SBI PORTC, 4
-	OUT PORTD, R21
-	CBI PORTC, 4
+	//creamos la logica para multiplexar los displays de 7 segmentos
+	SBRS R31, 0 //el bit 0 de r31 estara en 1 cada 10ms 
+	RJMP FIN //si esta en 0 salta a la logica del siguiente display 
+	SBI PORTC, 4	//encendemos el port 4 de pinc 
+	OUT PORTD, R21	//sacamos la cuent de r21 
+	CBI PORTC, 4	//apagamos el pin 4 de portc 
 
 FIN: 
-	SBRC R31, 0
-	RJMP FINAL 
-	SBI PORTC, 5
-	OUT PORTD, R20
-	CBI PORTC, 5
+	//logica para le segundo contador 
+	SBRC R31, 0 //el bit 0 de r31 estara en 0 cada 10ms 
+	RJMP FINAL //si no es el valor deseado termina el bucle y salta a comparar si ya paso 1 segundo 
+	SBI PORTC, 5 //encedemos el pin 5 de portc 
+	OUT PORTD, R20	//sacamos al portD el valor de r20
+	CBI PORTC, 5	//apagamos el pin 5 de portc 
 FINAL:
-	CPI R31, 0X64
-	BRNE LOOP
-	CPI R20, 0B01000000
-	BRNE EVADIR2
-	LD R20, x+
+	CPI R31, 0X64	//realizamos la comparacion para saber si ya paso 1 segundo
+	BRNE LOOP	//si no ha pasado 1 segundo se regresa al inicio
+	CPI R20, 0B01000000	//este es un mecanismo para corregir un error el cual hace que se tarde mas en cambiar de 0 a 1 en el contador de unidades de segundos 
+	BRNE EVADIR2 //si no son iguales continua con el flujo normal del codigo 
+	LD R20, x+ //si son iguales se desplaza en el registro x
 EVADIR2:
-	CLR R31
+	CLR R31 //si se cumplio el segundo se limpia el registro r31
 	LD R20, X+                       // Leer de X y luego incrementar X
 	CPI R20, 0XFF                    // Comparar con 0xFF
-	BRNE ATRAS
-	CPI R21, 0B01000000
-	BRNE EVADIR
-	LD R21, Y+
+	BRNE ATRAS	//mecanismo para compreneder si existe overflow 
+	CPI R21, 0B01000000	//mismo mecanismo para evitar el error al momento de pasar de 0 a 1 en el contador de decenas 
+	BRNE EVADIR //si no se cumple salta a evadir 
+	LD R21, Y+ //si se cumple se avanza en el registro Y 
 EVADIR:
-	LDI XL, 0X01                     // Reiniciar puntero X a 0x0201
+	LDI XL, 0X01                     // Reiniciar puntero X a 0x0201 si existe overflow
     LDI XH, 0X02
-	LD  R20, X
-	LD R21, Y+
-	CPI R21, 0x02
-	BRNE ATRAS                       // Si no es 0xFF, saltar a ATRAS
-	LDI YH, 0X01
+	LD  R20, X //se carga el valor de 0 en r20
+	LD R21, Y+	//se avanza en Y para el contador de decenas 
+	CPI R21, 0x02	//se compara si ya se llego a los 60 segundos
+	BRNE ATRAS                       // si no ha llegado se salta a atras 
+	LDI YH, 0X01	//si ya se llego a 60 se reinicia a 0 segundos 
 	LDI YL, 0X01
-	LD R21, Y
+	LD R21, Y	//se carga el valor de Y en r21 
 ATRAS:
+`	//se repite la logica de multiplexacion de los displays 
 	SBRS R31, 0
 	RJMP FIN2 
 	SBI PORTC, 4
@@ -217,8 +219,8 @@ NODECREMENTAR:
     RETI                     // Retornar de la interrupción
 
 RUTINA_TIMER0:
-	
-	LDI R16, 0X64
-	OUT TCNT0, R16'
-	INC R31
-	RETI
+	//iniciamos la interrupcion de timer 0
+	LDI R16, 0X64	//se carga el valor de donde queremos que inicie a contar para que este cuente 10ms 
+	OUT TCNT0, R16 //se carga a tcnt0 para que incie la cuenta 
+	INC R31	//se incrementa r31 para despues en el loop comparar si llego a los 100ms 
+	RETI	//regresamos de la interrupcion

@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB3CORREGIDO\PRELAB3CORREGIDO\main.asm Sun Feb 23 15:11:32 2025
+AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB3CORREGIDO\PRELAB3CORREGIDO\main.asm Sun Feb 23 16:29:50 2025
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
 C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\PRELAB3CORREGIDO\PRELAB3CORREGIDO\main.asm(7): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
@@ -1040,9 +1040,9 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  .org 0x0000
 000000 c020                          RJMP start                  // Salta al inicio del programa (etiqueta "start")
                                  .org PCI0addr
-000006 c091                          RJMP RUTINA_INTERRUPCION    // Vector de interrupción de cambio de pin (Pin Change)
+000006 c090                          RJMP RUTINA_INTERRUPCION    // Vector de interrupción de cambio de pin (Pin Change)
                                  .org OVF0addr					//VECTOR TIMER0 
-000020 c08c                      	RJMP RUTINA_TIMER0 
+000020 c08b                      	RJMP RUTINA_TIMER0	//establecemos el nombre de la rutina del timer0
                                  
                                  
                                  // Configuración de la pila
@@ -1052,8 +1052,8 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000023 e008                          LDI R16, HIGH(RAMEND)       // Cargar el byte alto de RAMEND en R16
 000024 bf0e                          OUT SPH, R16                // Inicializar el registro de pila alto (SPH)
                                  	
-                                 	// Definimos un valor de 17 para SIZE (16 bytes + 1 para fin de tabla)
-                                 	.equ SIZE = 11 // Esto se hace para poder finalizar el traslado de flash ya que contamos con 16 bytes 
+                                 	// Definimos un valor de 11 para SIZE (10 bytes + 1 para fin de tabla)
+                                 	.equ SIZE = 11 // Esto se hace para poder finalizar el traslado de flash ya que contamos con 10 bytes 
                                  
                                  	// Tabla de 16 bytes (MYTABLE) que serán copiados a SRAM
 000025 7940
@@ -1065,7 +1065,7 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00002b e4ea                      	LDI ZL, LOW(MYTABLE << 1)            // Cargar en ZL la parte baja de la dirección de MYTABLE (para LPM)
 00002c e0b2                      	LDI XH, 0X02                          // Cargar en XH el valor 0x02 (destino en SRAM)
 00002d e0a1                      	LDI XL, 0X01                          // Cargar en XL el valor 0x01 (destino en SRAM)
-00002e e05b                      	LDI R21, SIZE                         // Guardar en R21 el tamaño de la tabla (17)
+00002e e05b                      	LDI R21, SIZE                         // Guardar en R21 el tamaño de la tabla (11)
                                  
                                  // Etiqueta COPIAR: Copia desde Flash (Z) hacia SRAM (X) byte a byte
                                  COPIAR:
@@ -1079,19 +1079,19 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  // Etiqueta DONE: fin de la primera copia
                                  DONE:
                                  	
-000035 e0f0                      	LDI ZH, HIGH(MYTABLE << 1)
-000036 e4ea                      	LDI ZL, LOW(MYTABLE << 1)
-000037 e0d1                      	LDI YH, 0X01
+000035 e0f0                      	LDI ZH, HIGH(MYTABLE << 1) //cargamos en ZH la parte alta de la direccion de mytable 
+000036 e4ea                      	LDI ZL, LOW(MYTABLE << 1) //cargamos en Zl la parte baja de mytable 
+000037 e0d1                      	LDI YH, 0X01	//apuntamos a la dirreccion 0x0101 para el registro Y
 000038 e0c1                      	LDI YL, 0X01
 000039 e05b                      	LDI R21, SIZE
                                  
                                  COPIARY:
-                                 
-00003a 9145                      	LPM R20, Z+
-00003b 955a                      	DEC R21
-00003c 3050                      	CPI R21, 0
+                                 	//creamos un bucle que permite copiar en el registro Y los bytes de my table. 
+00003a 9145                      	LPM R20, Z+ //sacamos el valor de Z a r20 luego avanzamos de direccion en flash
+00003b 955a                      	DEC R21	//decrementamos r21
+00003c 3050                      	CPI R21, 0 //si es 0 termina el bucle de escritura
 00003d f011                      	BREQ DONE2
-00003e 9349                      	ST Y+, R20
+00003e 9349                      	ST Y+, R20 //se guarda con post incremento el valor de r20 en el registro Y 
 00003f cffa                      	RJMP COPIARY
                                  
                                  DONE2:
@@ -1153,109 +1153,111 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000065 e0b2                          LDI XH, 0X02                     // XH = 0x02
 000066 e0a1                          LDI XL, 0X01                     // XL = 0x01 => apunta a 0x0201
 000067 914c                          LD  R20, X                       // Cargar en R20 el byte en SRAM[0x0201]
-                                     //OUT PORTD, R20                   // Mostrar en PORTD el valor leído 
                                  
-000068 e0d1                      	LDI YH, 0X01
+000068 e0d1                      	LDI YH, 0X01 //apuntamos al inicio de nuestros datos en el registro Y 
 000069 e0c1                      	LDI YL, 0X01
-00006a 8158                      	LD R21, Y
+00006a 8158                      	LD R21, Y // lo cargamos a r21 
 00006b 9478                          SEI                         // Habilitar interrupciones globales
                                  
                                  	 
-00006c ef7f                      	LDI R23, 0XFF
-00006d b94b                      	OUT PORTD, R20
+                                 
+00006c b94b                      	OUT PORTD, R20 //sacamos el valor de r20 en el portD 
                                  // Loop principal (vacío, ya que se usan interrupciones)
                                  LOOP:
-00006e fff0                      	SBRS R31, 0
-00006f c003                      	RJMP FIN 
-000070 9a44                      	SBI PORTC, 4
-000071 b95b                      	OUT PORTD, R21
-000072 9844                      	CBI PORTC, 4
+                                 	//creamos la logica para multiplexar los displays de 7 segmentos
+00006d fff0                      	SBRS R31, 0 //el bit 0 de r31 estara en 1 cada 10ms 
+00006e c003                      	RJMP FIN //si esta en 0 salta a la logica del siguiente display 
+00006f 9a44                      	SBI PORTC, 4	//encendemos el port 4 de pinc 
+000070 b95b                      	OUT PORTD, R21	//sacamos la cuent de r21 
+000071 9844                      	CBI PORTC, 4	//apagamos el pin 4 de portc 
                                  
                                  FIN: 
-000073 fdf0                      	SBRC R31, 0
-000074 c003                      	RJMP FINAL 
-000075 9a45                      	SBI PORTC, 5
-000076 b94b                      	OUT PORTD, R20
-000077 9845                      	CBI PORTC, 5
+                                 	//logica para le segundo contador 
+000072 fdf0                      	SBRC R31, 0 //el bit 0 de r31 estara en 0 cada 10ms 
+000073 c003                      	RJMP FINAL //si no es el valor deseado termina el bucle y salta a comparar si ya paso 1 segundo 
+000074 9a45                      	SBI PORTC, 5 //encedemos el pin 5 de portc 
+000075 b94b                      	OUT PORTD, R20	//sacamos al portD el valor de r20
+000076 9845                      	CBI PORTC, 5	//apagamos el pin 5 de portc 
                                  FINAL:
-000078 36f4                      	CPI R31, 0X64
-000079 f7a1                      	BRNE LOOP
-00007a 3440                      	CPI R20, 0B01000000
-00007b f409                      	BRNE EVADIR2
-00007c 914d                      	LD R20, x+
+000077 36f4                      	CPI R31, 0X64	//realizamos la comparacion para saber si ya paso 1 segundo
+000078 f7a1                      	BRNE LOOP	//si no ha pasado 1 segundo se regresa al inicio
+000079 3440                      	CPI R20, 0B01000000	//este es un mecanismo para corregir un error el cual hace que se tarde mas en cambiar de 0 a 1 en el contador de unidades de segundos 
+00007a f409                      	BRNE EVADIR2 //si no son iguales continua con el flujo normal del codigo 
+00007b 914d                      	LD R20, x+ //si son iguales se desplaza en el registro x
                                  EVADIR2:
-00007d 27ff                      	CLR R31
-00007e 914d                      	LD R20, X+                       // Leer de X y luego incrementar X
-00007f 3f4f                      	CPI R20, 0XFF                    // Comparar con 0xFF
-000080 f461                      	BRNE ATRAS
-000081 3450                      	CPI R21, 0B01000000
-000082 f409                      	BRNE EVADIR
-000083 9159                      	LD R21, Y+
+00007c 27ff                      	CLR R31 //si se cumplio el segundo se limpia el registro r31
+00007d 914d                      	LD R20, X+                       // Leer de X y luego incrementar X
+00007e 3f4f                      	CPI R20, 0XFF                    // Comparar con 0xFF
+00007f f461                      	BRNE ATRAS	//mecanismo para compreneder si existe overflow 
+000080 3450                      	CPI R21, 0B01000000	//mismo mecanismo para evitar el error al momento de pasar de 0 a 1 en el contador de decenas 
+000081 f409                      	BRNE EVADIR //si no se cumple salta a evadir 
+000082 9159                      	LD R21, Y+ //si se cumple se avanza en el registro Y 
                                  EVADIR:
-000084 e0a1                      	LDI XL, 0X01                     // Reiniciar puntero X a 0x0201
-000085 e0b2                          LDI XH, 0X02
-000086 914c                      	LD  R20, X
-000087 9159                      	LD R21, Y+
-000088 3052                      	CPI R21, 0x02
-000089 f419                      	BRNE ATRAS                       // Si no es 0xFF, saltar a ATRAS
-00008a e0d1                      	LDI YH, 0X01
-00008b e0c1                      	LDI YL, 0X01
-00008c 8158                      	LD R21, Y
+000083 e0a1                      	LDI XL, 0X01                     // Reiniciar puntero X a 0x0201 si existe overflow
+000084 e0b2                          LDI XH, 0X02
+000085 914c                      	LD  R20, X //se carga el valor de 0 en r20
+000086 9159                      	LD R21, Y+	//se avanza en Y para el contador de decenas 
+000087 3052                      	CPI R21, 0x02	//se compara si ya se llego a los 60 segundos
+000088 f419                      	BRNE ATRAS                       // si no ha llegado se salta a atras 
+000089 e0d1                      	LDI YH, 0X01	//si ya se llego a 60 se reinicia a 0 segundos 
+00008a e0c1                      	LDI YL, 0X01
+00008b 8158                      	LD R21, Y	//se carga el valor de Y en r21 
                                  ATRAS:
-00008d fff0                      	SBRS R31, 0
-00008e c003                      	RJMP FIN2 
-00008f 9a44                      	SBI PORTC, 4
-000090 b95b                      	OUT PORTD, R21
-000091 9844                      	CBI PORTC, 4
+                                 `	//se repite la logica de multiplexacion de los displays 
+00008c fff0                      	SBRS R31, 0
+00008d c003                      	RJMP FIN2 
+00008e 9a44                      	SBI PORTC, 4
+00008f b95b                      	OUT PORTD, R21
+000090 9844                      	CBI PORTC, 4
                                  
                                  FIN2: 
-000092 fdf0                      	SBRC R31, 0
-000093 c003                      	RJMP FINAL2 
-000094 9a45                      	SBI PORTC, 5
-000095 b94b                      	OUT PORTD, R20
-000096 9845                      	CBI PORTC, 5
+000091 fdf0                      	SBRC R31, 0
+000092 c003                      	RJMP FINAL2 
+000093 9a45                      	SBI PORTC, 5
+000094 b94b                      	OUT PORTD, R20
+000095 9845                      	CBI PORTC, 5
                                  FINAL2:
-000097 cfd6                          RJMP	LOOP                 // Bucle infinito
+000096 cfd6                          RJMP	LOOP                 // Bucle infinito
                                  
                                  
                                  // Rutina de interrupción para Pin Change
                                  RUTINA_INTERRUPCION:
-000098 930f                          PUSH R16                  // Guardar R16 en la pila
-000099 b70f                          IN   R16, SREG            // Leer el registro de estado (SREG) en R16
-00009a 930f                          PUSH R16                  // Guardar SREG en la pila
+000097 930f                          PUSH R16                  // Guardar R16 en la pila
+000098 b70f                          IN   R16, SREG            // Leer el registro de estado (SREG) en R16
+000099 930f                          PUSH R16                  // Guardar SREG en la pila
                                  
-00009b b103                          IN   R16, PINB            // Leer el estado actual de PORTB en R16
+00009a b103                          IN   R16, PINB            // Leer el estado actual de PORTB en R16
                                  
                                      // Verifica si PB0 está en bajo (botón presionado) para incrementar
-00009c ff00                          SBRS R16, 0               // Saltar la siguiente instrucción si el bit 0 de R16 está en 1 (botón no presionado)
-00009d c004                          RJMP NOINCREMENTAR        // Si el bit 0 es 0 (botón presionado), no salta y continúa con la instrucción siguiente
-00009e 9513                          INC  R17                 // Incrementar el contador en R17
-00009f 3110                          CPI R17, 0x10            // Comparar R17 con 0x10
-0000a0 f409                          BRNE NOINCREMENTAR        // Si R17 no es igual a 0x10, salta a la etiqueta NOINCREMENTAR
-0000a1 e010                          LDI R17, 0X00            // Si R17 es igual a 0x10, reiniciar el contador a 0
+00009b ff00                          SBRS R16, 0               // Saltar la siguiente instrucción si el bit 0 de R16 está en 1 (botón no presionado)
+00009c c004                          RJMP NOINCREMENTAR        // Si el bit 0 es 0 (botón presionado), no salta y continúa con la instrucción siguiente
+00009d 9513                          INC  R17                 // Incrementar el contador en R17
+00009e 3110                          CPI R17, 0x10            // Comparar R17 con 0x10
+00009f f409                          BRNE NOINCREMENTAR        // Si R17 no es igual a 0x10, salta a la etiqueta NOINCREMENTAR
+0000a0 e010                          LDI R17, 0X00            // Si R17 es igual a 0x10, reiniciar el contador a 0
                                  
                                  NOINCREMENTAR:
                                      // Verifica si PB1 está en bajo (botón presionado) para decrementar
-0000a2 ff01                          SBRS R16, 1               // Saltar la siguiente instrucción si el bit 1 de R16 está en 1 (botón no presionado)
-0000a3 c004                          RJMP NODECREMENTAR        // Si el bit 1 es 0 (botón presionado), no salta y continúa con la instrucción siguiente
-0000a4 951a                          DEC  R17                 // Decrementar el contador en R17
-0000a5 3f1f                          CPI R17, 0XFF            // Comparar R17 con 0xFF
-0000a6 f409                          BRNE NODECREMENTAR        // Si R17 no es igual a 0xFF, salta a la etiqueta NODECREMENTAR
-0000a7 e01f                          LDI R17, 0X0F            // Si R17 es igual a 0xFF, cargar 0x0F en R17
+0000a1 ff01                          SBRS R16, 1               // Saltar la siguiente instrucción si el bit 1 de R16 está en 1 (botón no presionado)
+0000a2 c004                          RJMP NODECREMENTAR        // Si el bit 1 es 0 (botón presionado), no salta y continúa con la instrucción siguiente
+0000a3 951a                          DEC  R17                 // Decrementar el contador en R17
+0000a4 3f1f                          CPI R17, 0XFF            // Comparar R17 con 0xFF
+0000a5 f409                          BRNE NODECREMENTAR        // Si R17 no es igual a 0xFF, salta a la etiqueta NODECREMENTAR
+0000a6 e01f                          LDI R17, 0X0F            // Si R17 es igual a 0xFF, cargar 0x0F en R17
                                  
                                  NODECREMENTAR:
-0000a8 b918                          OUT PORTC, R17           // Mostrar el valor del contador en PORTC (LEDs)
+0000a7 b918                          OUT PORTC, R17           // Mostrar el valor del contador en PORTC (LEDs)
                                  
-0000a9 910f                          POP  R16                 // Recuperar el valor previamente guardado de SREG (almacenado en R16)
-0000aa bf0f                          OUT SREG, R16            // Restaurar el registro SREG
-0000ab 910f                          POP  R16                 // Recuperar el valor original de R16
-0000ac 9518                          RETI                     // Retornar de la interrupción
+0000a8 910f                          POP  R16                 // Recuperar el valor previamente guardado de SREG (almacenado en R16)
+0000a9 bf0f                          OUT SREG, R16            // Restaurar el registro SREG
+0000aa 910f                          POP  R16                 // Recuperar el valor original de R16
+0000ab 9518                          RETI                     // Retornar de la interrupción
                                  
                                  RUTINA_TIMER0:
-                                 	
-0000ad e604                      	LDI R16, 0X64
-0000ae bd06                      	OUT TCNT0, R16'
-0000af 95f3                      	INC R31
+                                 	//iniciamos la interrupcion de timer 0
+0000ac e604                      	LDI R16, 0X64	//se carga el valor de donde queremos que inicie a contar para que este cuente 10ms 
+0000ad bd06                      	OUT TCNT0, R16 //se carga a tcnt0 para que incie la cuenta 
+0000ae 95f3                      	INC R31	//se incrementa r31 para despues en el loop comparar si llego a los 100ms 
 
 
 RESOURCE USE INFORMATION
@@ -1276,9 +1278,9 @@ counted separately from r26..r31 here.
 x  :   6 y  :   5 z  :   2 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
 r13:   0 r14:   0 r15:   0 r16:  41 r17:   8 r18:   2 r19:   0 r20:  11 
-r21:  14 r22:   2 r23:   1 r24:   0 r25:   0 r26:   4 r27:   4 r28:   3 
+r21:  14 r22:   2 r23:   0 r24:   0 r25:   0 r26:   4 r27:   4 r28:   3 
 r29:   3 r30:   2 r31:   9 
-Registers used: 16 out of 35 (45.7%)
+Registers used: 15 out of 35 (42.9%)
 
 "ATmega328P" instruction use summary:
 .lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
@@ -1291,7 +1293,7 @@ clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :   1 cls   :   0
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
 cpi   :   9 cpse  :   0 dec   :   3 eor   :   0 fmul  :   0 fmuls :   0 
 fmulsu:   0 icall :   0 ijmp  :   0 in    :   2 inc   :   2 jmp   :   0 
-ld    :   8 ldd   :   0 ldi   :  41 lds   :   0 lpm   :   2 lsl   :   0 
+ld    :   8 ldd   :   0 ldi   :  40 lds   :   0 lpm   :   2 lsl   :   0 
 lsr   :   0 mov   :   0 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
 neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :  18 pop   :   2 
 push  :   2 rcall :   0 ret   :   0 reti  :   2 rjmp  :  12 rol   :   0 
@@ -1305,7 +1307,7 @@ Instructions used: 23 out of 113 (20.4%)
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000162    284     10    294   32768   0.9%
+[.cseg] 0x000000 0x000160    282     10    292   32768   0.9%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 
