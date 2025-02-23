@@ -22,10 +22,10 @@ START:
     OUT SPH, R16                // Inicializar el registro de pila alto (SPH)
 	
 	// Definimos un valor de 17 para SIZE (16 bytes + 1 para fin de tabla)
-	.equ SIZE = 17 // Esto se hace para poder finalizar el traslado de flash ya que contamos con 16 bytes 
+	.equ SIZE = 11 // Esto se hace para poder finalizar el traslado de flash ya que contamos con 16 bytes 
 
 	// Tabla de 16 bytes (MYTABLE) que serán copiados a SRAM
-	MYTABLE: .DB 0B01000000, 0B01111001, 0B00100100, 0x30, 0x19, 0x12, 0x02, 0x78, 0x00, 0x10, 0x08, 0x03, 0x46, 0x21, 0x06, 0x0E
+	MYTABLE: .DB 0B01000000, 0B01111001, 0B00100100, 0x30, 0x19, 0x12, 0x02, 0x78, 0x00, 0x10
 	LDI ZH, HIGH(MYTABLE << 1)           // Cargar en ZH la parte alta de la dirección de MYTABLE (para LPM)
 	LDI ZL, LOW(MYTABLE << 1)            // Cargar en ZL la parte baja de la dirección de MYTABLE (para LPM)
 	LDI XH, 0X02                          // Cargar en XH el valor 0x02 (destino en SRAM)
@@ -43,7 +43,23 @@ COPIAR:
 
 // Etiqueta DONE: fin de la primera copia
 DONE:
+	
+	LDI ZH, HIGH(MYTABLE << 1)
+	LDI ZL, LOW(MYTABLE << 1)
+	LDI YH, 0X01
+	LDI YL, 0X01
+	LDI R21, SIZE
 
+COPIARY:
+
+	LPM R20, Z+
+	DEC R21
+	CPI R21, 0
+	BREQ DONE2
+	ST Y+, R20
+	RJMP COPIARY
+
+DONE2:
 // Configuración del micro
 SETUP:
     CLI                         // Deshabilitar interrupciones globales
@@ -65,7 +81,7 @@ SETUP:
     // Configuración de entradas y salidas
     LDI R16, 0X00               // Cargar 0x00 en R16 para configurar entradas
     OUT DDRB, R16               // Configurar PORTB como entrada
-    LDI R16, 0XFF               // Cargar 0xFF en R16 para activar los pull-ups
+    LDI R16,  0XFF              // Cargar 0xFF en R16 para activar los pull-ups
     OUT PORTB, R16              // Activar los pull-ups en PORTB
 
     LDI R16, 0XFF               // Cargar 0xFF en R16 para configurar salidas
@@ -94,7 +110,7 @@ SETUP:
     LDI R17, 0X00               // Inicializar el contador en R17 a 0
 
 	LDI R18, 0XFF                    // Valor 0xFF
-    LDI XL, 0X11                     // XL = 0x11
+    LDI XL, 0X0B                     // XL = 0x11
     LDI XH, 0X02                     // XH = 0x02 => dirección en SRAM
     ST X, R18                        // Guardar 0xFF en SRAM[X=0x0211]
 
@@ -102,24 +118,69 @@ SETUP:
     LDI XH, 0X02                     // XH = 0x02
     LDI XL, 0X01                     // XL = 0x01 => apunta a 0x0201
     LD  R20, X                       // Cargar en R20 el byte en SRAM[0x0201]
-    OUT PORTD, R20                   // Mostrar en PORTD el valor leído
+    //OUT PORTD, R20                   // Mostrar en PORTD el valor leído 
 
+	LDI YH, 0X01
+	LDI YL, 0X01
+	LD R21, Y
     SEI                         // Habilitar interrupciones globales
 
+	 
+	LDI R23, 0XFF
+	OUT PORTD, R20
 // Loop principal (vacío, ya que se usan interrupciones)
 LOOP:
+	SBRS R31, 0
+	RJMP FIN 
+	SBI PORTC, 4
+	OUT PORTD, R21
+	CBI PORTC, 4
+
+FIN: 
+	SBRC R31, 0
+	RJMP FINAL 
+	SBI PORTC, 5
+	OUT PORTD, R20
+	CBI PORTC, 5
+FINAL:
 	CPI R31, 0X64
 	BRNE LOOP
+	CPI R20, 0B01000000
+	BRNE EVADIR2
+	LD R20, x+
+EVADIR2:
 	CLR R31
 	LD R20, X+                       // Leer de X y luego incrementar X
 	CPI R20, 0XFF                    // Comparar con 0xFF
-    BRNE ATRAS                       // Si no es 0xFF, saltar a ATRAS
-    LDI XL, 0X01                     // Reiniciar puntero X a 0x0201
+	BRNE ATRAS
+	CPI R21, 0B01000000
+	BRNE EVADIR
+	LD R21, Y+
+EVADIR:
+	LDI XL, 0X01                     // Reiniciar puntero X a 0x0201
     LDI XH, 0X02
-    LD  R20, X                       // Cargar en R20 el valor en SRAM[0x0201]
+	LD  R20, X
+	LD R21, Y+
+	CPI R21, 0x02
+	BRNE ATRAS                       // Si no es 0xFF, saltar a ATRAS
+	LDI YH, 0X01
+	LDI YL, 0X01
+	LD R21, Y
 ATRAS:
-	OUT PORTD, R20 
-    RJMP LOOP                 // Bucle infinito
+	SBRS R31, 0
+	RJMP FIN2 
+	SBI PORTC, 4
+	OUT PORTD, R21
+	CBI PORTC, 4
+
+FIN2: 
+	SBRC R31, 0
+	RJMP FINAL2 
+	SBI PORTC, 5
+	OUT PORTD, R20
+	CBI PORTC, 5
+FINAL2:
+    RJMP	LOOP                 // Bucle infinito
 
 
 // Rutina de interrupción para Pin Change
@@ -160,4 +221,4 @@ RUTINA_TIMER0:
 	LDI R16, 0X64
 	OUT TCNT0, R16'
 	INC R31
-	RETI 
+	RETI
