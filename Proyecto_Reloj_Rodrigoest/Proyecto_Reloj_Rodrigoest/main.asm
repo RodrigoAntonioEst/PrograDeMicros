@@ -10,14 +10,25 @@
 .equ SIZE = 12
 .def MODO = R18 ;Aqui guardaremos el estado de nuestro reloj
 .def CONT_TIMER0 = R19 ;Aqui guardaremos la cuenta para llegar a un segundo
-.def SALIDA_X = R20 ;Aqui se guardara a lo que este apuntando el registro X
-.def SALIDA_Y = R21 ;Aqui se guardara a lo que este apuntando el registro Y
+//.def SALIDA_X = R20 ;Aqui se guardara a lo que este apuntando el registro X
+.def UNIDADES_MINUTOS = R21 
+.def DECENAS_MINUTOS = R22
+.def UNIDADES_HORAS = R23 
+.def DECENAS_HORAS = R24
+.def DISPLAYUNO = R25 
+.def DISPLAYDOS = R28 
+.def DISPLAYTRES = R29 
+.def DISPLAYCUATRO = R30
+.def CONT_TIMER2 = R31
+
 //-----ininicalizamos los vectores-----//
 .cseg
 .org 0x0000
 	RJMP START ;Inicializamos la configuracion del programa. 
 .org PCI0addr
-	RJMP RI_BOTONES ;Colocamos el vector de interrupcion de pin change 
+	RJMP RI_BOTONES ;Colocamos el vector de interrupcion de pin change  
+.org OVF2addr
+	RJMP RI_10MS ;Rutina de interrupcion de 10 MS
 .org OVF0addr
 	RJMP RI_RELOJ ;Colocamos la rutina de interrupcion de timer 0 overflow
 
@@ -55,13 +66,20 @@ SETUP:
 	LDI R16, (1 << CLKPCE) ;Habilitamos los cambios en la frecuencia del procesador
 	STS CLKPR, R16 ;cargamos el enable al registro CLKPR 
 	LDI R16, (1 << CLKPS0) | (1 << CLKPS2) ;Configuramos un prescaler de 32 para tener una frecuencia de 500Khz 
-	STS CLKPR, R16 ;Cargamos la nueva frecuencia al registro CLKPR
+	STS CLKPR, R16 ;Cargamos la nueva frecuencia al registro CLKPR 
+
 
 	//----Configuramos el TIMER0----//
 	LDI R16, (1 << CS00) | (1 << CS02) ;Configuramos el preescaler a 1024
 	OUT TCCR0B, R16	;Cargamos el valor dentro de el registro encargado de hacer la modificacion
 	LDI R16, 12 ;cargamos el valor desde donde empezara a contar el timer 0 para llegar a un 500ms
 	OUT TCNT0, R16 ;Cargamos el valor al registro para darnos el tiempo deseado.
+
+	//----Configuramos el TIMER2----//
+	LDI R16, (1 << CS20) | (1 << CS21) | (1 << CS22) ;Colocamos un prescaler de 1024
+	STS TCCR2B, R16 ;Lo cargamos al registro que se encarga de hacer las modificaciones. 
+	LDI R16, 254 ; cada 5ms 
+	STS TCNT2, R16 ;Cargamos el valor para que empiece a contar desde ese punto para tener 10ms 
 
 	//----Configuracion de interrupcion de PIN CHANGE----//
 	LDI R16, (1 << PCINT0) | (1 << PCINT1) | (1 << PCINT2)  ;Configuramos el pinchage para PB0, PB1 y PB2
@@ -72,6 +90,10 @@ SETUP:
 	//----Configuramos la interrupcion del TIMER0----//
 	LDI R16, (1 << TOIE0) ;Habilitamos las interrupciones de timer 0
 	STS TIMSK0, R16  ;ke cargamos al BIT la mascara 
+
+	//----Configuramos interrupcion del timer2----//
+	LDI R16, (1 << TOIE2) ;Habilitamos las interrupciones del timer 2
+	STS TIMSK2, R16 ;le cargamos a la macara 
 
 	//----INICIAMOS CON LA CONFIGURACION DE PUERTOS----//
 	
@@ -95,55 +117,142 @@ SETUP:
 	
 	//----Apuntamos los punteros al inicio de los datos----//
 	LDI XH, 0X01
-	LDI XL, 0X00
-	LD SALIDA_X, X ;Apuntamos el registro X a la direccion 0x0100 donde se encuentra el valor 0 de la tabla 
-
-	LDI YH, 0X01
-	LDI YL, 0X00
-	LD SALIDA_Y, Y ;Apuntamos el registro Y a la direccion 0x0100 donde se encuentra el valor 0 de la tabla
+	LDI XL, 0X00 
 
 	//----Inicializamos nuestros registro----//
 	CLR MODO 
+	CLR UNIDADES_MINUTOS
+	CLR DECENAS_MINUTOS
+	CLR UNIDADES_HORAS
+	CLR DECENAS_HORAS
+	CLR DISPLAYUNO
+	CLR DISPLAYDOS
+	CLR DISPLAYTRES 
+	CLR DISPLAYCUATRO 
+	CLR CONT_TIMER2
+
+
+
 	SEI ;Volvemos a habilitar las interrupciones globales
+
+	//----Cargamos el 0 en todos los registros----//
+	LD DISPLAYUNO, X
+	LD DISPLAYDOS, X
+	LD DISPLAYTRES, X
+	LD DISPLAYCUATRO, X
 	
 //----Iniciamos el Main Loop----//
 LOOP:
-	//----MULTIPLEXACION----//
-	//----500ms----//
+	CPI CONT_TIMER2, 4 ;comparamo si ya es 5 
+	BRNE FIN_TIMER ;si no es igual lo sacamos de la interrupcion 
+	CLR CONT_TIMER2 ;si es igual lo limpiamos
+FIN_TIMER:
+	//----Aumento cada 60s----//
+	CPI CONT_TIMER0, 2
+	BRNE MODO_0
+	CLR CONT_TIMER0
+	LDI XH, 0X01
+	LDI XL, 0X00 
+	INC UNIDADES_MINUTOS
+	CPI UNIDADES_MINUTOS, 10
+	BREQ DECENAS_MIN
+	ADD XL, UNIDADES_MINUTOS
+	LD DISPLAYUNO, X
+	RJMP MODO_0
+
+DECENAS_MIN:
+	LDI XH, 0X01
+	LDI XL, 0X00
+	CLR	UNIDADES_MINUTOS
+	ADD XL, UNIDADES_MINUTOS
+	LD DISPLAYUNO, X
+	INC DECENAS_MINUTOS
+	CPI DECENAS_MINUTOS, 6 
+	BREQ UNIDADES_HOR
+	ADD XL, DECENAS_MINUTOS
+	LD DISPLAYDOS, X
+	RJMP MODO_0
+
+
+UNIDADES_HOR:
+	LDI XH, 0X01
+	LDI XL, 0X00
+	CLR DECENAS_MINUTOS
+	ADD XL, DECENAS_MINUTOS
+	LD DISPLAYDOS, X
+	INC UNIDADES_HORAS
+	CPI UNIDADES_HORAS, 4
+	BREQ CASO_ESPECIAL
+	CPI UNIDADES_HORAS, 10 
+REGRESO:
+	BREQ DECENAS_HOR
+	ADD XL, UNIDADES_HORAS
+	LD DISPLAYTRES, X
+	RJMP MODO_0   
+CASO_ESPECIAL:
+	CPI DECENAS_HORAS, 2
+	BREQ FIN_RELOJ
+	RJMP REGRESO
+
+DECENAS_HOR:
+	LDI XH, 0X01
+	LDI XL, 0X00
+	CLR UNIDADES_HORAS
+	ADD XL, DECENAS_MINUTOS
+	LD DISPLAYTRES, X
+	INC DECENAS_HORAS 
+	ADD XL, DECENAS_HORAS
+	LD DISPLAYCUATRO, X
+	RJMP MODO_0
+FIN_RELOJ:
+	LDI XH, 0X01
+	LDI XL, 0X00
+	CLR DECENAS_HORAS
+	CLR UNIDADES_HORAS
+	ADD XL, DECENAS_HORAS
+	LD DISPLAYCUATRO, X
+	ADD XL, UNIDADES_HORAS
+	LD DISPLAYTRES, X 
+	LD DISPLAYDOS, X
+	LD DISPLAYUNO, X
+
+MODO_0:
+	CPI MODO, 0 ;Comparamos para ver si estamos en el modo correcto.
+	BRNE MODO_1	;si no lo mandamos a comparar a al siguente modo
+	//----500ms----// 
 	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
 	SBI PORTC, 0
 	SBRC CONT_TIMER0, 0
 	CBI PORTC, 0
-	//----Aumento cada 60s----//
-	CPI CONT_TIMER0, 120
-	BRNE MODO_0
-MODO_0:
-	CPI MODO, 0
-	BRNE MODO_1
-	CBI PORTC, 5
-	SBI PORTB, 3
-	CPI SALIDA_X, 0
-	BRNE CORREGIR
-	LD SALIDA_X, X+
-CORREGIR:
-	LD SALIDA_X, X+
+	CBI PORTC, 5 ;apagamos en pin 5 de PORTC por si estaba encendido al salir del modo 5 
+//----indicador de hora----//
+	SBI PORTB, 3 ;encendemos el indicador de modo hora 
+//----Inicio de la multiplexacion----//
+	CALL MULTIPLEXACION 
+	RJMP LOOP
+
 MODO_1:
 	CPI MODO, 1
 	BRNE MODO_2
 	CBI PORTB, 3
 	SBI PORTB, 4
-	//AQUI SE VA A DESPLEGAR LA FECHA
+	
 	RJMP LOOP 
+
 MODO_2:
 	CPI MODO, 2 
 	BRNE MODO_3
 	CBI PORTB, 4
+//----INDICADOR MODO CONFIG HORA----//
 	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
 	SBI PORTB, 3
 	SBRC CONT_TIMER0, 0
 	CBI PORTB, 3
-	//configuracion hora
-	RJMP LOOP 
+//---Multiplexacion---//
+	CALL MULTIPLEXACION
+//---cambio de hora manual---//
+	
+
 MODO_3:
 	CPI MODO, 3
 	BRNE MODO_4
@@ -154,6 +263,7 @@ MODO_3:
 	CBI PORTB, 4
 	//CONFIGURACION DE FECHA 
 	RJMP LOOP 
+
 MODO_4:
 	CPI MODO, 4
 	BRNE MODO_5
@@ -163,7 +273,8 @@ MODO_4:
 	SBRC CONT_TIMER0, 0
 	CBI PORTB, 5
 	//CONFIGURACION ALARMA
-	RJMP LOOP 
+	RJMP LOOP
+	 
 MODO_5:
 	CPI MODO, 5
 	BRNE FIN
@@ -183,6 +294,13 @@ RI_RELOJ:
 	INC CONT_TIMER0 ;Incrementamos el regsitro que llevara la cuenta para cambiar cada 500ms 
 	RETI ;Regresamos de la interrupcion
 
+//----Rutina de interrupcion del TIMER2----//
+RI_10MS:
+	LDI R16, 254 ;Recargamos el valor de del TCNT2
+	STS TCNT2, R16 ;Se recarga el valor de 251 
+	INC CONT_TIMER2 ;Incrementamos el registro cada 10ms 
+	RETI 
+
 //----Rutina de interrupcion PIN CHANGE----//
 RI_BOTONES:
 	IN R16, PINB ;Hacemos lectura de los botones
@@ -192,21 +310,44 @@ RI_BOTONES:
 BIT_1:	
 	SBRC R16, 1 
 	RJMP BIT_2
-	LD	SALIDA_X, X+
+	INC UNIDADES_MINUTOS 
 BIT_2:
 	SBRC R16, 2
 	RJMP COMPARACION
-	LD SALIDA_Y, Y+
+	INC UNIDADES_HORAS
 COMPARACION:
 	CPI MODO, 6 
 	BRNE EXIT 
 	CLR MODO
 EXIT:
-	RETI 
-
-
-
-
+	RETI
+//----SUBRUTINA DE MULTIPLEXACION
+MULTIPLEXACION:
+	CPI CONT_TIMER2, 0
+	BRNE DISPLAY2 
+	SBI PORTC, 1
+	OUT PORTD, DISPLAYUNO
+	CBI PORTC, 1
+DISPLAY2: 
+	CPI CONT_TIMER2, 1
+	BRNE DISPLAY3
+	SBI PORTC, 2
+	OUT PORTD, DISPLAYDOS
+	CBI PORTC, 2
+DISPLAY3:
+	CPI CONT_TIMER2, 2
+	BRNE DISPLAY4
+	SBI PORTC, 4
+	OUT PORTD, DISPLAYTRES
+	CBI PORTC, 4 
+DISPLAY4:
+	CPI CONT_TIMER2, 3
+	BRNE FIN_MULTI
+	SBI PORTC, 3
+	OUT PORTD, DISPLAYCUATRO 
+	CBI PORTC, 3 
+FIN_MULTI:
+	RET
 
 
 

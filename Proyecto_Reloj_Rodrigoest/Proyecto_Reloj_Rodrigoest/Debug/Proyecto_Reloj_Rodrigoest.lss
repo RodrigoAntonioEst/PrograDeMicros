@@ -1,8 +1,12 @@
 
-AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm Mon Mar 03 13:05:04 2025
+AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm Thu Mar 13 21:46:55 2025
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
 C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(9): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
+C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(19): warning: Register r28 already defined by the .DEF directive
+C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(20): warning: Register r29 already defined by the .DEF directive
+C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(21): warning: Register r30 already defined by the .DEF directive
+C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(22): warning: Register r31 already defined by the .DEF directive
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
 C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(9): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
                                  
@@ -1041,16 +1045,27 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  .equ SIZE = 12
                                  .def MODO = R18 ;Aqui guardaremos el estado de nuestro reloj
                                  .def CONT_TIMER0 = R19 ;Aqui guardaremos la cuenta para llegar a un segundo
-                                 .def SALIDA_X = R20 ;Aqui se guardara a lo que este apuntando el registro X
-                                 .def SALIDA_Y = R21 ;Aqui se guardara a lo que este apuntando el registro Y
+                                 //.def SALIDA_X = R20 ;Aqui se guardara a lo que este apuntando el registro X
+                                 .def UNIDADES_MINUTOS = R21 
+                                 .def DECENAS_MINUTOS = R22
+                                 .def UNIDADES_HORAS = R23 
+                                 .def DECENAS_HORAS = R24
+                                 .def DISPLAYUNO = R25 
+                                 .def DISPLAYDOS = R28 
+                                 .def DISPLAYTRES = R29 
+                                 .def DISPLAYCUATRO = R30
+                                 .def CONT_TIMER2 = R31
+                                 
                                  //-----ininicalizamos los vectores-----//
                                  .cseg
                                  .org 0x0000
 000000 c020                      	RJMP START ;Inicializamos la configuracion del programa. 
                                  .org PCI0addr
-000006 c08e                      	RJMP RI_BOTONES ;Colocamos el vector de interrupcion de pin change 
+000006 c0df                      	RJMP RI_BOTONES ;Colocamos el vector de interrupcion de pin change  
+                                 .org OVF2addr
+000012 c0ce                      	RJMP RI_10MS ;Rutina de interrupcion de 10 MS
                                  .org OVF0addr
-000020 c070                      	RJMP RI_RELOJ ;Colocamos la rutina de interrupcion de timer 0 overflow
+000020 c0bc                      	RJMP RI_RELOJ ;Colocamos la rutina de interrupcion de timer 0 overflow
                                  
                                  //----Configuracion de la pila ----//
                                  START:
@@ -1091,7 +1106,8 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000037 e800                      	LDI R16, (1 << CLKPCE) ;Habilitamos los cambios en la frecuencia del procesador
 000038 9300 0061                 	STS CLKPR, R16 ;cargamos el enable al registro CLKPR 
 00003a e005                      	LDI R16, (1 << CLKPS0) | (1 << CLKPS2) ;Configuramos un prescaler de 32 para tener una frecuencia de 500Khz 
-00003b 9300 0061                 	STS CLKPR, R16 ;Cargamos la nueva frecuencia al registro CLKPR
+00003b 9300 0061                 	STS CLKPR, R16 ;Cargamos la nueva frecuencia al registro CLKPR 
+                                 
                                  
                                  	//----Configuramos el TIMER0----//
 00003d e005                      	LDI R16, (1 << CS00) | (1 << CS02) ;Configuramos el preescaler a 1024
@@ -1099,150 +1115,279 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00003f e00c                      	LDI R16, 12 ;cargamos el valor desde donde empezara a contar el timer 0 para llegar a un 500ms
 000040 bd06                      	OUT TCNT0, R16 ;Cargamos el valor al registro para darnos el tiempo deseado.
                                  
+                                 	//----Configuramos el TIMER2----//
+000041 e007                      	LDI R16, (1 << CS20) | (1 << CS21) | (1 << CS22) ;Colocamos un prescaler de 1024
+000042 9300 00b1                 	STS TCCR2B, R16 ;Lo cargamos al registro que se encarga de hacer las modificaciones. 
+000044 ef0e                      	LDI R16, 254 ; cada 5ms 
+000045 9300 00b2                 	STS TCNT2, R16 ;Cargamos el valor para que empiece a contar desde ese punto para tener 10ms 
+                                 
                                  	//----Configuracion de interrupcion de PIN CHANGE----//
-000041 e007                      	LDI R16, (1 << PCINT0) | (1 << PCINT1) | (1 << PCINT2)  ;Configuramos el pinchage para PB0, PB1 y PB2
-000042 9300 006b                 	STS PCMSK0, R16 ; lo cargamos al registro de la mascara
-000044 e001                      	LDI R16, (1 << PCIE0) ;Cargamos el bit que habilita el pinchange en PORTB
-000045 9300 0068                 	STS PCICR, R16 ;habilitamos el pin change el PORTB 
+000047 e007                      	LDI R16, (1 << PCINT0) | (1 << PCINT1) | (1 << PCINT2)  ;Configuramos el pinchage para PB0, PB1 y PB2
+000048 9300 006b                 	STS PCMSK0, R16 ; lo cargamos al registro de la mascara
+00004a e001                      	LDI R16, (1 << PCIE0) ;Cargamos el bit que habilita el pinchange en PORTB
+00004b 9300 0068                 	STS PCICR, R16 ;habilitamos el pin change el PORTB 
                                  
                                  	//----Configuramos la interrupcion del TIMER0----//
-000047 e001                      	LDI R16, (1 << TOIE0) ;Habilitamos las interrupciones de timer 0
-000048 9300 006e                 	STS TIMSK0, R16  ;ke cargamos al BIT la mascara 
+00004d e001                      	LDI R16, (1 << TOIE0) ;Habilitamos las interrupciones de timer 0
+00004e 9300 006e                 	STS TIMSK0, R16  ;ke cargamos al BIT la mascara 
+                                 
+                                 	//----Configuramos interrupcion del timer2----//
+000050 e001                      	LDI R16, (1 << TOIE2) ;Habilitamos las interrupciones del timer 2
+000051 9300 0070                 	STS TIMSK2, R16 ;le cargamos a la macara 
                                  
                                  	//----INICIAMOS CON LA CONFIGURACION DE PUERTOS----//
                                  	
                                  	//----PORTD----//
-00004a ef0f                      	LDI R16, 0XFF 
-00004b b90a                      	OUT DDRD, R16 ;Configutamo PORTD como una salida
-00004c e000                      	LDI R16, 0X00 
-00004d b90b                      	OUT PORTD, R16 ;Apagamos las salidas de PORTD
+000053 ef0f                      	LDI R16, 0XFF 
+000054 b90a                      	OUT DDRD, R16 ;Configutamo PORTD como una salida
+000055 e000                      	LDI R16, 0X00 
+000056 b90b                      	OUT PORTD, R16 ;Apagamos las salidas de PORTD
                                  	
                                  	//----PORTB----//
-00004e ef08                      	LDI R16, 0B11111000
-00004f b904                      	OUT DDRB, R16 ;Se configuran PB0 - PB2 como entradas y el resto como salidas 
-000050 e007                      	LDI R16, 0B00000111 ;Se configuran los PULLUPS de PB0 - PB2 y el resto se apagan las salidas 
-000051 b905                      	OUT PORTB, R16 
+000057 ef08                      	LDI R16, 0B11111000
+000058 b904                      	OUT DDRB, R16 ;Se configuran PB0 - PB2 como entradas y el resto como salidas 
+000059 e007                      	LDI R16, 0B00000111 ;Se configuran los PULLUPS de PB0 - PB2 y el resto se apagan las salidas 
+00005a b905                      	OUT PORTB, R16 
                                  	
                                  	//----PORTC----//
-000052 ef0f                      	LDI R16, 0XFF
-000053 b907                      	OUT DDRC, R16 ;Se configura el puerto con todas como salidas 
-000054 e000                      	LDI R16, 0X00
-000055 b908                      	OUT PORTC, R16 ;Apagamos todas las salidas
+00005b ef0f                      	LDI R16, 0XFF
+00005c b907                      	OUT DDRC, R16 ;Se configura el puerto con todas como salidas 
+00005d e000                      	LDI R16, 0X00
+00005e b908                      	OUT PORTC, R16 ;Apagamos todas las salidas
                                  	
                                  	//----Apuntamos los punteros al inicio de los datos----//
-000056 e0b1                      	LDI XH, 0X01
-000057 e0a0                      	LDI XL, 0X00
-000058 914c                      	LD SALIDA_X, X ;Apuntamos el registro X a la direccion 0x0100 donde se encuentra el valor 0 de la tabla 
-                                 
-000059 e0d1                      	LDI YH, 0X01
-00005a e0c0                      	LDI YL, 0X00
-00005b 8158                      	LD SALIDA_Y, Y ;Apuntamos el registro Y a la direccion 0x0100 donde se encuentra el valor 0 de la tabla
+00005f e0b1                      	LDI XH, 0X01
+000060 e0a0                      	LDI XL, 0X00 
                                  
                                  	//----Inicializamos nuestros registro----//
-00005c 2722                      	CLR MODO 
-00005d 9478                      	SEI ;Volvemos a habilitar las interrupciones globales
+000061 2722                      	CLR MODO 
+000062 2755                      	CLR UNIDADES_MINUTOS
+000063 2766                      	CLR DECENAS_MINUTOS
+000064 2777                      	CLR UNIDADES_HORAS
+000065 2788                      	CLR DECENAS_HORAS
+000066 2799                      	CLR DISPLAYUNO
+000067 27cc                      	CLR DISPLAYDOS
+000068 27dd                      	CLR DISPLAYTRES 
+000069 27ee                      	CLR DISPLAYCUATRO 
+00006a 27ff                      	CLR CONT_TIMER2
+                                 
+                                 
+                                 
+00006b 9478                      	SEI ;Volvemos a habilitar las interrupciones globales
+                                 
+                                 	//----Cargamos el 0 en todos los registros----//
+00006c 919c                      	LD DISPLAYUNO, X
+00006d 91cc                      	LD DISPLAYDOS, X
+00006e 91dc                      	LD DISPLAYTRES, X
+00006f 91ec                      	LD DISPLAYCUATRO, X
                                  	
                                  //----Iniciamos el Main Loop----//
                                  LOOP:
-                                 	//----MULTIPLEXACION----//
-                                 	//----500ms----//
-00005e ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
-00005f 9a40                      	SBI PORTC, 0
-000060 fd30                      	SBRC CONT_TIMER0, 0
-000061 9840                      	CBI PORTC, 0
+000070 30f4                      	CPI CONT_TIMER2, 4 ;comparamo si ya es 5 
+000071 f409                      	BRNE FIN_TIMER ;si no es igual lo sacamos de la interrupcion 
+000072 27ff                      	CLR CONT_TIMER2 ;si es igual lo limpiamos
+                                 FIN_TIMER:
                                  	//----Aumento cada 60s----//
-000062 3738                      	CPI CONT_TIMER0, 120
-000063 f401                      	BRNE MODO_0
+000073 3032                      	CPI CONT_TIMER0, 2
+000074 f5b9                      	BRNE MODO_0
+000075 2733                      	CLR CONT_TIMER0
+000076 e0b1                      	LDI XH, 0X01
+000077 e0a0                      	LDI XL, 0X00 
+000078 9553                      	INC UNIDADES_MINUTOS
+000079 305a                      	CPI UNIDADES_MINUTOS, 10
+00007a f019                      	BREQ DECENAS_MIN
+00007b 0fa5                      	ADD XL, UNIDADES_MINUTOS
+00007c 919c                      	LD DISPLAYUNO, X
+00007d c02e                      	RJMP MODO_0
+                                 
+                                 DECENAS_MIN:
+00007e e0b1                      	LDI XH, 0X01
+00007f e0a0                      	LDI XL, 0X00
+000080 2755                      	CLR	UNIDADES_MINUTOS
+000081 0fa5                      	ADD XL, UNIDADES_MINUTOS
+000082 919c                      	LD DISPLAYUNO, X
+000083 9563                      	INC DECENAS_MINUTOS
+000084 3066                      	CPI DECENAS_MINUTOS, 6 
+000085 f019                      	BREQ UNIDADES_HOR
+000086 0fa6                      	ADD XL, DECENAS_MINUTOS
+000087 91cc                      	LD DISPLAYDOS, X
+000088 c023                      	RJMP MODO_0
+                                 
+                                 
+                                 UNIDADES_HOR:
+000089 e0b1                      	LDI XH, 0X01
+00008a e0a0                      	LDI XL, 0X00
+00008b 2766                      	CLR DECENAS_MINUTOS
+00008c 0fa6                      	ADD XL, DECENAS_MINUTOS
+00008d 91cc                      	LD DISPLAYDOS, X
+00008e 9573                      	INC UNIDADES_HORAS
+00008f 3074                      	CPI UNIDADES_HORAS, 4
+000090 f029                      	BREQ CASO_ESPECIAL
+000091 307a                      	CPI UNIDADES_HORAS, 10 
+                                 REGRESO:
+000092 f031                      	BREQ DECENAS_HOR
+000093 0fa7                      	ADD XL, UNIDADES_HORAS
+000094 91dc                      	LD DISPLAYTRES, X
+000095 c016                      	RJMP MODO_0   
+                                 CASO_ESPECIAL:
+000096 3082                      	CPI DECENAS_HORAS, 2
+000097 f051                      	BREQ FIN_RELOJ
+000098 cff9                      	RJMP REGRESO
+                                 
+                                 DECENAS_HOR:
+000099 e0b1                      	LDI XH, 0X01
+00009a e0a0                      	LDI XL, 0X00
+00009b 2777                      	CLR UNIDADES_HORAS
+00009c 0fa6                      	ADD XL, DECENAS_MINUTOS
+00009d 91dc                      	LD DISPLAYTRES, X
+00009e 9583                      	INC DECENAS_HORAS 
+00009f 0fa8                      	ADD XL, DECENAS_HORAS
+0000a0 91ec                      	LD DISPLAYCUATRO, X
+0000a1 c00a                      	RJMP MODO_0
+                                 FIN_RELOJ:
+0000a2 e0b1                      	LDI XH, 0X01
+0000a3 e0a0                      	LDI XL, 0X00
+0000a4 2788                      	CLR DECENAS_HORAS
+0000a5 2777                      	CLR UNIDADES_HORAS
+0000a6 0fa8                      	ADD XL, DECENAS_HORAS
+0000a7 91ec                      	LD DISPLAYCUATRO, X
+0000a8 0fa7                      	ADD XL, UNIDADES_HORAS
+0000a9 91dc                      	LD DISPLAYTRES, X 
+0000aa 91cc                      	LD DISPLAYDOS, X
+0000ab 919c                      	LD DISPLAYUNO, X
+                                 
                                  MODO_0:
-000064 3020                      	CPI MODO, 0
-000065 f431                      	BRNE MODO_1
-000066 9845                      	CBI PORTC, 5
-000067 9a2b                      	SBI PORTB, 3
-000068 3040                      	CPI SALIDA_X, 0
-000069 f409                      	BRNE CORREGIR
-00006a 914d                      	LD SALIDA_X, X+
-                                 CORREGIR:
-00006b 914d                      	LD SALIDA_X, X+
+0000ac 3020                      	CPI MODO, 0 ;Comparamos para ver si estamos en el modo correcto.
+0000ad f449                      	BRNE MODO_1	;si no lo mandamos a comparar a al siguente modo
+                                 	//----500ms----// 
+0000ae ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+0000af 9a40                      	SBI PORTC, 0
+0000b0 fd30                      	SBRC CONT_TIMER0, 0
+0000b1 9840                      	CBI PORTC, 0
+0000b2 9845                      	CBI PORTC, 5 ;apagamos en pin 5 de PORTC por si estaba encendido al salir del modo 5 
+                                 //----indicador de hora----//
+0000b3 9a2b                      	SBI PORTB, 3 ;encendemos el indicador de modo hora 
+                                 //----Inicio de la multiplexacion----//
+0000b4 940e 00f4                 	CALL MULTIPLEXACION 
+0000b6 cfb9                      	RJMP LOOP
+                                 
                                  MODO_1:
-00006c 3021                      	CPI MODO, 1
-00006d f419                      	BRNE MODO_2
-00006e 982b                      	CBI PORTB, 3
-00006f 9a2c                      	SBI PORTB, 4
-                                 	//AQUI SE VA A DESPLEGAR LA FECHA
-000070 cfed                      	RJMP LOOP 
+0000b7 3021                      	CPI MODO, 1
+0000b8 f419                      	BRNE MODO_2
+0000b9 982b                      	CBI PORTB, 3
+0000ba 9a2c                      	SBI PORTB, 4
+                                 	
+0000bb cfb4                      	RJMP LOOP 
+                                 
                                  MODO_2:
-000071 3022                      	CPI MODO, 2 
-000072 f431                      	BRNE MODO_3
-000073 982c                      	CBI PORTB, 4
-000074 ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
-000075 9a2b                      	SBI PORTB, 3
-000076 fd30                      	SBRC CONT_TIMER0, 0
-000077 982b                      	CBI PORTB, 3
-                                 	//configuracion hora
-000078 cfe5                      	RJMP LOOP 
+0000bc 3022                      	CPI MODO, 2 
+0000bd f439                      	BRNE MODO_3
+0000be 982c                      	CBI PORTB, 4
+                                 //----INDICADOR MODO CONFIG HORA----//
+0000bf ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+0000c0 9a2b                      	SBI PORTB, 3
+0000c1 fd30                      	SBRC CONT_TIMER0, 0
+0000c2 982b                      	CBI PORTB, 3
+                                 //---Multiplexacion---//
+0000c3 940e 00f4                 	CALL MULTIPLEXACION
+                                 //---cambio de hora manual---//
+                                 	
+                                 
                                  MODO_3:
-000079 3023                      	CPI MODO, 3
-00007a f431                      	BRNE MODO_4
-00007b 982b                      	CBI PORTB, 3
-00007c ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
-00007d 9a2c                      	SBI PORTB, 4
-00007e fd30                      	SBRC CONT_TIMER0, 0
-00007f 982c                      	CBI PORTB, 4
+0000c5 3023                      	CPI MODO, 3
+0000c6 f431                      	BRNE MODO_4
+0000c7 982b                      	CBI PORTB, 3
+0000c8 ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+0000c9 9a2c                      	SBI PORTB, 4
+0000ca fd30                      	SBRC CONT_TIMER0, 0
+0000cb 982c                      	CBI PORTB, 4
                                  	//CONFIGURACION DE FECHA 
-000080 cfdd                      	RJMP LOOP 
+0000cc cfa3                      	RJMP LOOP 
+                                 
                                  MODO_4:
-000081 3024                      	CPI MODO, 4
-000082 f431                      	BRNE MODO_5
-000083 982c                      	CBI PORTB, 4
-000084 ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
-000085 9a2d                      	SBI PORTB, 5
-000086 fd30                      	SBRC CONT_TIMER0, 0
-000087 982d                      	CBI PORTB, 5
+0000cd 3024                      	CPI MODO, 4
+0000ce f431                      	BRNE MODO_5
+0000cf 982c                      	CBI PORTB, 4
+0000d0 ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+0000d1 9a2d                      	SBI PORTB, 5
+0000d2 fd30                      	SBRC CONT_TIMER0, 0
+0000d3 982d                      	CBI PORTB, 5
                                  	//CONFIGURACION ALARMA
-000088 cfd5                      	RJMP LOOP 
+0000d4 cf9b                      	RJMP LOOP
+                                 	 
                                  MODO_5:
-000089 3025                      	CPI MODO, 5
-00008a f429                      	BRNE FIN
-00008b 982d                      	CBI PORTB, 5
+0000d5 3025                      	CPI MODO, 5
+0000d6 f429                      	BRNE FIN
+0000d7 982d                      	CBI PORTB, 5
                                  	//AQUI SE VA A APAGAR LA ALARMA
-00008c ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
-00008d 9a45                      	SBI PORTC, 5
-00008e fd30                      	SBRC CONT_TIMER0, 0
-00008f 9845                      	CBI PORTC, 5
+0000d8 ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+0000d9 9a45                      	SBI PORTC, 5
+0000da fd30                      	SBRC CONT_TIMER0, 0
+0000db 9845                      	CBI PORTC, 5
                                  FIN:
-000090 cfcd                      	RJMP LOOP
+0000dc cf93                      	RJMP LOOP
                                  
                                  //----Rutina de interrupcion TIMER0----//
                                  RI_RELOJ:
-000091 e00c                      	LDI R16, 12 ;Recargamos el valor al TCNT0 
-000092 bd06                      	OUT TCNT0, R16 ;Se carga el valor de 5 para que vuelva a contar 1ms 
-000093 9533                      	INC CONT_TIMER0 ;Incrementamos el regsitro que llevara la cuenta para cambiar cada 500ms 
-000094 9518                      	RETI ;Regresamos de la interrupcion
+0000dd e00c                      	LDI R16, 12 ;Recargamos el valor al TCNT0 
+0000de bd06                      	OUT TCNT0, R16 ;Se carga el valor de 5 para que vuelva a contar 1ms 
+0000df 9533                      	INC CONT_TIMER0 ;Incrementamos el regsitro que llevara la cuenta para cambiar cada 500ms 
+0000e0 9518                      	RETI ;Regresamos de la interrupcion
+                                 
+                                 //----Rutina de interrupcion del TIMER2----//
+                                 RI_10MS:
+0000e1 ef0e                      	LDI R16, 254 ;Recargamos el valor de del TCNT2
+0000e2 9300 00b2                 	STS TCNT2, R16 ;Se recarga el valor de 251 
+0000e4 95f3                      	INC CONT_TIMER2 ;Incrementamos el registro cada 10ms 
+0000e5 9518                      	RETI 
                                  
                                  //----Rutina de interrupcion PIN CHANGE----//
                                  RI_BOTONES:
-000095 b103                      	IN R16, PINB ;Hacemos lectura de los botones
-000096 fd00                      	SBRC R16, 0 ;Si el bit 0 esta en 0 significa que se presiono el boyon de cambiar de modo
-000097 c001                      	RJMP BIT_1 ;Si no es asi sale
-000098 9523                      	INC MODO
+0000e6 b103                      	IN R16, PINB ;Hacemos lectura de los botones
+0000e7 fd00                      	SBRC R16, 0 ;Si el bit 0 esta en 0 significa que se presiono el boyon de cambiar de modo
+0000e8 c001                      	RJMP BIT_1 ;Si no es asi sale
+0000e9 9523                      	INC MODO
                                  BIT_1:	
-000099 fd01                      	SBRC R16, 1 
-00009a c001                      	RJMP BIT_2
-00009b 914d                      	LD	SALIDA_X, X+
+0000ea fd01                      	SBRC R16, 1 
+0000eb c001                      	RJMP BIT_2
+0000ec 9553                      	INC UNIDADES_MINUTOS 
                                  BIT_2:
-00009c fd02                      	SBRC R16, 2
-00009d c001                      	RJMP COMPARACION
-00009e 9159                      	LD SALIDA_Y, Y+
+0000ed fd02                      	SBRC R16, 2
+0000ee c001                      	RJMP COMPARACION
+0000ef 9573                      	INC UNIDADES_HORAS
                                  COMPARACION:
-00009f 3026                      	CPI MODO, 6 
-0000a0 f409                      	BRNE EXIT 
-0000a1 2722                      	CLR MODO
+0000f0 3026                      	CPI MODO, 6 
+0000f1 f409                      	BRNE EXIT 
+0000f2 2722                      	CLR MODO
                                  EXIT:
-0000a2 9518                      	RETI 
-                                 
-                                 
-                                 
-                                 
+0000f3 9518                      	RETI
+                                 //----SUBRUTINA DE MULTIPLEXACION
+                                 MULTIPLEXACION:
+0000f4 30f0                      	CPI CONT_TIMER2, 0
+0000f5 f419                      	BRNE DISPLAY2 
+0000f6 9a41                      	SBI PORTC, 1
+0000f7 b99b                      	OUT PORTD, DISPLAYUNO
+0000f8 9841                      	CBI PORTC, 1
+                                 DISPLAY2: 
+0000f9 30f1                      	CPI CONT_TIMER2, 1
+0000fa f419                      	BRNE DISPLAY3
+0000fb 9a42                      	SBI PORTC, 2
+0000fc b9cb                      	OUT PORTD, DISPLAYDOS
+0000fd 9842                      	CBI PORTC, 2
+                                 DISPLAY3:
+0000fe 30f2                      	CPI CONT_TIMER2, 2
+0000ff f419                      	BRNE DISPLAY4
+000100 9a44                      	SBI PORTC, 4
+000101 b9db                      	OUT PORTD, DISPLAYTRES
+000102 9844                      	CBI PORTC, 4 
+                                 DISPLAY4:
+000103 30f3                      	CPI CONT_TIMER2, 3
+000104 f419                      	BRNE FIN_MULTI
+000105 9a43                      	SBI PORTC, 3
+000106 b9eb                      	OUT PORTD, DISPLAYCUATRO 
+000107 9843                      	CBI PORTC, 3 
+                                 FIN_MULTI:
+000108 9508                      	RET
                                  
                                  
                                  
@@ -1264,40 +1409,40 @@ counted separately from r26..r31 here.
 .dseg memory usage only counts static data declared with .byte
 
 "ATmega328P" register use summary:
-x  :   5 y  :   2 z  :   1 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
+x  :  16 y  :   0 z  :   1 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:  39 r17:   2 r18:  10 r19:  12 r20:   5 
-r21:   2 r22:   0 r23:   0 r24:   0 r25:   0 r26:   2 r27:   2 r28:   1 
-r29:   1 r30:   1 r31:   1 
-Registers used: 15 out of 35 (42.9%)
+r13:   0 r14:   0 r15:   0 r16:  47 r17:   2 r18:  10 r19:  13 r20:   0 
+r21:   7 r22:   7 r23:   9 r24:   6 r25:   6 r26:  16 r27:   7 r28:   6 
+r29:   6 r30:   6 r31:   9 
+Registers used: 17 out of 35 (48.6%)
 
 "ATmega328P" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
+.lds  :   0 .sts  :   0 adc   :   0 add   :   9 adiw  :   0 and   :   0 
 andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   0 break :   0 breq  :   1 brge  :   0 brhc  :   0 
+brcc  :   0 brcs  :   0 break :   0 breq  :   6 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :   9 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :  11 cbr   :   0 
-clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :   2 cls   :   0 
+brne  :  13 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
+brvs  :   0 bset  :   0 bst   :   0 call  :   2 cbi   :  15 cbr   :   0 
+clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :  18 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :  10 cpse  :   0 dec   :   1 eor   :   0 fmul  :   0 fmuls :   0 
-fmulsu:   0 icall :   0 ijmp  :   0 in    :   1 inc   :   2 jmp   :   0 
-ld    :   6 ldd   :   0 ldi   :  25 lds   :   0 lpm   :   1 lsl   :   0 
+cpi   :  19 cpse  :   0 dec   :   1 eor   :   0 fmul  :   0 fmuls :   0 
+fmulsu:   0 icall :   0 ijmp  :   0 in    :   1 inc   :   9 jmp   :   0 
+ld    :  15 ldd   :   0 ldi   :  37 lds   :   0 lpm   :   1 lsl   :   0 
 lsr   :   0 mov   :   0 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :  11 pop   :   0 
-push  :   0 rcall :   0 ret   :   0 reti  :   2 rjmp  :  12 rol   :   0 
-ror   :   0 sbc   :   0 sbci  :   0 sbi   :   7 sbic  :   0 sbis  :   0 
+neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :  15 pop   :   0 
+push  :   0 rcall :   0 ret   :   1 reti  :   3 rjmp  :  18 rol   :   0 
+ror   :   0 sbc   :   0 sbci  :   0 sbi   :  11 sbic  :   0 sbis  :   0 
 sbiw  :   0 sbr   :   0 sbrc  :   8 sbrs  :   5 sec   :   0 seh   :   0 
 sei   :   1 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
-sez   :   0 sleep :   0 spm   :   0 st    :   1 std   :   0 sts   :   5 
+sez   :   0 sleep :   0 spm   :   0 st    :   1 std   :   0 sts   :   9 
 sub   :   0 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 21 out of 113 (18.6%)
+Instructions used: 24 out of 113 (21.2%)
 
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000146    254     12    266   32768   0.8%
+[.cseg] 0x000000 0x000212    460     12    472   32768   1.4%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 
-Assembly complete, 0 errors, 0 warnings
+Assembly complete, 0 errors, 4 warnings
