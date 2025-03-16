@@ -80,7 +80,7 @@ SETUP:
 	//----Configuramos el TIMER0----//
 	LDI R16, (1 << CS00) | (1 << CS02) ;Configuramos el preescaler a 1024
 	OUT TCCR0B, R16	;Cargamos el valor dentro de el registro encargado de hacer la modificacion
-	LDI R16, 150 ;cargamos el valor desde donde empezara a contar el timer 0 para llegar a un 500ms
+	LDI R16, 12 ;cargamos el valor desde donde empezara a contar el timer 0 para llegar a un 500ms
 	OUT TCNT0, R16 ;Cargamos el valor al registro para darnos el tiempo deseado.
 
 	//----Configuramos el TIMER2----//
@@ -142,9 +142,11 @@ SETUP:
 	CLR DISPLAYDOS_FECHA
 	CLR DISPLAYTRES_FECHA
 	CLR DISPLAYCUATRO_FECHA
-	CLR UNIDADES_DIAS 
+	CLR UNIDADES_DIAS
+	INC UNIDADES_DIAS 
 	CLR DECENAS_DIAS 
 	CLR UNIDADES_MES 
+	INC UNIDADES_MES 
 	CLR DECENAS_MES 
 
 	SEI ;Volvemos a habilitar las interrupciones globales
@@ -156,12 +158,11 @@ SETUP:
 	LD DISPLAYCUATRO, X
 
 	//----inicializamos todos los displays para la fecha----//
-	LDI XH, 0X01
-	LDI XL, 0X00
+	LDI XL, 0X01
 	LD DISPLAYUNO_FECHA, X
 	LDI XL, 0X00
 	LD DISPLAYDOS_FECHA, X
-	LDI XL, 0X00
+	LDI XL, 0X01
 	LD DISPLAYTRES_FECHA, X
 	LDI XL, 0X00
 	LD DISPLAYCUATRO_FECHA, X
@@ -173,7 +174,7 @@ LOOP:
 	CLR CONT_TIMER2 ;si es igual lo limpiamos
 FIN_TIMER:
 	//----Aumento cada 60s----//
-	CPI CONT_TIMER0, 1
+	CPI CONT_TIMER0, 120
 	BRNE MODO0
 	CLR CONT_TIMER0
 	RJMP DESACTIVACION
@@ -186,7 +187,7 @@ DESACTIVACION:
 	RJMP MODO_2
 CUENTA_AUTOMATICA:
 //----UNIDADES MINUTOS----//
-	/*LDI XH, 0X01
+	LDI XH, 0X01
 	LDI XL, 0X00 
 	INC UNIDADES_MINUTOS
 	CPI UNIDADES_MINUTOS, 10
@@ -246,7 +247,7 @@ FIN_RELOJ:
 	ADD XL, UNIDADES_HORAS
 	LD DISPLAYTRES, X 
 	LD DISPLAYDOS, X
-	LD DISPLAYUNO, X*/
+	LD DISPLAYUNO, X
 
 //----LOGICA DE DESPLIEGUE DE FECHA----//
 FECHA:
@@ -265,6 +266,9 @@ CASO_FEBRERO:
     BRNE REGRESO_NO_FEBRERO
 	MOV R20, UNIDADES_MES 
 	CPI R20, 2
+	BRNE REGRESO_NO_FEBRERO
+	MOV R20, DECENAS_MES 
+	CPI R20, 0
 	BREQ UNIDADES_MESES
 
 REGRESO_NO_FEBRERO:
@@ -321,7 +325,7 @@ DECENAS_DIA:
 
 UNIDADES_MESES:
     LDI XH, 0X01
-    LDI XL, 0X01
+    LDI XL, 0X00
     CLR DECENAS_DIAS
     CLR UNIDADES_DIAS
     ADD XL, DECENAS_DIAS
@@ -341,7 +345,7 @@ REGRESO_FECHA:
 	  
 CASO_ESPECIAL_FECHA:
     MOV R20, DECENAS_MES
-    CPI R20, 2
+    CPI R20, 1
     BREQ FIN_FECHA
     RJMP REGRESO_FECHA
 
@@ -362,14 +366,19 @@ DECENAS_MESES:
 FIN_FECHA:
     LDI XH, 0X01
     LDI XL, 0X00
-    CLR UNIDADES_DIAS
-    CLR DECENAS_DIAS
-    CLR UNIDADES_MES
-    CLR DECENAS_MES
-    LD DISPLAYUNO_FECHA, X
-    LD DISPLAYDOS_FECHA, X
-    LD DISPLAYTRES_FECHA, X
-    LD DISPLAYCUATRO_FECHA, X
+    INC UNIDADES_DIAS 
+	CLR DECENAS_DIAS 
+	CLR UNIDADES_MES 
+	INC UNIDADES_MES 
+	CLR DECENAS_MES
+    LDI XL, 0X01
+	LD DISPLAYUNO_FECHA, X
+	LDI XL, 0X00
+	LD DISPLAYDOS_FECHA, X
+	LDI XL, 0X01
+	LD DISPLAYTRES_FECHA, X
+	LDI XL, 0X00
+	LD DISPLAYCUATRO_FECHA, X
 
 
 MODO_0:
@@ -448,7 +457,7 @@ FIN:
 
 //----Rutina de interrupcion TIMER0----//
 RI_RELOJ:
-	LDI R16, 150 ;Recargamos el valor al TCNT0 
+	LDI R16, 12 ;Recargamos el valor al TCNT0 
 	OUT TCNT0, R16 ;Se carga el valor de 5 para que vuelva a contar 1ms 
 	INC CONT_TIMER0 ;Incrementamos el regsitro que llevara la cuenta para cambiar cada 500ms 
 	RETI ;Regresamos de la interrupcion
