@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm Sun Mar 16 20:45:58 2025
+AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm Mon Mar 17 10:31:12 2025
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
 C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(9): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
@@ -1077,11 +1077,11 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  .org 0x0000
 000000 c020                      	RJMP START ;Inicializamos la configuracion del programa. 
                                  .org PCI0addr
-000006 c194                      	RJMP RI_BOTONES ;Colocamos el vector de interrupcion de pin change  
+000006 c195                      	RJMP RI_BOTONES ;Colocamos el vector de interrupcion de pin change  
                                  .org OVF2addr
-000012 c183                      	RJMP RI_10MS ;Rutina de interrupcion de 10 MS
+000012 c184                      	RJMP RI_10MS ;Rutina de interrupcion de 10 MS
                                  .org OVF0addr
-000020 c171                      	RJMP RI_RELOJ ;Colocamos la rutina de interrupcion de timer 0 overflow
+000020 c172                      	RJMP RI_RELOJ ;Colocamos la rutina de interrupcion de timer 0 overflow
                                  
                                  //----Configuracion de la pila ----//
                                  START:
@@ -1241,12 +1241,12 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000093 2733                      	CLR CONT_TIMER0
 000094 c001                      	RJMP DESACTIVACION
                                  MODO0:
-000095 c0a4                      	RJMP MODO_0
+000095 c0a5                      	RJMP MODO_0
                                  //----Desactivacion de conteo automomatico----// 
                                  DESACTIVACION:
 000096 3022                      	CPI MODO, 2
 000097 f409                      	BRNE CUENTA_AUTOMATICA
-000098 c0a1                      	RJMP MODO_0
+000098 c0a2                      	RJMP MODO_0
                                  CUENTA_AUTOMATICA:
                                  //----UNIDADES MINUTOS----//
 000099 e0b1                      	LDI XH, 0X01
@@ -1256,741 +1256,742 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00009d f019                      	BREQ DECENAS_MIN
 00009e 0fa5                      	ADD XL, UNIDADES_MINUTOS
 00009f 919c                      	LD DISPLAYUNO, X
-0000a0 c099                      	RJMP MODO_0
+0000a0 c09a                      	RJMP MODO_0
                                  
                                  DECENAS_MIN:
 0000a1 e0b1                      	LDI XH, 0X01
 0000a2 e0a0                      	LDI XL, 0X00
-0000a3 2755                      	CLR	UNIDADES_MINUTOS
-0000a4 0fa5                      	ADD XL, UNIDADES_MINUTOS
-0000a5 919c                      	LD DISPLAYUNO, X
-0000a6 9563                      	INC DECENAS_MINUTOS
-0000a7 3066                      	CPI DECENAS_MINUTOS, 6 
-0000a8 f019                      	BREQ UNIDADES_HOR
-0000a9 0fa6                      	ADD XL, DECENAS_MINUTOS
-0000aa 91cc                      	LD DISPLAYDOS, X
-0000ab c08e                      	RJMP MODO_0
+0000a3 27aa                      	CLR R26
+0000a4 2755                      	CLR	UNIDADES_MINUTOS
+0000a5 0fa5                      	ADD XL, UNIDADES_MINUTOS
+0000a6 919c                      	LD DISPLAYUNO, X
+0000a7 9563                      	INC DECENAS_MINUTOS
+0000a8 3066                      	CPI DECENAS_MINUTOS, 6 
+0000a9 f019                      	BREQ UNIDADES_HOR
+0000aa 0fa6                      	ADD XL, DECENAS_MINUTOS
+0000ab 91cc                      	LD DISPLAYDOS, X
+0000ac c08e                      	RJMP MODO_0
                                  UNIDADES_HOR:
-0000ac e0b1                      	LDI XH, 0X01
-0000ad e0a0                      	LDI XL, 0X00
-0000ae 2766                      	CLR DECENAS_MINUTOS
-0000af 0fa6                      	ADD XL, DECENAS_MINUTOS
-0000b0 91cc                      	LD DISPLAYDOS, X
-0000b1 9573                      	INC UNIDADES_HORAS
-0000b2 3074                      	CPI UNIDADES_HORAS, 4
-0000b3 f029                      	BREQ CASO_ESPECIAL
+0000ad e0b1                      	LDI XH, 0X01
+0000ae e0a0                      	LDI XL, 0X00
+0000af 2766                      	CLR DECENAS_MINUTOS
+0000b0 0fa6                      	ADD XL, DECENAS_MINUTOS
+0000b1 91cc                      	LD DISPLAYDOS, X
+0000b2 9573                      	INC UNIDADES_HORAS
+0000b3 3074                      	CPI UNIDADES_HORAS, 4
+0000b4 f029                      	BREQ CASO_ESPECIAL
                                  REGRESO:
-0000b4 307a                      	CPI UNIDADES_HORAS, 10 
-0000b5 f031                      	BREQ DECENAS_HOR
-0000b6 0fa7                      	ADD XL, UNIDADES_HORAS
-0000b7 91dc                      	LD DISPLAYTRES, X
-0000b8 c081                      	RJMP MODO_0   
+0000b5 307a                      	CPI UNIDADES_HORAS, 10 
+0000b6 f031                      	BREQ DECENAS_HOR
+0000b7 0fa7                      	ADD XL, UNIDADES_HORAS
+0000b8 91dc                      	LD DISPLAYTRES, X
+0000b9 c081                      	RJMP MODO_0   
                                  CASO_ESPECIAL:
-0000b9 3082                      	CPI DECENAS_HORAS, 2
-0000ba f051                      	BREQ FIN_RELOJ
-0000bb cff8                      	RJMP REGRESO
+0000ba 3082                      	CPI DECENAS_HORAS, 2
+0000bb f051                      	BREQ FIN_RELOJ
+0000bc cff8                      	RJMP REGRESO
                                  DECENAS_HOR:
-0000bc e0b1                      	LDI XH, 0X01
-0000bd e0a0                      	LDI XL, 0X00
-0000be 2777                      	CLR UNIDADES_HORAS
-0000bf 0fa6                      	ADD XL, DECENAS_MINUTOS
-0000c0 91dc                      	LD DISPLAYTRES, X
-0000c1 9583                      	INC DECENAS_HORAS 
-0000c2 0fa8                      	ADD XL, DECENAS_HORAS
-0000c3 91ec                      	LD DISPLAYCUATRO, X
-0000c4 c075                      	RJMP MODO_0
+0000bd e0b1                      	LDI XH, 0X01
+0000be e0a0                      	LDI XL, 0X00
+0000bf 2777                      	CLR UNIDADES_HORAS
+0000c0 0fa6                      	ADD XL, DECENAS_MINUTOS
+0000c1 91dc                      	LD DISPLAYTRES, X
+0000c2 9583                      	INC DECENAS_HORAS 
+0000c3 0fa8                      	ADD XL, DECENAS_HORAS
+0000c4 91ec                      	LD DISPLAYCUATRO, X
+0000c5 c075                      	RJMP MODO_0
                                  FIN_RELOJ:
-0000c5 e0b1                      	LDI XH, 0X01
-0000c6 e0a0                      	LDI XL, 0X00
-0000c7 2788                      	CLR DECENAS_HORAS
-0000c8 2777                      	CLR UNIDADES_HORAS
-0000c9 0fa8                      	ADD XL, DECENAS_HORAS
-0000ca 91ec                      	LD DISPLAYCUATRO, X
-0000cb 0fa7                      	ADD XL, UNIDADES_HORAS
-0000cc 91dc                      	LD DISPLAYTRES, X 
-0000cd 91cc                      	LD DISPLAYDOS, X
-0000ce 919c                      	LD DISPLAYUNO, X
+0000c6 e0b1                      	LDI XH, 0X01
+0000c7 e0a0                      	LDI XL, 0X00
+0000c8 2788                      	CLR DECENAS_HORAS
+0000c9 2777                      	CLR UNIDADES_HORAS
+0000ca 0fa8                      	ADD XL, DECENAS_HORAS
+0000cb 91ec                      	LD DISPLAYCUATRO, X
+0000cc 0fa7                      	ADD XL, UNIDADES_HORAS
+0000cd 91dc                      	LD DISPLAYTRES, X 
+0000ce 91cc                      	LD DISPLAYDOS, X
+0000cf 919c                      	LD DISPLAYUNO, X
                                  
                                  //----DESACTIVACION FECHA----//
-0000cf 3023                      	CPI MODO, 3
-0000d0 f409                      	BRNE FECHA
-0000d1 c068                      	RJMP MODO_0
+0000d0 3023                      	CPI MODO, 3
+0000d1 f409                      	BRNE FECHA
+0000d2 c068                      	RJMP MODO_0
                                  //----LOGICA DE DESPLIEGUE DE FECHA----//
                                  FECHA:
-0000d2 e0b1                          LDI XH, 0X01
-0000d3 e0a0                          LDI XL, 0X00
-0000d4 90bc                          LD DISPLAYUNO_FECHA, X
-0000d5 94f3                          INC UNIDADES_DIAS
-0000d6 2d4f                          MOV R20, UNIDADES_DIAS
-0000d7 3049                          CPI R20, 9
-0000d8 f009                          BREQ CASO_FEBRERO
-0000d9 c009                      	RJMP REGRESO_NO_FEBRERO
+0000d3 e0b1                          LDI XH, 0X01
+0000d4 e0a0                          LDI XL, 0X00
+0000d5 90bc                          LD DISPLAYUNO_FECHA, X
+0000d6 94f3                          INC UNIDADES_DIAS
+0000d7 2d4f                          MOV R20, UNIDADES_DIAS
+0000d8 3049                          CPI R20, 9
+0000d9 f009                          BREQ CASO_FEBRERO
+0000da c009                      	RJMP REGRESO_NO_FEBRERO
                                  
                                  CASO_FEBRERO:
-0000da 2d4e                          MOV R20, DECENAS_DIAS
-0000db 3042                          CPI R20, 2
-0000dc f431                          BRNE REGRESO_NO_FEBRERO
-0000dd 2d4d                      	MOV R20, UNIDADES_MES 
-0000de 3042                      	CPI R20, 2
-0000df f419                      	BRNE REGRESO_NO_FEBRERO
-0000e0 2d4c                      	MOV R20, DECENAS_MES 
-0000e1 3040                      	CPI R20, 0
-0000e2 f141                      	BREQ UNIDADES_MESES
+0000db 2d4e                          MOV R20, DECENAS_DIAS
+0000dc 3042                          CPI R20, 2
+0000dd f431                          BRNE REGRESO_NO_FEBRERO
+0000de 2d4d                      	MOV R20, UNIDADES_MES 
+0000df 3042                      	CPI R20, 2
+0000e0 f419                      	BRNE REGRESO_NO_FEBRERO
+0000e1 2d4c                      	MOV R20, DECENAS_MES 
+0000e2 3040                      	CPI R20, 0
+0000e3 f141                      	BREQ UNIDADES_MESES
                                  
                                  REGRESO_NO_FEBRERO:
-0000e3 2d4f                          MOV R20, UNIDADES_DIAS
-0000e4 3041                          CPI R20, 1 
-0000e5 f481                          BRNE CASO_NO_TREINTA
-0000e6 2d4e                          MOV R20, DECENAS_DIAS
-0000e7 3043                          CPI R20, 3
-0000e8 f469                          BRNE CASO_NO_TREINTA
-0000e9 2d4d                          MOV R20, UNIDADES_MES
-0000ea 3044                          CPI R20, 4
-0000eb f0f9                          BREQ UNIDADES_MESES    ; Abril
-0000ec 3046                          CPI R20, 6
-0000ed f0e9                          BREQ UNIDADES_MESES    ; Junio
-0000ee 3049                          CPI R20, 9
-0000ef f179                          BREQ DECENAS_MESES 
-0000f0 2d4d                      	MOV R20, UNIDADES_MES
-0000f1 3041                      	CPI R20, 1
-0000f2 f419                      	BRNE CASO_NO_TREINTA
-0000f3 2d4c                          MOV R20, DECENAS_MES
-0000f4 3041                          CPI R20, 1
-0000f5 f0a9                          BREQ UNIDADES_MESES    ; Noviembre (mes 11)
+0000e4 2d4f                          MOV R20, UNIDADES_DIAS
+0000e5 3041                          CPI R20, 1 
+0000e6 f481                          BRNE CASO_NO_TREINTA
+0000e7 2d4e                          MOV R20, DECENAS_DIAS
+0000e8 3043                          CPI R20, 3
+0000e9 f469                          BRNE CASO_NO_TREINTA
+0000ea 2d4d                          MOV R20, UNIDADES_MES
+0000eb 3044                          CPI R20, 4
+0000ec f0f9                          BREQ UNIDADES_MESES    ; Abril
+0000ed 3046                          CPI R20, 6
+0000ee f0e9                          BREQ UNIDADES_MESES    ; Junio
+0000ef 3049                          CPI R20, 9
+0000f0 f179                          BREQ DECENAS_MESES 
+0000f1 2d4d                      	MOV R20, UNIDADES_MES
+0000f2 3041                      	CPI R20, 1
+0000f3 f419                      	BRNE CASO_NO_TREINTA
+0000f4 2d4c                          MOV R20, DECENAS_MES
+0000f5 3041                          CPI R20, 1
+0000f6 f0a9                          BREQ UNIDADES_MESES    ; Noviembre (mes 11)
                                  
                                  CASO_NO_TREINTA:
-0000f6 2d4f                          MOV R20, UNIDADES_DIAS
-0000f7 3042                          CPI R20, 2
-0000f8 f419                          BRNE FLUJO_NORMAL
-0000f9 2d4e                          MOV R20, DECENAS_DIAS
-0000fa 3043                          CPI R20, 3
-0000fb f079                          BREQ UNIDADES_MESES
+0000f7 2d4f                          MOV R20, UNIDADES_DIAS
+0000f8 3042                          CPI R20, 2
+0000f9 f419                          BRNE FLUJO_NORMAL
+0000fa 2d4e                          MOV R20, DECENAS_DIAS
+0000fb 3043                          CPI R20, 3
+0000fc f079                          BREQ UNIDADES_MESES
                                  
                                  FLUJO_NORMAL:
-0000fc 2d4f                          MOV R20, UNIDADES_DIAS
-0000fd 304a                          CPI R20, 10
-0000fe f019                          BREQ DECENAS_DIA
-0000ff 0daf                          ADD XL, UNIDADES_DIAS
-000100 90bc                          LD DISPLAYUNO_FECHA, X
-000101 c038                          RJMP MODO_0
+0000fd 2d4f                          MOV R20, UNIDADES_DIAS
+0000fe 304a                          CPI R20, 10
+0000ff f019                          BREQ DECENAS_DIA
+000100 0daf                          ADD XL, UNIDADES_DIAS
+000101 90bc                          LD DISPLAYUNO_FECHA, X
+000102 c038                          RJMP MODO_0
                                  
                                  DECENAS_DIA:
-000102 27aa                          CLR R26
-000103 e0b1                          LDI XH, 0X01
-000104 e0a0                          LDI XL, 0X00
-000105 24ff                          CLR UNIDADES_DIAS
-000106 94e3                          INC DECENAS_DIAS
-000107 90bc                          LD DISPLAYUNO_FECHA, X
-000108 0dae                          ADD XL, DECENAS_DIAS
-000109 90ac                          LD DISPLAYDOS_FECHA, X
-00010a c02f                          RJMP MODO_0
+000103 27aa                          CLR R26
+000104 e0b1                          LDI XH, 0X01
+000105 e0a0                          LDI XL, 0X00
+000106 24ff                          CLR UNIDADES_DIAS
+000107 94e3                          INC DECENAS_DIAS
+000108 90bc                          LD DISPLAYUNO_FECHA, X
+000109 0dae                          ADD XL, DECENAS_DIAS
+00010a 90ac                          LD DISPLAYDOS_FECHA, X
+00010b c02f                          RJMP MODO_0
                                  
                                  UNIDADES_MESES:
-00010b e0b1                          LDI XH, 0X01
-00010c e0a0                          LDI XL, 0X00
-00010d 24ee                          CLR DECENAS_DIAS
-00010e 24ff                          CLR UNIDADES_DIAS
-00010f 0dae                          ADD XL, DECENAS_DIAS
-000110 90ac                          LD DISPLAYDOS_FECHA, X
-000111 90bc                      	LD DISPLAYUNO_FECHA, X
-000112 94d3                          INC UNIDADES_MES
-000113 2d4d                          MOV R20, UNIDADES_MES
-000114 3043                          CPI R20, 3
-000115 f029                          BREQ CASO_ESPECIAL_FECHA
+00010c e0b1                          LDI XH, 0X01
+00010d e0a0                          LDI XL, 0X00
+00010e 24ee                          CLR DECENAS_DIAS
+00010f 24ff                          CLR UNIDADES_DIAS
+000110 0dae                          ADD XL, DECENAS_DIAS
+000111 90ac                          LD DISPLAYDOS_FECHA, X
+000112 90bc                      	LD DISPLAYUNO_FECHA, X
+000113 94d3                          INC UNIDADES_MES
+000114 2d4d                          MOV R20, UNIDADES_MES
+000115 3043                          CPI R20, 3
+000116 f029                          BREQ CASO_ESPECIAL_FECHA
                                  
                                  REGRESO_FECHA:
-000116 304a                          CPI R20, 10
-000117 f039                          BREQ DECENAS_MESES
-000118 0dad                          ADD XL, UNIDADES_MES
-000119 909c                          LD DISPLAYTRES_FECHA, X
-00011a c01f                          RJMP MODO_0
+000117 304a                          CPI R20, 10
+000118 f039                          BREQ DECENAS_MESES
+000119 0dad                          ADD XL, UNIDADES_MES
+00011a 909c                          LD DISPLAYTRES_FECHA, X
+00011b c01f                          RJMP MODO_0
                                  	  
                                  CASO_ESPECIAL_FECHA:
-00011b 2d4c                          MOV R20, DECENAS_MES
-00011c 3041                          CPI R20, 1
-00011d f069                          BREQ FIN_FECHA
-00011e cff7                          RJMP REGRESO_FECHA
+00011c 2d4c                          MOV R20, DECENAS_MES
+00011d 3041                          CPI R20, 1
+00011e f069                          BREQ FIN_FECHA
+00011f cff7                          RJMP REGRESO_FECHA
                                  
                                  DECENAS_MESES:
-00011f e0b1                          LDI XH, 0X01
-000120 e0a0                          LDI XL, 0X00
-000121 24dd                      	CLR UNIDADES_MES
-000122 24ff                      	CLR UNIDADES_DIAS 
-000123 24ee                      	CLR DECENAS_DIAS
-000124 94c3                          INC DECENAS_MES
-000125 90bc                      	LD DISPLAYUNO_FECHA, X
-000126 90ac                      	LD DISPLAYDOS_FECHA, X 
-000127 909c                          LD DISPLAYTRES_FECHA, X
-000128 0dac                          ADD XL, DECENAS_MES
-000129 908c                          LD DISPLAYCUATRO_FECHA, X
-00012a c00f                          RJMP MODO_0
+000120 e0b1                          LDI XH, 0X01
+000121 e0a0                          LDI XL, 0X00
+000122 24dd                      	CLR UNIDADES_MES
+000123 24ff                      	CLR UNIDADES_DIAS 
+000124 24ee                      	CLR DECENAS_DIAS
+000125 94c3                          INC DECENAS_MES
+000126 90bc                      	LD DISPLAYUNO_FECHA, X
+000127 90ac                      	LD DISPLAYDOS_FECHA, X 
+000128 909c                          LD DISPLAYTRES_FECHA, X
+000129 0dac                          ADD XL, DECENAS_MES
+00012a 908c                          LD DISPLAYCUATRO_FECHA, X
+00012b c00f                          RJMP MODO_0
                                  
                                  FIN_FECHA:
-00012b e0b1                          LDI XH, 0X01
-00012c e0a0                          LDI XL, 0X00
-00012d 94f3                          INC UNIDADES_DIAS 
-00012e 24ee                      	CLR DECENAS_DIAS 
-00012f 24dd                      	CLR UNIDADES_MES 
-000130 94d3                      	INC UNIDADES_MES 
-000131 24cc                      	CLR DECENAS_MES
-000132 e0a1                          LDI XL, 0X01
-000133 90bc                      	LD DISPLAYUNO_FECHA, X
-000134 e0a0                      	LDI XL, 0X00
-000135 90ac                      	LD DISPLAYDOS_FECHA, X
-000136 e0a1                      	LDI XL, 0X01
-000137 909c                      	LD DISPLAYTRES_FECHA, X
-000138 e0a0                      	LDI XL, 0X00
-000139 908c                      	LD DISPLAYCUATRO_FECHA, X
+00012c e0b1                          LDI XH, 0X01
+00012d e0a0                          LDI XL, 0X00
+00012e 94f3                          INC UNIDADES_DIAS 
+00012f 24ee                      	CLR DECENAS_DIAS 
+000130 24dd                      	CLR UNIDADES_MES 
+000131 94d3                      	INC UNIDADES_MES 
+000132 24cc                      	CLR DECENAS_MES
+000133 e0a1                          LDI XL, 0X01
+000134 90bc                      	LD DISPLAYUNO_FECHA, X
+000135 e0a0                      	LDI XL, 0X00
+000136 90ac                      	LD DISPLAYDOS_FECHA, X
+000137 e0a1                      	LDI XL, 0X01
+000138 909c                      	LD DISPLAYTRES_FECHA, X
+000139 e0a0                      	LDI XL, 0X00
+00013a 908c                      	LD DISPLAYCUATRO_FECHA, X
                                  
                                  
                                  MODO_0:
-00013a 3020                      	CPI MODO, 0 ;Comparamos para ver si estamos en el modo correcto.
-00013b f451                      	BRNE MODO_1	;si no lo mandamos a comparar a al siguente modo
+00013b 3020                      	CPI MODO, 0 ;Comparamos para ver si estamos en el modo correcto.
+00013c f451                      	BRNE MODO_1	;si no lo mandamos a comparar a al siguente modo
                                  	//----500ms----// 
-00013c ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
-00013d 9a40                      	SBI PORTC, 0
-00013e fd30                      	SBRC CONT_TIMER0, 0
-00013f 9840                      	CBI PORTC, 0
-000140 9845                      	CBI PORTC, 5 ;apagamos en pin 5 de PORTC por si estaba encendido al salir del modo 5 
-000141 982d                      	CBI PORTB, 5
+00013d ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+00013e 9a40                      	SBI PORTC, 0
+00013f fd30                      	SBRC CONT_TIMER0, 0
+000140 9840                      	CBI PORTC, 0
+000141 9845                      	CBI PORTC, 5 ;apagamos en pin 5 de PORTC por si estaba encendido al salir del modo 5 
+000142 982d                      	CBI PORTB, 5
                                  //----indicador de hora----//
-000142 9a2b                      	SBI PORTB, 3 ;encendemos el indicador de modo hora 
+000143 9a2b                      	SBI PORTB, 3 ;encendemos el indicador de modo hora 
                                  //----Inicio de la multiplexacion----//
-000143 940e 01bf                 	CALL MULTIPLEXACION 
-000145 cf48                      	RJMP LOOP
+000144 940e 01c0                 	CALL MULTIPLEXACION 
+000146 cf47                      	RJMP LOOP
                                  
                                  MODO_1:
-000146 3021                      	CPI MODO, 1
-000147 f431                      	BRNE MODO_2
-000148 982b                      	CBI PORTB, 3
-000149 9a2c                      	SBI PORTB, 4
-00014a 9a40                      	SBI PORTC, 0
+000147 3021                      	CPI MODO, 1
+000148 f431                      	BRNE MODO_2
+000149 982b                      	CBI PORTB, 3
+00014a 9a2c                      	SBI PORTB, 4
+00014b 9a40                      	SBI PORTC, 0
                                  //----MULTIPLEXACION FECHA----//
-00014b 940e 0214                 	CALL MULTIPLEXACION_FECHA
-00014d cf40                      	RJMP LOOP 
+00014c 940e 0215                 	CALL MULTIPLEXACION_FECHA
+00014e cf3f                      	RJMP LOOP 
                                  
                                  MODO_2:
-00014e 3022                      	CPI MODO, 2 
-00014f f469                      	BRNE MODO_3
-000150 982c                      	CBI PORTB, 4
+00014f 3022                      	CPI MODO, 2 
+000150 f469                      	BRNE MODO_3
+000151 982c                      	CBI PORTB, 4
                                  //----INDICADOR MODO CONFIG HORA----//
-000151 ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
-000152 9a2b                      	SBI PORTB, 3
-000153 fd30                      	SBRC CONT_TIMER0, 0
-000154 982b                      	CBI PORTB, 3
-000155 9840                      	CBI PORTC, 0
+000152 ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+000153 9a2b                      	SBI PORTB, 3
+000154 fd30                      	SBRC CONT_TIMER0, 0
+000155 982b                      	CBI PORTB, 3
+000156 9840                      	CBI PORTC, 0
                                  //---cambio de hora manual---//
-000156 940e 01d4                 	CALL DECENAS_UNIDADES_MIN
-000158 940e 01ed                 	CALL UNIDADES_DECENAS_HOR
-00015a 940e 01bf                 	CALL MULTIPLEXACION 
-00015c cf31                      	RJMP LOOP
+000157 940e 01d5                 	CALL DECENAS_UNIDADES_MIN
+000159 940e 01ee                 	CALL UNIDADES_DECENAS_HOR
+00015b 940e 01c0                 	CALL MULTIPLEXACION 
+00015d cf30                      	RJMP LOOP
                                  MODO_3:
-00015d 3023                      	CPI MODO, 3
-00015e f461                      	BRNE MODO_4
-00015f 982b                      	CBI PORTB, 3
+00015e 3023                      	CPI MODO, 3
+00015f f461                      	BRNE MODO_4
+000160 982b                      	CBI PORTB, 3
                                  //----INDICADOR CONFIG FECHA----//
-000160 ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
-000161 9a2c                      	SBI PORTB, 4
-000162 fd30                      	SBRC CONT_TIMER0, 0
-000163 982c                      	CBI PORTB, 4
+000161 ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+000162 9a2c                      	SBI PORTB, 4
+000163 fd30                      	SBRC CONT_TIMER0, 0
+000164 982c                      	CBI PORTB, 4
                                  //----CONFIGURACION FECHA----//
-000164 940e 0229                 	CALL FECHA_MANUAL
-000166 940e 026f                 	CALL FECHA_MESES_MANUAL
-000168 940e 0214                 	CALL MULTIPLEXACION_FECHA
-00016a cf23                      	RJMP LOOP 
+000165 940e 022a                 	CALL FECHA_MANUAL
+000167 940e 0270                 	CALL FECHA_MESES_MANUAL
+000169 940e 0215                 	CALL MULTIPLEXACION_FECHA
+00016b cf22                      	RJMP LOOP 
                                  
                                  MODO_4:
-00016b 3024                      	CPI MODO, 4
-00016c f461                      	BRNE MODO_5
-00016d 982c                      	CBI PORTB, 4
+00016c 3024                      	CPI MODO, 4
+00016d f461                      	BRNE MODO_5
+00016e 982c                      	CBI PORTB, 4
                                  //----Indicador de CONFIG ALARMA----//
-00016e ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
-00016f 9a2d                      	SBI PORTB, 5
-000170 fd30                      	SBRC CONT_TIMER0, 0
-000171 982d                      	CBI PORTB, 5
+00016f ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+000170 9a2d                      	SBI PORTB, 5
+000171 fd30                      	SBRC CONT_TIMER0, 0
+000172 982d                      	CBI PORTB, 5
                                  //CONFIGURACION ALARMA MANUAL----//
-000172 940e 0296                 	CALL CONFIG_ALARMA_MINUTOS
-000174 940e 02c8                 	CALL CONFIG_ALARMA_HORAS 
-000176 940e 02b3                 	CALL MULTIPLEXACION_ALARMA
-000178 cf15                      	RJMP LOOP
+000173 940e 0297                 	CALL CONFIG_ALARMA_MINUTOS
+000175 940e 02c9                 	CALL CONFIG_ALARMA_HORAS 
+000177 940e 02b4                 	CALL MULTIPLEXACION_ALARMA
+000179 cf14                      	RJMP LOOP
                                  	 
                                  MODO_5:
-000179 3025                      	CPI MODO, 5
-00017a f4b1                      	BRNE FIN
-00017b ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
-00017c 9a40                      	SBI PORTC, 0
-00017d fd30                      	SBRC CONT_TIMER0, 0
-00017e 9840                      	CBI PORTC, 0
+00017a 3025                      	CPI MODO, 5
+00017b f4b1                      	BRNE FIN
+00017c ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+00017d 9a40                      	SBI PORTC, 0
+00017e fd30                      	SBRC CONT_TIMER0, 0
+00017f 9840                      	CBI PORTC, 0
                                  //----INDICADOR DE ALARMA ARMADA----//
-00017f 9a2d                      	SBI PORTB, 5
-000180 9a2b                      	SBI PORTB, 3
-000181 940e 01bf                 	CALL MULTIPLEXACION
+000180 9a2d                      	SBI PORTB, 5
+000181 9a2b                      	SBI PORTB, 3
+000182 940e 01c0                 	CALL MULTIPLEXACION
                                  //----LOGICA DE COMPARACION DE ALARMA----//
-000183 1557                      	CP UNIDADES_MINUTOS, ALARMA_MINUTOS_UNIDADES
-000184 f009                      	BREQ BANDERA_1
-000185 cf08                      	RJMP LOOP
+000184 1557                      	CP UNIDADES_MINUTOS, ALARMA_MINUTOS_UNIDADES
+000185 f009                      	BREQ BANDERA_1
+000186 cf07                      	RJMP LOOP
                                  BANDERA_1:
-000186 1566                      	CP DECENAS_MINUTOS, ALARMA_MINUTOS_DECENAS
-000187 f009                      	BREQ BANDERA_2 
-000188 cf05                      	RJMP LOOP 
+000187 1566                      	CP DECENAS_MINUTOS, ALARMA_MINUTOS_DECENAS
+000188 f009                      	BREQ BANDERA_2 
+000189 cf04                      	RJMP LOOP 
                                  BANDERA_2:
-000189 1575                      	CP UNIDADES_HORAS, ALARMA_HORAS_UNIDADES
-00018a f009                      	BREQ BANDERA_3
-00018b cf02                      	RJMP LOOP 
+00018a 1575                      	CP UNIDADES_HORAS, ALARMA_HORAS_UNIDADES
+00018b f009                      	BREQ BANDERA_3
+00018c cf01                      	RJMP LOOP 
                                  BANDERA_3:
-00018c 1584                      	CP DECENAS_HORAS, ALARMA_HORAS_DECENAS
-00018d f009                      	BREQ BANDERA_4
-00018e ceff                      	RJMP LOOP
+00018d 1584                      	CP DECENAS_HORAS, ALARMA_HORAS_DECENAS
+00018e f009                      	BREQ BANDERA_4
+00018f cefe                      	RJMP LOOP
                                  BANDERA_4:
-00018f 9a45                      	SBI PORTC, 5
-000190 cefd                      	RJMP LOOP
-                                 FIN:
+000190 9a45                      	SBI PORTC, 5
 000191 cefc                      	RJMP LOOP
+                                 FIN:
+000192 cefb                      	RJMP LOOP
                                  
                                  //----Rutina de interrupcion TIMER0----//
                                  RI_RELOJ:
-000192 e00c                      	LDI R16, 12 ;Recargamos el valor al TCNT0 
-000193 bd06                      	OUT TCNT0, R16 ;Se carga el valor de 5 para que vuelva a contar 1ms 
-000194 9533                      	INC CONT_TIMER0 ;Incrementamos el regsitro que llevara la cuenta para cambiar cada 500ms 
-000195 9518                      	RETI ;Regresamos de la interrupcion
+000193 e00c                      	LDI R16, 12 ;Recargamos el valor al TCNT0 
+000194 bd06                      	OUT TCNT0, R16 ;Se carga el valor de 5 para que vuelva a contar 1ms 
+000195 9533                      	INC CONT_TIMER0 ;Incrementamos el regsitro que llevara la cuenta para cambiar cada 500ms 
+000196 9518                      	RETI ;Regresamos de la interrupcion
                                  
                                  //----Rutina de interrupcion del TIMER2----//
                                  RI_10MS:
-000196 ef0e                      	LDI R16, 254 ;Recargamos el valor de del TCNT2
-000197 9300 00b2                 	STS TCNT2, R16 ;Se recarga el valor de 251 
-000199 95f3                      	INC CONT_TIMER2 ;Incrementamos el registro cada 10ms 
-00019a 9518                      	RETI 
+000197 ef0e                      	LDI R16, 254 ;Recargamos el valor de del TCNT2
+000198 9300 00b2                 	STS TCNT2, R16 ;Se recarga el valor de 251 
+00019a 95f3                      	INC CONT_TIMER2 ;Incrementamos el registro cada 10ms 
+00019b 9518                      	RETI 
                                  
                                  //----Rutina de interrupcion PIN CHANGE----//
                                  RI_BOTONES:
-00019b b103                      	IN R16, PINB ;Hacemos lectura de los botones
-00019c fd00                      	SBRC R16, 0 ;Si el bit 0 esta en 0 significa que se presiono el boyon de cambiar de modo
-00019d c001                      	RJMP BIT_1 ;Si no es asi sale
-00019e 9523                      	INC MODO
+00019c b103                      	IN R16, PINB ;Hacemos lectura de los botones
+00019d fd00                      	SBRC R16, 0 ;Si el bit 0 esta en 0 significa que se presiono el boyon de cambiar de modo
+00019e c001                      	RJMP BIT_1 ;Si no es asi sale
+00019f 9523                      	INC MODO
                                  BIT_1:	
-00019f fd01                      	SBRC R16, 1 
-0001a0 c00c                      	RJMP BIT_2
-0001a1 3022                      	CPI MODO, 2
-0001a2 f029                      	BREQ INCREMENTO_HORA_MINUTOS
-0001a3 3023                      	CPI MODO, 3
-0001a4 f029                      	BREQ INCREMENTO_FECHA_DIAS
-0001a5 3024                      	CPI MODO, 4
-0001a6 f029                      	BREQ INCREMENTO_ALARMA_MINUTOS
-0001a7 c005                      	RJMP BIT_2
+0001a0 fd01                      	SBRC R16, 1 
+0001a1 c00c                      	RJMP BIT_2
+0001a2 3022                      	CPI MODO, 2
+0001a3 f029                      	BREQ INCREMENTO_HORA_MINUTOS
+0001a4 3023                      	CPI MODO, 3
+0001a5 f029                      	BREQ INCREMENTO_FECHA_DIAS
+0001a6 3024                      	CPI MODO, 4
+0001a7 f029                      	BREQ INCREMENTO_ALARMA_MINUTOS
+0001a8 c005                      	RJMP BIT_2
                                  INCREMENTO_HORA_MINUTOS:
-0001a8 9553                      	INC UNIDADES_MINUTOS 
-0001a9 c003                      	RJMP BIT_2
+0001a9 9553                      	INC UNIDADES_MINUTOS 
+0001aa c003                      	RJMP BIT_2
                                  INCREMENTO_FECHA_DIAS:
-0001aa 94f3                      	INC UNIDADES_DIAS
-0001ab c001                      	RJMP BIT_2
+0001ab 94f3                      	INC UNIDADES_DIAS
+0001ac c001                      	RJMP BIT_2
                                  INCREMENTO_ALARMA_MINUTOS:
-0001ac 9473                      	INC ALARMA_MINUTOS_UNIDADES
+0001ad 9473                      	INC ALARMA_MINUTOS_UNIDADES
                                  BIT_2:
-0001ad fd02                      	SBRC R16, 2
-0001ae c00c                      	RJMP COMPARACION
-0001af 3022                      	CPI MODO, 2
-0001b0 f029                      	BREQ INCREMENTO_HORAS
-0001b1 3023                      	CPI MODO, 3
-0001b2 f029                      	BREQ INCREMENTO_FECHA_MESES
-0001b3 3024                      	CPI MODO, 4
-0001b4 f029                      	BREQ INCREMENTO_ALARMA_HORAS
-0001b5 c005                      	RJMP COMPARACION
+0001ae fd02                      	SBRC R16, 2
+0001af c00c                      	RJMP COMPARACION
+0001b0 3022                      	CPI MODO, 2
+0001b1 f029                      	BREQ INCREMENTO_HORAS
+0001b2 3023                      	CPI MODO, 3
+0001b3 f029                      	BREQ INCREMENTO_FECHA_MESES
+0001b4 3024                      	CPI MODO, 4
+0001b5 f029                      	BREQ INCREMENTO_ALARMA_HORAS
+0001b6 c005                      	RJMP COMPARACION
                                  INCREMENTO_HORAS:
-0001b6 9573                      	INC UNIDADES_HORAS
-0001b7 c003                      	RJMP COMPARACION
+0001b7 9573                      	INC UNIDADES_HORAS
+0001b8 c003                      	RJMP COMPARACION
                                  INCREMENTO_FECHA_MESES:
-0001b8 94d3                      	INC UNIDADES_MES
-0001b9 c001                      	RJMP COMPARACION
+0001b9 94d3                      	INC UNIDADES_MES
+0001ba c001                      	RJMP COMPARACION
                                  INCREMENTO_ALARMA_HORAS:
-0001ba 9453                      	INC ALARMA_HORAS_UNIDADES 
+0001bb 9453                      	INC ALARMA_HORAS_UNIDADES 
                                  COMPARACION:
-0001bb 3026                      	CPI MODO, 6 
-0001bc f409                      	BRNE EXIT 
-0001bd 2722                      	CLR MODO
+0001bc 3026                      	CPI MODO, 6 
+0001bd f409                      	BRNE EXIT 
+0001be 2722                      	CLR MODO
                                  EXIT:
-0001be 9518                      	RETI
+0001bf 9518                      	RETI
                                  //----SUBRUTINA DE MULTIPLEXACION
                                  MULTIPLEXACION:
-0001bf 30f0                      	CPI CONT_TIMER2, 0
-0001c0 f419                      	BRNE DISPLAY2 
-0001c1 9a41                      	SBI PORTC, 1
-0001c2 b99b                      	OUT PORTD, DISPLAYUNO
-0001c3 9841                      	CBI PORTC, 1
+0001c0 30f0                      	CPI CONT_TIMER2, 0
+0001c1 f419                      	BRNE DISPLAY2 
+0001c2 9a41                      	SBI PORTC, 1
+0001c3 b99b                      	OUT PORTD, DISPLAYUNO
+0001c4 9841                      	CBI PORTC, 1
                                  DISPLAY2: 
-0001c4 30f1                      	CPI CONT_TIMER2, 1
-0001c5 f419                      	BRNE DISPLAY3
-0001c6 9a42                      	SBI PORTC, 2
-0001c7 b9cb                      	OUT PORTD, DISPLAYDOS
-0001c8 9842                      	CBI PORTC, 2
+0001c5 30f1                      	CPI CONT_TIMER2, 1
+0001c6 f419                      	BRNE DISPLAY3
+0001c7 9a42                      	SBI PORTC, 2
+0001c8 b9cb                      	OUT PORTD, DISPLAYDOS
+0001c9 9842                      	CBI PORTC, 2
                                  DISPLAY3:
-0001c9 30f2                      	CPI CONT_TIMER2, 2
-0001ca f419                      	BRNE DISPLAY4
-0001cb 9a44                      	SBI PORTC, 4
-0001cc b9db                      	OUT PORTD, DISPLAYTRES
-0001cd 9844                      	CBI PORTC, 4 
+0001ca 30f2                      	CPI CONT_TIMER2, 2
+0001cb f419                      	BRNE DISPLAY4
+0001cc 9a44                      	SBI PORTC, 4
+0001cd b9db                      	OUT PORTD, DISPLAYTRES
+0001ce 9844                      	CBI PORTC, 4 
                                  DISPLAY4:
-0001ce 30f3                      	CPI CONT_TIMER2, 3
-0001cf f419                      	BRNE FIN_MULTI
-0001d0 9a43                      	SBI PORTC, 3
-0001d1 b9eb                      	OUT PORTD, DISPLAYCUATRO 
-0001d2 9843                      	CBI PORTC, 3 
+0001cf 30f3                      	CPI CONT_TIMER2, 3
+0001d0 f419                      	BRNE FIN_MULTI
+0001d1 9a43                      	SBI PORTC, 3
+0001d2 b9eb                      	OUT PORTD, DISPLAYCUATRO 
+0001d3 9843                      	CBI PORTC, 3 
                                  FIN_MULTI:
-0001d3 9508                      	RET
+0001d4 9508                      	RET
                                  
                                  //----SUB-RUTINA DE DECENAS Y UNIDADES DE MINUTOS----//
                                  DECENAS_UNIDADES_MIN:
-0001d4 e0b1                      	LDI XH, 0X01
-0001d5 e0a0                      	LDI XL, 0X00
-0001d6 305a                      	CPI UNIDADES_MINUTOS, 10
-0001d7 f418                      	BRSH DECENAS_MIN_MANUAL
-0001d8 0fa5                      	ADD XL, UNIDADES_MINUTOS
-0001d9 919c                      	LD DISPLAYUNO, X
-0001da 9508                      	RET
+0001d5 e0b1                      	LDI XH, 0X01
+0001d6 e0a0                      	LDI XL, 0X00
+0001d7 305a                      	CPI UNIDADES_MINUTOS, 10
+0001d8 f418                      	BRSH DECENAS_MIN_MANUAL
+0001d9 0fa5                      	ADD XL, UNIDADES_MINUTOS
+0001da 919c                      	LD DISPLAYUNO, X
+0001db 9508                      	RET
                                  DECENAS_MIN_MANUAL:
-0001db e0b1                      `	LDI XH, 0X01
-0001dc e0a0                      	LDI XL, 0X00
-0001dd 2755                      	CLR	UNIDADES_MINUTOS
-0001de 0fa5                      	ADD XL, UNIDADES_MINUTOS
-0001df 919c                      	LD DISPLAYUNO, X
-0001e0 9563                      	INC DECENAS_MINUTOS
-0001e1 3066                      	CPI DECENAS_MINUTOS, 6 
-0001e2 f420                      	BRSH OVERFLOW_UNIDADES_MIN 
-0001e3 27aa                      	CLR R26 
-0001e4 0fa6                      	ADD XL, DECENAS_MINUTOS
-0001e5 91cc                      	LD DISPLAYDOS, X
-0001e6 9508                      	RET
+0001dc e0b1                      `	LDI XH, 0X01
+0001dd e0a0                      	LDI XL, 0X00
+0001de 2755                      	CLR	UNIDADES_MINUTOS
+0001df 0fa5                      	ADD XL, UNIDADES_MINUTOS
+0001e0 919c                      	LD DISPLAYUNO, X
+0001e1 9563                      	INC DECENAS_MINUTOS
+0001e2 3066                      	CPI DECENAS_MINUTOS, 6 
+0001e3 f420                      	BRSH OVERFLOW_UNIDADES_MIN 
+0001e4 27aa                      	CLR R26 
+0001e5 0fa6                      	ADD XL, DECENAS_MINUTOS
+0001e6 91cc                      	LD DISPLAYDOS, X
+0001e7 9508                      	RET
                                  OVERFLOW_UNIDADES_MIN:
-0001e7 e0b1                      	LDI XH, 0X01
-0001e8 e0a0                      	LDI XL, 0X00
-0001e9 2766                      	CLR DECENAS_MINUTOS
-0001ea 0fa6                      	ADD XL, DECENAS_MINUTOS
-0001eb 91cc                      	LD DISPLAYDOS, X
-0001ec 9508                      	RET
+0001e8 e0b1                      	LDI XH, 0X01
+0001e9 e0a0                      	LDI XL, 0X00
+0001ea 2766                      	CLR DECENAS_MINUTOS
+0001eb 0fa6                      	ADD XL, DECENAS_MINUTOS
+0001ec 91cc                      	LD DISPLAYDOS, X
+0001ed 9508                      	RET
                                  
                                  //----RUTINA DECENAS UNIDADES HORAS----//
                                  UNIDADES_DECENAS_HOR:
-0001ed e0b1                      	LDI XH, 0X01
-0001ee e0a0                      	LDI XL, 0X00
-0001ef 3074                      	CPI UNIDADES_HORAS, 4
-0001f0 f029                      	BREQ CASO_ESPECIAL_MANUAL
+0001ee e0b1                      	LDI XH, 0X01
+0001ef e0a0                      	LDI XL, 0X00
+0001f0 3074                      	CPI UNIDADES_HORAS, 4
+0001f1 f029                      	BREQ CASO_ESPECIAL_MANUAL
                                  REGRESO_MANUAL:
-0001f1 307a                      	CPI UNIDADES_HORAS, 10 
-0001f2 f031                      	BREQ DECENAS_HOR_MANUAL 
-0001f3 0fa7                      	ADD XL, UNIDADES_HORAS
-0001f4 91dc                      	LD DISPLAYTRES, X
-0001f5 c01d                      	RJMP FIN_CAMBIOS   
+0001f2 307a                      	CPI UNIDADES_HORAS, 10 
+0001f3 f031                      	BREQ DECENAS_HOR_MANUAL 
+0001f4 0fa7                      	ADD XL, UNIDADES_HORAS
+0001f5 91dc                      	LD DISPLAYTRES, X
+0001f6 c01d                      	RJMP FIN_CAMBIOS   
                                  CASO_ESPECIAL_MANUAL:
-0001f6 3082                      	CPI DECENAS_HORAS, 2
-0001f7 f059                      	BREQ FIN_RELOJ_MANUAL
-0001f8 cff8                      	RJMP REGRESO_MANUAL 
+0001f7 3082                      	CPI DECENAS_HORAS, 2
+0001f8 f059                      	BREQ FIN_RELOJ_MANUAL
+0001f9 cff8                      	RJMP REGRESO_MANUAL 
                                  DECENAS_HOR_MANUAL:
-0001f9 e0b1                      	LDI XH, 0X01
-0001fa e0a0                      	LDI XL, 0X00
-0001fb 2777                      	CLR UNIDADES_HORAS
-0001fc 0fa6                      	ADD XL, DECENAS_MINUTOS
-0001fd 91dc                      	LD DISPLAYTRES, X 
-0001fe 9583                      	INC DECENAS_HORAS
-0001ff 27aa                      	CLR R26
-000200 0fa8                      	ADD XL, DECENAS_HORAS
-000201 91ec                      	LD DISPLAYCUATRO, X
-000202 c010                      	RJMP FIN_CAMBIOS
+0001fa e0b1                      	LDI XH, 0X01
+0001fb e0a0                      	LDI XL, 0X00
+0001fc 2777                      	CLR UNIDADES_HORAS
+0001fd 0fa6                      	ADD XL, DECENAS_MINUTOS
+0001fe 91dc                      	LD DISPLAYTRES, X 
+0001ff 9583                      	INC DECENAS_HORAS
+000200 27aa                      	CLR R26
+000201 0fa8                      	ADD XL, DECENAS_HORAS
+000202 91ec                      	LD DISPLAYCUATRO, X
+000203 c010                      	RJMP FIN_CAMBIOS
                                  FIN_RELOJ_MANUAL:
-000203 e0b1                      	LDI XH, 0X01
-000204 e0a0                      	LDI XL, 0X00
-000205 27aa                      	CLR R26
-000206 27bb                      	CLR R27
-000207 2755                      	CLR UNIDADES_MINUTOS 
-000208 2766                      	CLR DECENAS_MINUTOS
-000209 2788                      	CLR DECENAS_HORAS
-00020a 2777                      	CLR UNIDADES_HORAS
-00020b 0fa8                      	ADD XL, DECENAS_HORAS
-00020c 91ec                      	LD DISPLAYCUATRO, X
-00020d 0fa7                      	ADD XL, UNIDADES_HORAS
-00020e 919c                      	LD DISPLAYUNO, X
-00020f 91dc                      	LD DISPLAYTRES, X 
-000210 91cc                      	LD DISPLAYDOS, X
-000211 919c                      	LD DISPLAYUNO, X
-000212 c000                      	RJMP FIN_CAMBIOS
+000204 e0b1                      	LDI XH, 0X01
+000205 e0a0                      	LDI XL, 0X00
+000206 27aa                      	CLR R26
+000207 27bb                      	CLR R27
+000208 2755                      	CLR UNIDADES_MINUTOS 
+000209 2766                      	CLR DECENAS_MINUTOS
+00020a 2788                      	CLR DECENAS_HORAS
+00020b 2777                      	CLR UNIDADES_HORAS
+00020c 0fa8                      	ADD XL, DECENAS_HORAS
+00020d 91ec                      	LD DISPLAYCUATRO, X
+00020e 0fa7                      	ADD XL, UNIDADES_HORAS
+00020f 919c                      	LD DISPLAYUNO, X
+000210 91dc                      	LD DISPLAYTRES, X 
+000211 91cc                      	LD DISPLAYDOS, X
+000212 919c                      	LD DISPLAYUNO, X
+000213 c000                      	RJMP FIN_CAMBIOS
                                  FIN_CAMBIOS:
-000213 9508                      	RET
+000214 9508                      	RET
                                  
                                  //----RUTINA DE MULTIPLEXACION PARA LA FECHA----//
                                  MULTIPLEXACION_FECHA:
-000214 30f0                      	CPI CONT_TIMER2, 0
-000215 f419                      	BRNE DISPLAY2_FECHA 
-000216 9a41                      	SBI PORTC, 1
-000217 b8bb                      	OUT PORTD, DISPLAYUNO_FECHA 
-000218 9841                      	CBI PORTC, 1
+000215 30f0                      	CPI CONT_TIMER2, 0
+000216 f419                      	BRNE DISPLAY2_FECHA 
+000217 9a41                      	SBI PORTC, 1
+000218 b8bb                      	OUT PORTD, DISPLAYUNO_FECHA 
+000219 9841                      	CBI PORTC, 1
                                  DISPLAY2_FECHA: 
-000219 30f1                      	CPI CONT_TIMER2, 1
-00021a f419                      	BRNE DISPLAY3_FECHA 
-00021b 9a42                      	SBI PORTC, 2
-00021c b8ab                      	OUT PORTD, DISPLAYDOS_FECHA
-00021d 9842                      	CBI PORTC, 2
+00021a 30f1                      	CPI CONT_TIMER2, 1
+00021b f419                      	BRNE DISPLAY3_FECHA 
+00021c 9a42                      	SBI PORTC, 2
+00021d b8ab                      	OUT PORTD, DISPLAYDOS_FECHA
+00021e 9842                      	CBI PORTC, 2
                                  DISPLAY3_FECHA:
-00021e 30f2                      	CPI CONT_TIMER2, 2
-00021f f419                      	BRNE DISPLAY4_FECHA 
-000220 9a44                      	SBI PORTC, 4
-000221 b89b                      	OUT PORTD, DISPLAYTRES_FECHA
-000222 9844                      	CBI PORTC, 4 
+00021f 30f2                      	CPI CONT_TIMER2, 2
+000220 f419                      	BRNE DISPLAY4_FECHA 
+000221 9a44                      	SBI PORTC, 4
+000222 b89b                      	OUT PORTD, DISPLAYTRES_FECHA
+000223 9844                      	CBI PORTC, 4 
                                  DISPLAY4_FECHA:
-000223 30f3                      	CPI CONT_TIMER2, 3
-000224 f419                      	BRNE FIN_MULTI_FECHA 
-000225 9a43                      	SBI PORTC, 3
-000226 b88b                      	OUT PORTD, DISPLAYCUATRO_FECHA 
-000227 9843                      	CBI PORTC, 3 
+000224 30f3                      	CPI CONT_TIMER2, 3
+000225 f419                      	BRNE FIN_MULTI_FECHA 
+000226 9a43                      	SBI PORTC, 3
+000227 b88b                      	OUT PORTD, DISPLAYCUATRO_FECHA 
+000228 9843                      	CBI PORTC, 3 
                                  FIN_MULTI_FECHA:
-000228 9508                      	RET	
+000229 9508                      	RET	
                                  
                                  //----SUBRUTINA DE FECHA MANUAL DIAS----//
                                  FECHA_MANUAL:
-000229 e0b1                      	LDI XH, 0X01
-00022a e0a0                          LDI XL, 0X00
-00022b 90bc                      	LD DISPLAYUNO_FECHA, X
-00022c 2d4f                          MOV R20, UNIDADES_DIAS
-00022d 3049                          CPI R20, 9
-00022e f408                          BRSH CASO_FEBRERO_MANUAL 
-00022f c00a                      	RJMP REGRESO_NO_FEBRERO_MANUAL
+00022a e0b1                      	LDI XH, 0X01
+00022b e0a0                          LDI XL, 0X00
+00022c 90bc                      	LD DISPLAYUNO_FECHA, X
+00022d 2d4f                          MOV R20, UNIDADES_DIAS
+00022e 3049                          CPI R20, 9
+00022f f408                          BRSH CASO_FEBRERO_MANUAL 
+000230 c00a                      	RJMP REGRESO_NO_FEBRERO_MANUAL
                                  
                                  CASO_FEBRERO_MANUAL:
-000230 2d4e                          MOV R20, DECENAS_DIAS
-000231 3042                          CPI R20, 2
-000232 f439                          BRNE REGRESO_NO_FEBRERO_MANUAL
-000233 2d4d                      	MOV R20, UNIDADES_MES 
-000234 3042                      	CPI R20, 2
-000235 f421                      	BRNE REGRESO_NO_FEBRERO_MANUAL
-000236 2d4c                      	MOV R20, DECENAS_MES 
-000237 3041                      	CPI R20, 1
-000238 f408                      	BRSH REGRESO_NO_FEBRERO_MANUAL
-000239 c01e                      	RJMP OVERFLOW_DIAS
+000231 2d4e                          MOV R20, DECENAS_DIAS
+000232 3042                          CPI R20, 2
+000233 f439                          BRNE REGRESO_NO_FEBRERO_MANUAL
+000234 2d4d                      	MOV R20, UNIDADES_MES 
+000235 3042                      	CPI R20, 2
+000236 f421                      	BRNE REGRESO_NO_FEBRERO_MANUAL
+000237 2d4c                      	MOV R20, DECENAS_MES 
+000238 3041                      	CPI R20, 1
+000239 f408                      	BRSH REGRESO_NO_FEBRERO_MANUAL
+00023a c01e                      	RJMP OVERFLOW_DIAS
                                  
                                  REGRESO_NO_FEBRERO_MANUAL:
                                      ; Para meses de 30 días (abril, junio, septiembre, noviembre) 
                                      ; se debe reiniciar al llegar al día 31 (31 = 3*10 + 1)
-00023a 2d4f                          MOV R20, UNIDADES_DIAS
-00023b 3041                          CPI R20, 1 
-00023c f4a1                          BRNE CASO_NO_TREINTA_MANUAL
-00023d 2d4e                          MOV R20, DECENAS_DIAS
-00023e 3043                          CPI R20, 3
-00023f f489                          BRNE CASO_NO_TREINTA_MANUAL
-000240 2d4d                          MOV R20, UNIDADES_MES
-000241 3044                          CPI R20, 4
-000242 f409                          BRNE SEGUIR_MANUAL    ; Abril
-000243 c014                      	RJMP OVERFLOW_DIAS
+00023b 2d4f                          MOV R20, UNIDADES_DIAS
+00023c 3041                          CPI R20, 1 
+00023d f4a1                          BRNE CASO_NO_TREINTA_MANUAL
+00023e 2d4e                          MOV R20, DECENAS_DIAS
+00023f 3043                          CPI R20, 3
+000240 f489                          BRNE CASO_NO_TREINTA_MANUAL
+000241 2d4d                          MOV R20, UNIDADES_MES
+000242 3044                          CPI R20, 4
+000243 f409                          BRNE SEGUIR_MANUAL    ; Abril
+000244 c014                      	RJMP OVERFLOW_DIAS
                                  SEGUIR_MANUAL:
-000244 3046                          CPI R20, 6
-000245 f409                          BRNE SEGUIR_MANUAL2    ; Junio
-000246 c011                      	RJMP OVERFLOW_DIAS
+000245 3046                          CPI R20, 6
+000246 f409                          BRNE SEGUIR_MANUAL2    ; Junio
+000247 c011                      	RJMP OVERFLOW_DIAS
                                  SEGUIR_MANUAL2:
-000247 3049                          CPI R20, 9
-000248 f409                          BRNE SEGUIR_MANUAL3
-000249 c00e                      	RJMP OVERFLOW_DIAS 
+000248 3049                          CPI R20, 9
+000249 f409                          BRNE SEGUIR_MANUAL3
+00024a c00e                      	RJMP OVERFLOW_DIAS 
                                  SEGUIR_MANUAL3:
-00024a 2d4d                      	MOV R20, UNIDADES_MES
-00024b 3041                      	CPI R20, 1
-00024c f421                      	BRNE CASO_NO_TREINTA_MANUAL
-00024d 2d4c                          MOV R20, DECENAS_MES
-00024e 3041                          CPI R20, 1
-00024f f409                          BRNE CASO_NO_TREINTA_MANUAL    ; Noviembre (mes 11)
-000250 c007                      	RJMP OVERFLOW_DIAS 
+00024b 2d4d                      	MOV R20, UNIDADES_MES
+00024c 3041                      	CPI R20, 1
+00024d f421                      	BRNE CASO_NO_TREINTA_MANUAL
+00024e 2d4c                          MOV R20, DECENAS_MES
+00024f 3041                          CPI R20, 1
+000250 f409                          BRNE CASO_NO_TREINTA_MANUAL    ; Noviembre (mes 11)
+000251 c007                      	RJMP OVERFLOW_DIAS 
                                  
                                  CASO_NO_TREINTA_MANUAL:
                                      ; Para meses de 31 días, el overflow se produce al llegar al día 32
                                      ; (32 = 3*10 + 2)
-000251 2d4f                          MOV R20, UNIDADES_DIAS
-000252 3042                          CPI R20, 2
-000253 f461                          BRNE FLUJO_NORMAL_MANUAL
-000254 2d4e                          MOV R20, DECENAS_DIAS
-000255 3043                          CPI R20, 3
-000256 f009                          BREQ OVERFLOW_DIAS
-000257 c008                      	RJMP FLUJO_NORMAL_MANUAL
+000252 2d4f                          MOV R20, UNIDADES_DIAS
+000253 3042                          CPI R20, 2
+000254 f461                          BRNE FLUJO_NORMAL_MANUAL
+000255 2d4e                          MOV R20, DECENAS_DIAS
+000256 3043                          CPI R20, 3
+000257 f009                          BREQ OVERFLOW_DIAS
+000258 c008                      	RJMP FLUJO_NORMAL_MANUAL
                                  OVERFLOW_DIAS:
-000258 24ff                      	CLR UNIDADES_DIAS
-000259 94f3                      	INC UNIDADES_DIAS 
-00025a 24ee                      	CLR DECENAS_DIAS
-00025b e0a1                      	LDI XL, 0X01
-00025c 90bc                      	LD DISPLAYUNO_FECHA, X
-00025d e0a0                      	LDI XL, 0X00
-00025e 90ac                      	LD DISPLAYDOS_FECHA, X
-00025f 9508                      	RET
+000259 24ff                      	CLR UNIDADES_DIAS
+00025a 94f3                      	INC UNIDADES_DIAS 
+00025b 24ee                      	CLR DECENAS_DIAS
+00025c e0a1                      	LDI XL, 0X01
+00025d 90bc                      	LD DISPLAYUNO_FECHA, X
+00025e e0a0                      	LDI XL, 0X00
+00025f 90ac                      	LD DISPLAYDOS_FECHA, X
+000260 9508                      	RET
                                  
                                  FLUJO_NORMAL_MANUAL:
-000260 2d4f                          MOV R20, UNIDADES_DIAS
-000261 304a                          CPI R20, 10
-000262 f418                          BRSH DECENAS_DIA_MANUAL
-000263 0daf                          ADD XL, UNIDADES_DIAS
-000264 90bc                          LD DISPLAYUNO_FECHA, X
-000265 9508                          RET
+000261 2d4f                          MOV R20, UNIDADES_DIAS
+000262 304a                          CPI R20, 10
+000263 f418                          BRSH DECENAS_DIA_MANUAL
+000264 0daf                          ADD XL, UNIDADES_DIAS
+000265 90bc                          LD DISPLAYUNO_FECHA, X
+000266 9508                          RET
                                  
                                  DECENAS_DIA_MANUAL:
-000266 27aa                          CLR R26
-000267 e0b1                          LDI XH, 0X01
-000268 e0a0                          LDI XL, 0X00
-000269 24ff                          CLR UNIDADES_DIAS
-00026a 94e3                          INC DECENAS_DIAS
-00026b 90bc                          LD DISPLAYUNO_FECHA, X
-00026c 0dae                          ADD XL, DECENAS_DIAS
-00026d 90ac                          LD DISPLAYDOS_FECHA, X
-00026e 9508                          RET
+000267 27aa                          CLR R26
+000268 e0b1                          LDI XH, 0X01
+000269 e0a0                          LDI XL, 0X00
+00026a 24ff                          CLR UNIDADES_DIAS
+00026b 94e3                          INC DECENAS_DIAS
+00026c 90bc                          LD DISPLAYUNO_FECHA, X
+00026d 0dae                          ADD XL, DECENAS_DIAS
+00026e 90ac                          LD DISPLAYDOS_FECHA, X
+00026f 9508                          RET
                                  
                                  //----RUTINA MESES CONFIG MANUAL----//
                                  FECHA_MESES_MANUAL:
-00026f e0b1                          LDI XH, 0X01
-000270 e0a0                          LDI XL, 0X00
-000271 2d4d                          MOV R20, UNIDADES_MES
-000272 3043                          CPI R20, 3
-000273 f029                          BREQ CASO_ESPECIAL_FECHA_MANUAL
+000270 e0b1                          LDI XH, 0X01
+000271 e0a0                          LDI XL, 0X00
+000272 2d4d                          MOV R20, UNIDADES_MES
+000273 3043                          CPI R20, 3
+000274 f029                          BREQ CASO_ESPECIAL_FECHA_MANUAL
                                  
                                  REGRESO_FECHA_MANUAL:
-000274 304a                          CPI R20, 10
-000275 f438                          BRSH DECENAS_MESES_MANUAL
-000276 0dad                          ADD XL, UNIDADES_MES
-000277 909c                          LD DISPLAYTRES_FECHA, X
-000278 9508                      	RET
+000275 304a                          CPI R20, 10
+000276 f438                          BRSH DECENAS_MESES_MANUAL
+000277 0dad                          ADD XL, UNIDADES_MES
+000278 909c                          LD DISPLAYTRES_FECHA, X
+000279 9508                      	RET
                                  	  
                                  CASO_ESPECIAL_FECHA_MANUAL:
-000279 2d4c                          MOV R20, DECENAS_MES
-00027a 3041                          CPI R20, 1
-00027b f049                          BREQ FIN_FECHA_MANUAL
-00027c cff7                          RJMP REGRESO_FECHA_MANUAL
+00027a 2d4c                          MOV R20, DECENAS_MES
+00027b 3041                          CPI R20, 1
+00027c f049                          BREQ FIN_FECHA_MANUAL
+00027d cff7                          RJMP REGRESO_FECHA_MANUAL
                                  
                                  DECENAS_MESES_MANUAL:
-00027d e0b1                          LDI XH, 0X01
-00027e e0a0                          LDI XL, 0X00
-00027f 24dd                      	CLR UNIDADES_MES
-000280 94c3                          INC DECENAS_MES
-000281 909c                          LD DISPLAYTRES_FECHA, X
-000282 0dac                          ADD XL, DECENAS_MES
-000283 908c                          LD DISPLAYCUATRO_FECHA, X
-000284 9508                          RET
+00027e e0b1                          LDI XH, 0X01
+00027f e0a0                          LDI XL, 0X00
+000280 24dd                      	CLR UNIDADES_MES
+000281 94c3                          INC DECENAS_MES
+000282 909c                          LD DISPLAYTRES_FECHA, X
+000283 0dac                          ADD XL, DECENAS_MES
+000284 908c                          LD DISPLAYCUATRO_FECHA, X
+000285 9508                          RET
                                  
                                  FIN_FECHA_MANUAL:
-000285 e0b1                          LDI XH, 0X01
-000286 e0a0                          LDI XL, 0X00
-000287 24ff                      	CLR UNIDADES_DIAS
-000288 94f3                          INC UNIDADES_DIAS 
-000289 24ee                      	CLR DECENAS_DIAS 
-00028a 24dd                      	CLR UNIDADES_MES 
-00028b 94d3                      	INC UNIDADES_MES 
-00028c 24cc                      	CLR DECENAS_MES
-00028d e0a1                          LDI XL, 0X01
-00028e 90bc                      	LD DISPLAYUNO_FECHA, X
-00028f e0a0                      	LDI XL, 0X00
-000290 90ac                      	LD DISPLAYDOS_FECHA, X
-000291 e0a1                      	LDI XL, 0X01
-000292 909c                      	LD DISPLAYTRES_FECHA, X
-000293 e0a0                      	LDI XL, 0X00
-000294 908c                      	LD DISPLAYCUATRO_FECHA, X
-000295 9508                      	RET
+000286 e0b1                          LDI XH, 0X01
+000287 e0a0                          LDI XL, 0X00
+000288 24ff                      	CLR UNIDADES_DIAS
+000289 94f3                          INC UNIDADES_DIAS 
+00028a 24ee                      	CLR DECENAS_DIAS 
+00028b 24dd                      	CLR UNIDADES_MES 
+00028c 94d3                      	INC UNIDADES_MES 
+00028d 24cc                      	CLR DECENAS_MES
+00028e e0a1                          LDI XL, 0X01
+00028f 90bc                      	LD DISPLAYUNO_FECHA, X
+000290 e0a0                      	LDI XL, 0X00
+000291 90ac                      	LD DISPLAYDOS_FECHA, X
+000292 e0a1                      	LDI XL, 0X01
+000293 909c                      	LD DISPLAYTRES_FECHA, X
+000294 e0a0                      	LDI XL, 0X00
+000295 908c                      	LD DISPLAYCUATRO_FECHA, X
+000296 9508                      	RET
                                  
                                  //----RUTINA DE CONFIGURACION DE ALARMA----//
                                  CONFIG_ALARMA_MINUTOS:
-000296 e0b1                      	LDI XH, 0X01
-000297 e0a0                      	LDI XL, 0X00
-000298 27aa                      	CLR R26
-000299 2d47                      	MOV R20, ALARMA_MINUTOS_UNIDADES
-00029a 304a                      	CPI R20, 10
-00029b f418                      	BRSH DECENAS_MIN_ALARMA_MANUAL
-00029c 0da7                      	ADD XL, ALARMA_MINUTOS_UNIDADES
-00029d 903c                      	LD ALARMA_DISPLAYUNO, X
-00029e 9508                      	RET
+000297 e0b1                      	LDI XH, 0X01
+000298 e0a0                      	LDI XL, 0X00
+000299 27aa                      	CLR R26
+00029a 2d47                      	MOV R20, ALARMA_MINUTOS_UNIDADES
+00029b 304a                      	CPI R20, 10
+00029c f418                      	BRSH DECENAS_MIN_ALARMA_MANUAL
+00029d 0da7                      	ADD XL, ALARMA_MINUTOS_UNIDADES
+00029e 903c                      	LD ALARMA_DISPLAYUNO, X
+00029f 9508                      	RET
                                  DECENAS_MIN_ALARMA_MANUAL:
-00029f e0b1                      `	LDI XH, 0X01
-0002a0 e0a0                      	LDI XL, 0X00
-0002a1 27aa                      	CLR R26
-0002a2 2477                      	CLR	ALARMA_MINUTOS_UNIDADES
-0002a3 0da7                      	ADD XL, ALARMA_MINUTOS_UNIDADES
-0002a4 919c                      	LD DISPLAYUNO, X
-0002a5 9463                      	INC ALARMA_MINUTOS_DECENAS
-0002a6 2d46                      	MOV R20, ALARMA_MINUTOS_DECENAS
-0002a7 3046                      	CPI R20, 6 
-0002a8 f420                      	BRSH OVERFLOW_ALARMA_MIN 
-0002a9 27aa                      	CLR R26 
-0002aa 0da6                      	ADD XL, ALARMA_MINUTOS_DECENAS
-0002ab 902c                      	LD ALARMA_DISPLAYDOS, X
-0002ac 9508                      	RET
+0002a0 e0b1                      `	LDI XH, 0X01
+0002a1 e0a0                      	LDI XL, 0X00
+0002a2 27aa                      	CLR R26
+0002a3 2477                      	CLR	ALARMA_MINUTOS_UNIDADES
+0002a4 0da7                      	ADD XL, ALARMA_MINUTOS_UNIDADES
+0002a5 919c                      	LD DISPLAYUNO, X
+0002a6 9463                      	INC ALARMA_MINUTOS_DECENAS
+0002a7 2d46                      	MOV R20, ALARMA_MINUTOS_DECENAS
+0002a8 3046                      	CPI R20, 6 
+0002a9 f420                      	BRSH OVERFLOW_ALARMA_MIN 
+0002aa 27aa                      	CLR R26 
+0002ab 0da6                      	ADD XL, ALARMA_MINUTOS_DECENAS
+0002ac 902c                      	LD ALARMA_DISPLAYDOS, X
+0002ad 9508                      	RET
                                  OVERFLOW_ALARMA_MIN:
-0002ad e0b1                      	LDI XH, 0X01
-0002ae e0a0                      	LDI XL, 0X00
-0002af 2466                      	CLR ALARMA_MINUTOS_DECENAS
-0002b0 0da6                      	ADD XL, ALARMA_MINUTOS_DECENAS
-0002b1 902c                      	LD ALARMA_DISPLAYDOS, X
-0002b2 9508                      	RET
+0002ae e0b1                      	LDI XH, 0X01
+0002af e0a0                      	LDI XL, 0X00
+0002b0 2466                      	CLR ALARMA_MINUTOS_DECENAS
+0002b1 0da6                      	ADD XL, ALARMA_MINUTOS_DECENAS
+0002b2 902c                      	LD ALARMA_DISPLAYDOS, X
+0002b3 9508                      	RET
                                  //----RUTINA MULTIPLEXACION ALARMA----//
                                  MULTIPLEXACION_ALARMA:
-0002b3 30f0                      	CPI CONT_TIMER2, 0
-0002b4 f419                      	BRNE DISPLAY2_ALARMA  
-0002b5 9a41                      	SBI PORTC, 1
-0002b6 b83b                      	OUT PORTD, ALARMA_DISPLAYUNO 
-0002b7 9841                      	CBI PORTC, 1
+0002b4 30f0                      	CPI CONT_TIMER2, 0
+0002b5 f419                      	BRNE DISPLAY2_ALARMA  
+0002b6 9a41                      	SBI PORTC, 1
+0002b7 b83b                      	OUT PORTD, ALARMA_DISPLAYUNO 
+0002b8 9841                      	CBI PORTC, 1
                                  DISPLAY2_ALARMA: 
-0002b8 30f1                      	CPI CONT_TIMER2, 1
-0002b9 f419                      	BRNE DISPLAY3_ALARMA
-0002ba 9a42                      	SBI PORTC, 2
-0002bb b82b                      	OUT PORTD, ALARMA_DISPLAYDOS
-0002bc 9842                      	CBI PORTC, 2
+0002b9 30f1                      	CPI CONT_TIMER2, 1
+0002ba f419                      	BRNE DISPLAY3_ALARMA
+0002bb 9a42                      	SBI PORTC, 2
+0002bc b82b                      	OUT PORTD, ALARMA_DISPLAYDOS
+0002bd 9842                      	CBI PORTC, 2
                                  DISPLAY3_ALARMA:
-0002bd 30f2                      	CPI CONT_TIMER2, 2
-0002be f419                      	BRNE DISPLAY4_ALARMA 
-0002bf 9a44                      	SBI PORTC, 4
-0002c0 b81b                      	OUT PORTD, ALARMA_DISPLAYTRES 
-0002c1 9844                      	CBI PORTC, 4 
+0002be 30f2                      	CPI CONT_TIMER2, 2
+0002bf f419                      	BRNE DISPLAY4_ALARMA 
+0002c0 9a44                      	SBI PORTC, 4
+0002c1 b81b                      	OUT PORTD, ALARMA_DISPLAYTRES 
+0002c2 9844                      	CBI PORTC, 4 
                                  DISPLAY4_ALARMA:
-0002c2 30f3                      	CPI CONT_TIMER2, 3
-0002c3 f419                      	BRNE FIN_MULTI_ALARMA
-0002c4 9a43                      	SBI PORTC, 3
-0002c5 b80b                      	OUT PORTD, ALARMA_DISPLAYCUATRO 
-0002c6 9843                      	CBI PORTC, 3 
+0002c3 30f3                      	CPI CONT_TIMER2, 3
+0002c4 f419                      	BRNE FIN_MULTI_ALARMA
+0002c5 9a43                      	SBI PORTC, 3
+0002c6 b80b                      	OUT PORTD, ALARMA_DISPLAYCUATRO 
+0002c7 9843                      	CBI PORTC, 3 
                                  FIN_MULTI_ALARMA:
-0002c7 9508                      	RET
+0002c8 9508                      	RET
                                  
                                  //----RUTINA DE INCREMENTO ALARMA HORAS----//
                                  CONFIG_ALARMA_HORAS:
-0002c8 e0b1                      	LDI XH, 0X01
-0002c9 e0a0                      	LDI XL, 0X00
-0002ca 27aa                      	CLR R26
-0002cb 2d45                      	MOV R20, ALARMA_HORAS_UNIDADES
-0002cc 3044                      	CPI R20, 4
-0002cd f029                      	BREQ CASO_ESPECIAL_MANUAL_ALARMA
+0002c9 e0b1                      	LDI XH, 0X01
+0002ca e0a0                      	LDI XL, 0X00
+0002cb 27aa                      	CLR R26
+0002cc 2d45                      	MOV R20, ALARMA_HORAS_UNIDADES
+0002cd 3044                      	CPI R20, 4
+0002ce f029                      	BREQ CASO_ESPECIAL_MANUAL_ALARMA
                                  REGRESO_MANUAL_ALARMA:
-0002ce 304a                      	CPI R20, 10 
-0002cf f039                      	BREQ DECENAS_HOR_MANUAL_ALARMA 
-0002d0 0da5                      	ADD XL, ALARMA_HORAS_UNIDADES
-0002d1 901c                      	LD ALARMA_DISPLAYTRES, X
-0002d2 c01e                      	RJMP FIN_CAMBIOS_ALARMA  
+0002cf 304a                      	CPI R20, 10 
+0002d0 f039                      	BREQ DECENAS_HOR_MANUAL_ALARMA 
+0002d1 0da5                      	ADD XL, ALARMA_HORAS_UNIDADES
+0002d2 901c                      	LD ALARMA_DISPLAYTRES, X
+0002d3 c01e                      	RJMP FIN_CAMBIOS_ALARMA  
                                  CASO_ESPECIAL_MANUAL_ALARMA:
-0002d3 2d44                      	MOV R20, ALARMA_HORAS_DECENAS
-0002d4 3042                      	CPI R20, 2
-0002d5 f061                      	BREQ FIN_RELOJ_MANUAL_ALARMA
-0002d6 cff7                      	RJMP REGRESO_MANUAL_ALARMA 
+0002d4 2d44                      	MOV R20, ALARMA_HORAS_DECENAS
+0002d5 3042                      	CPI R20, 2
+0002d6 f061                      	BREQ FIN_RELOJ_MANUAL_ALARMA
+0002d7 cff7                      	RJMP REGRESO_MANUAL_ALARMA 
                                  DECENAS_HOR_MANUAL_ALARMA:
-0002d7 e0b1                      	LDI XH, 0X01
-0002d8 e0a0                      	LDI XL, 0X00
-0002d9 27aa                      	CLR R26
-0002da 2455                      	CLR ALARMA_HORAS_UNIDADES
-0002db 0da6                      	ADD XL, ALARMA_MINUTOS_DECENAS
-0002dc 901c                      	LD ALARMA_DISPLAYTRES, X 
-0002dd 9443                      	INC ALARMA_HORAS_DECENAS
-0002de 27aa                      	CLR R26
-0002df 0da4                      	ADD XL, ALARMA_HORAS_DECENAS
-0002e0 900c                      	LD ALARMA_DISPLAYCUATRO, X
-0002e1 c00f                      	RJMP FIN_CAMBIOS_ALARMA
+0002d8 e0b1                      	LDI XH, 0X01
+0002d9 e0a0                      	LDI XL, 0X00
+0002da 27aa                      	CLR R26
+0002db 2455                      	CLR ALARMA_HORAS_UNIDADES
+0002dc 0da6                      	ADD XL, ALARMA_MINUTOS_DECENAS
+0002dd 901c                      	LD ALARMA_DISPLAYTRES, X 
+0002de 9443                      	INC ALARMA_HORAS_DECENAS
+0002df 27aa                      	CLR R26
+0002e0 0da4                      	ADD XL, ALARMA_HORAS_DECENAS
+0002e1 900c                      	LD ALARMA_DISPLAYCUATRO, X
+0002e2 c00f                      	RJMP FIN_CAMBIOS_ALARMA
                                  FIN_RELOJ_MANUAL_ALARMA:
-0002e2 e0b1                      	LDI XH, 0X01
-0002e3 e0a0                      	LDI XL, 0X00
-0002e4 27aa                      	CLR R26
-0002e5 2477                      	CLR ALARMA_MINUTOS_UNIDADES  
-0002e6 2466                      	CLR ALARMA_MINUTOS_DECENAS
-0002e7 2455                      	CLR ALARMA_HORAS_UNIDADES
-0002e8 2444                      	CLR ALARMA_HORAS_DECENAS
-0002e9 0da4                      	ADD XL, ALARMA_HORAS_DECENAS
-0002ea 900c                      	LD ALARMA_DISPLAYCUATRO, X
-0002eb 0da5                      	ADD XL, ALARMA_HORAS_UNIDADES
-0002ec 903c                      	LD ALARMA_DISPLAYUNO, X
-0002ed 901c                      	LD ALARMA_DISPLAYTRES, X 
-0002ee 902c                      	LD ALARMA_DISPLAYDOS, X
-0002ef 903c                      	LD ALARMA_DISPLAYUNO, X
-0002f0 c000                      	RJMP FIN_CAMBIOS_ALARMA 
+0002e3 e0b1                      	LDI XH, 0X01
+0002e4 e0a0                      	LDI XL, 0X00
+0002e5 27aa                      	CLR R26
+0002e6 2477                      	CLR ALARMA_MINUTOS_UNIDADES  
+0002e7 2466                      	CLR ALARMA_MINUTOS_DECENAS
+0002e8 2455                      	CLR ALARMA_HORAS_UNIDADES
+0002e9 2444                      	CLR ALARMA_HORAS_DECENAS
+0002ea 0da4                      	ADD XL, ALARMA_HORAS_DECENAS
+0002eb 900c                      	LD ALARMA_DISPLAYCUATRO, X
+0002ec 0da5                      	ADD XL, ALARMA_HORAS_UNIDADES
+0002ed 903c                      	LD ALARMA_DISPLAYUNO, X
+0002ee 901c                      	LD ALARMA_DISPLAYTRES, X 
+0002ef 902c                      	LD ALARMA_DISPLAYDOS, X
+0002f0 903c                      	LD ALARMA_DISPLAYUNO, X
+0002f1 c000                      	RJMP FIN_CAMBIOS_ALARMA 
                                  FIN_CAMBIOS_ALARMA:
 
 
@@ -2012,7 +2013,7 @@ counted separately from r26..r31 here.
 x  :  76 y  :   0 z  :   1 r0 :   5 r1 :   6 r2 :   6 r3 :   6 r4 :   7 
 r5 :   8 r6 :   9 r7 :   8 r8 :   7 r9 :   9 r10:  10 r11:  14 r12:  13 
 r13:  20 r14:  17 r15:  23 r16:  47 r17:   2 r18:  18 r19:  13 r20:  71 
-r21:  13 r22:  15 r23:  16 r24:  12 r25:  11 r26:  91 r27:  30 r28:   9 
+r21:  13 r22:  15 r23:  16 r24:  12 r25:  11 r26:  92 r27:  30 r28:   9 
 r29:   9 r30:   8 r31:  17 
 Registers used: 34 out of 35 (97.1%)
 
@@ -2023,7 +2024,7 @@ brcc  :   0 brcs  :   0 break :   0 breq  :  36 brge  :   0 brhc  :   0
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
 brne  :  39 brpl  :   0 brsh  :   8 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 call  :  12 cbi   :  24 cbr   :   0 
-clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :  78 cls   :   0 
+clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :  79 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   4 cpc   :   0 
 cpi   :  79 cpse  :   0 dec   :   1 eor   :   0 fmul  :   0 fmuls :   0 
 fmulsu:   0 icall :   0 ijmp  :   0 in    :   1 inc   :  30 jmp   :   0 
@@ -2041,7 +2042,7 @@ Instructions used: 27 out of 113 (23.9%)
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0005e4   1438     12   1450   32768   4.4%
+[.cseg] 0x000000 0x0005e6   1440     12   1452   32768   4.4%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 
