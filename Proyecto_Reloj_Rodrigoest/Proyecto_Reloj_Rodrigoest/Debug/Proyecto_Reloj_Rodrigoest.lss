@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm Sun Mar 16 19:31:00 2025
+AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm Sun Mar 16 20:04:34 2025
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
 C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(9): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
@@ -1509,8 +1509,8 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000170 982d                      	CBI PORTB, 5
                                  //CONFIGURACION ALARMA MANUAL----//
 000171 940e 0284                 	CALL CONFIG_ALARMA_MINUTOS
-000173 940e 02b4                 	CALL CONFIG_ALARMA_HORAS 
-000175 940e 029f                 	CALL MULTIPLEXACION_ALARMA
+000173 940e 02b6                 	CALL CONFIG_ALARMA_HORAS 
+000175 940e 02a1                 	CALL MULTIPLEXACION_ALARMA
 000177 cf16                      	RJMP LOOP
                                  	 
                                  MODO_5:
@@ -1865,107 +1865,110 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  CONFIG_ALARMA_MINUTOS:
 000284 e0b1                      	LDI XH, 0X01
 000285 e0a0                      	LDI XL, 0X00
-000286 2d47                      	MOV R20, ALARMA_MINUTOS_UNIDADES
-000287 304a                      	CPI R20, 10
-000288 f418                      	BRSH DECENAS_MIN_ALARMA_MANUAL
-000289 0da7                      	ADD XL, ALARMA_MINUTOS_UNIDADES
-00028a 903c                      	LD ALARMA_DISPLAYUNO, X
-00028b 9508                      	RET
+000286 27aa                      	CLR R26
+000287 2d47                      	MOV R20, ALARMA_MINUTOS_UNIDADES
+000288 304a                      	CPI R20, 10
+000289 f418                      	BRSH DECENAS_MIN_ALARMA_MANUAL
+00028a 0da7                      	ADD XL, ALARMA_MINUTOS_UNIDADES
+00028b 903c                      	LD ALARMA_DISPLAYUNO, X
+00028c 9508                      	RET
                                  DECENAS_MIN_ALARMA_MANUAL:
-00028c e0b1                      `	LDI XH, 0X01
-00028d e0a0                      	LDI XL, 0X00
-00028e 2477                      	CLR	ALARMA_MINUTOS_UNIDADES
-00028f 0da7                      	ADD XL, ALARMA_MINUTOS_UNIDADES
-000290 919c                      	LD DISPLAYUNO, X
-000291 9463                      	INC ALARMA_MINUTOS_DECENAS
-000292 2d46                      	MOV R20, ALARMA_MINUTOS_DECENAS
-000293 3046                      	CPI R20, 6 
-000294 f420                      	BRSH OVERFLOW_ALARMA_MIN 
-000295 27aa                      	CLR R26 
-000296 0da6                      	ADD XL, ALARMA_MINUTOS_DECENAS
-000297 902c                      	LD ALARMA_DISPLAYDOS, X
-000298 9508                      	RET
+00028d e0b1                      `	LDI XH, 0X01
+00028e e0a0                      	LDI XL, 0X00
+00028f 27aa                      	CLR R26
+000290 2477                      	CLR	ALARMA_MINUTOS_UNIDADES
+000291 0da7                      	ADD XL, ALARMA_MINUTOS_UNIDADES
+000292 919c                      	LD DISPLAYUNO, X
+000293 9463                      	INC ALARMA_MINUTOS_DECENAS
+000294 2d46                      	MOV R20, ALARMA_MINUTOS_DECENAS
+000295 3046                      	CPI R20, 6 
+000296 f420                      	BRSH OVERFLOW_ALARMA_MIN 
+000297 27aa                      	CLR R26 
+000298 0da6                      	ADD XL, ALARMA_MINUTOS_DECENAS
+000299 902c                      	LD ALARMA_DISPLAYDOS, X
+00029a 9508                      	RET
                                  OVERFLOW_ALARMA_MIN:
-000299 e0b1                      	LDI XH, 0X01
-00029a e0a0                      	LDI XL, 0X00
-00029b 2466                      	CLR ALARMA_MINUTOS_DECENAS
-00029c 0da6                      	ADD XL, ALARMA_MINUTOS_DECENAS
-00029d 902c                      	LD ALARMA_DISPLAYDOS, X
-00029e 9508                      	RET
+00029b e0b1                      	LDI XH, 0X01
+00029c e0a0                      	LDI XL, 0X00
+00029d 2466                      	CLR ALARMA_MINUTOS_DECENAS
+00029e 0da6                      	ADD XL, ALARMA_MINUTOS_DECENAS
+00029f 902c                      	LD ALARMA_DISPLAYDOS, X
+0002a0 9508                      	RET
                                  //----RUTINA MULTIPLEXACION ALARMA----//
                                  MULTIPLEXACION_ALARMA:
-00029f 30f0                      	CPI CONT_TIMER2, 0
-0002a0 f419                      	BRNE DISPLAY2_ALARMA  
-0002a1 9a41                      	SBI PORTC, 1
-0002a2 b83b                      	OUT PORTD, ALARMA_DISPLAYUNO 
-0002a3 9841                      	CBI PORTC, 1
+0002a1 30f0                      	CPI CONT_TIMER2, 0
+0002a2 f419                      	BRNE DISPLAY2_ALARMA  
+0002a3 9a41                      	SBI PORTC, 1
+0002a4 b83b                      	OUT PORTD, ALARMA_DISPLAYUNO 
+0002a5 9841                      	CBI PORTC, 1
                                  DISPLAY2_ALARMA: 
-0002a4 30f1                      	CPI CONT_TIMER2, 1
-0002a5 f419                      	BRNE DISPLAY3_ALARMA
-0002a6 9a42                      	SBI PORTC, 2
-0002a7 b82b                      	OUT PORTD, ALARMA_DISPLAYDOS
-0002a8 9842                      	CBI PORTC, 2
+0002a6 30f1                      	CPI CONT_TIMER2, 1
+0002a7 f419                      	BRNE DISPLAY3_ALARMA
+0002a8 9a42                      	SBI PORTC, 2
+0002a9 b82b                      	OUT PORTD, ALARMA_DISPLAYDOS
+0002aa 9842                      	CBI PORTC, 2
                                  DISPLAY3_ALARMA:
-0002a9 30f2                      	CPI CONT_TIMER2, 2
-0002aa f419                      	BRNE DISPLAY4_ALARMA 
-0002ab 9a44                      	SBI PORTC, 4
-0002ac b81b                      	OUT PORTD, ALARMA_DISPLAYTRES 
-0002ad 9844                      	CBI PORTC, 4 
+0002ab 30f2                      	CPI CONT_TIMER2, 2
+0002ac f419                      	BRNE DISPLAY4_ALARMA 
+0002ad 9a44                      	SBI PORTC, 4
+0002ae b81b                      	OUT PORTD, ALARMA_DISPLAYTRES 
+0002af 9844                      	CBI PORTC, 4 
                                  DISPLAY4_ALARMA:
-0002ae 30f3                      	CPI CONT_TIMER2, 3
-0002af f419                      	BRNE FIN_MULTI_ALARMA
-0002b0 9a43                      	SBI PORTC, 3
-0002b1 b80b                      	OUT PORTD, ALARMA_DISPLAYCUATRO 
-0002b2 9843                      	CBI PORTC, 3 
+0002b0 30f3                      	CPI CONT_TIMER2, 3
+0002b1 f419                      	BRNE FIN_MULTI_ALARMA
+0002b2 9a43                      	SBI PORTC, 3
+0002b3 b80b                      	OUT PORTD, ALARMA_DISPLAYCUATRO 
+0002b4 9843                      	CBI PORTC, 3 
                                  FIN_MULTI_ALARMA:
-0002b3 9508                      	RET
+0002b5 9508                      	RET
                                  
                                  //----RUTINA DE INCREMENTO ALARMA HORAS----//
                                  CONFIG_ALARMA_HORAS:
-0002b4 e0b1                      	LDI XH, 0X01
-0002b5 e0a0                      	LDI XL, 0X00
-0002b6 2d45                      	MOV R20, ALARMA_HORAS_UNIDADES
-0002b7 3044                      	CPI R20, 4
-0002b8 f029                      	BREQ CASO_ESPECIAL_MANUAL_ALARMA
+0002b6 e0b1                      	LDI XH, 0X01
+0002b7 e0a0                      	LDI XL, 0X00
+0002b8 27aa                      	CLR R26
+0002b9 2d45                      	MOV R20, ALARMA_HORAS_UNIDADES
+0002ba 3044                      	CPI R20, 4
+0002bb f029                      	BREQ CASO_ESPECIAL_MANUAL_ALARMA
                                  REGRESO_MANUAL_ALARMA:
-0002b9 304a                      	CPI R20, 10 
-0002ba f039                      	BREQ DECENAS_HOR_MANUAL_ALARMA 
-0002bb 0da5                      	ADD XL, ALARMA_HORAS_UNIDADES
-0002bc 901c                      	LD ALARMA_DISPLAYTRES, X
-0002bd c01e                      	RJMP FIN_CAMBIOS_ALARMA  
+0002bc 304a                      	CPI R20, 10 
+0002bd f039                      	BREQ DECENAS_HOR_MANUAL_ALARMA 
+0002be 0da5                      	ADD XL, ALARMA_HORAS_UNIDADES
+0002bf 901c                      	LD ALARMA_DISPLAYTRES, X
+0002c0 c01e                      	RJMP FIN_CAMBIOS_ALARMA  
                                  CASO_ESPECIAL_MANUAL_ALARMA:
-0002be 2d44                      	MOV R20, ALARMA_HORAS_DECENAS
-0002bf 3042                      	CPI R20, 2
-0002c0 f059                      	BREQ FIN_RELOJ_MANUAL_ALARMA
-0002c1 cff7                      	RJMP REGRESO_MANUAL_ALARMA 
+0002c1 2d44                      	MOV R20, ALARMA_HORAS_DECENAS
+0002c2 3042                      	CPI R20, 2
+0002c3 f061                      	BREQ FIN_RELOJ_MANUAL_ALARMA
+0002c4 cff7                      	RJMP REGRESO_MANUAL_ALARMA 
                                  DECENAS_HOR_MANUAL_ALARMA:
-0002c2 e0b1                      	LDI XH, 0X01
-0002c3 e0a0                      	LDI XL, 0X00
-0002c4 2455                      	CLR ALARMA_HORAS_UNIDADES
-0002c5 0da6                      	ADD XL, ALARMA_MINUTOS_DECENAS
-0002c6 901c                      	LD ALARMA_DISPLAYTRES, X 
-0002c7 9443                      	INC ALARMA_HORAS_DECENAS
-0002c8 27aa                      	CLR R26
-0002c9 0da4                      	ADD XL, ALARMA_HORAS_DECENAS
-0002ca 900c                      	LD ALARMA_DISPLAYCUATRO, X
-0002cb c010                      	RJMP FIN_CAMBIOS_ALARMA
+0002c5 e0b1                      	LDI XH, 0X01
+0002c6 e0a0                      	LDI XL, 0X00
+0002c7 27aa                      	CLR R26
+0002c8 2455                      	CLR ALARMA_HORAS_UNIDADES
+0002c9 0da6                      	ADD XL, ALARMA_MINUTOS_DECENAS
+0002ca 901c                      	LD ALARMA_DISPLAYTRES, X 
+0002cb 9443                      	INC ALARMA_HORAS_DECENAS
+0002cc 27aa                      	CLR R26
+0002cd 0da4                      	ADD XL, ALARMA_HORAS_DECENAS
+0002ce 900c                      	LD ALARMA_DISPLAYCUATRO, X
+0002cf c00f                      	RJMP FIN_CAMBIOS_ALARMA
                                  FIN_RELOJ_MANUAL_ALARMA:
-0002cc e0b1                      	LDI XH, 0X01
-0002cd e0a0                      	LDI XL, 0X00
-0002ce 27aa                      	CLR R26
-0002cf 27bb                      	CLR R27
-0002d0 2477                      	CLR ALARMA_MINUTOS_UNIDADES  
-0002d1 2466                      	CLR ALARMA_MINUTOS_DECENAS
-0002d2 2455                      	CLR ALARMA_HORAS_UNIDADES
-0002d3 2444                      	CLR ALARMA_HORAS_DECENAS
-0002d4 0da4                      	ADD XL, ALARMA_HORAS_DECENAS
-0002d5 900c                      	LD ALARMA_DISPLAYCUATRO, X
-0002d6 0da5                      	ADD XL, ALARMA_HORAS_UNIDADES
-0002d7 903c                      	LD ALARMA_DISPLAYUNO, X
-0002d8 901c                      	LD ALARMA_DISPLAYTRES, X 
-0002d9 902c                      	LD ALARMA_DISPLAYDOS, X
+0002d0 e0b1                      	LDI XH, 0X01
+0002d1 e0a0                      	LDI XL, 0X00
+0002d2 27aa                      	CLR R26
+0002d3 2477                      	CLR ALARMA_MINUTOS_UNIDADES  
+0002d4 2466                      	CLR ALARMA_MINUTOS_DECENAS
+0002d5 2455                      	CLR ALARMA_HORAS_UNIDADES
+0002d6 2444                      	CLR ALARMA_HORAS_DECENAS
+0002d7 0da4                      	ADD XL, ALARMA_HORAS_DECENAS
+0002d8 900c                      	LD ALARMA_DISPLAYCUATRO, X
+0002d9 0da5                      	ADD XL, ALARMA_HORAS_UNIDADES
 0002da 903c                      	LD ALARMA_DISPLAYUNO, X
-0002db c000                      	RJMP FIN_CAMBIOS_ALARMA 
+0002db 901c                      	LD ALARMA_DISPLAYTRES, X 
+0002dc 902c                      	LD ALARMA_DISPLAYDOS, X
+0002dd 903c                      	LD ALARMA_DISPLAYUNO, X
+0002de c000                      	RJMP FIN_CAMBIOS_ALARMA 
                                  FIN_CAMBIOS_ALARMA:
 
 
@@ -1987,7 +1990,7 @@ counted separately from r26..r31 here.
 x  :  76 y  :   0 z  :   1 r0 :   5 r1 :   6 r2 :   6 r3 :   6 r4 :   6 
 r5 :   7 r6 :   8 r7 :   7 r8 :   7 r9 :   9 r10:  10 r11:  14 r12:  13 
 r13:  20 r14:  17 r15:  23 r16:  47 r17:   2 r18:  18 r19:  13 r20:  71 
-r21:  12 r22:  14 r23:  15 r24:  11 r25:  11 r26:  87 r27:  31 r28:   9 
+r21:  12 r22:  14 r23:  15 r24:  11 r25:  11 r26:  91 r27:  30 r28:   9 
 r29:   9 r30:   8 r31:  17 
 Registers used: 34 out of 35 (97.1%)
 
@@ -1998,7 +2001,7 @@ brcc  :   0 brcs  :   0 break :   0 breq  :  32 brge  :   0 brhc  :   0
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
 brne  :  39 brpl  :   0 brsh  :   8 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 call  :  11 cbi   :  24 cbr   :   0 
-clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :  75 cls   :   0 
+clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :  78 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
 cpi   :  79 cpse  :   0 dec   :   1 eor   :   0 fmul  :   0 fmuls :   0 
 fmulsu:   0 icall :   0 ijmp  :   0 in    :   1 inc   :  30 jmp   :   0 
@@ -2016,7 +2019,7 @@ Instructions used: 26 out of 113 (23.0%)
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0005ba   1396     12   1408   32768   4.3%
+[.cseg] 0x000000 0x0005c0   1402     12   1414   32768   4.3%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 
