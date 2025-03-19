@@ -7,31 +7,39 @@
 
  
 .include "M328PDEF.inc"
-.equ SIZE = 12
+.equ SIZE = 12 ;Definimos cuantas veces queremos que haga el bucle de copiar de flash a ram.
 .def MODO = R18 ;Aqui guardaremos el estado de nuestro reloj
 .def CONT_TIMER0 = R19 ;Aqui guardaremos la cuenta para llegar a un segundo
 //.def SALIDA_X = R20 ;Aqui se guardara a lo que este apuntando el registro X
+
+//----Establecemos los registros para incrementar la hora----//
 .def UNIDADES_MINUTOS = R21 
-.def DECENAS_MINUTOS = R22
+.def DECENAS_MINUTOS = R22	
 .def UNIDADES_HORAS = R23 
 .def DECENAS_HORAS = R24
+//----Establcemos los registros para desplegar la hora----//
 .def DISPLAYUNO = R25 
 .def DISPLAYDOS = R28 
 .def DISPLAYTRES = R29 
 .def DISPLAYCUATRO = R30
+//----Registro que lleva el conteo de TIMER2----//
 .def CONT_TIMER2 = R31
+//----Registros para poder aumentar la fecha----//
 .def UNIDADES_DIAS = R15
 .def DECENAS_DIAS = R14
 .def UNIDADES_MES = R13
 .def DECENAS_MES = R12 
+//----Registros para poder desplegar la fecha----//
 .def DISPLAYUNO_FECHA = R11
 .def DISPLAYDOS_FECHA = R10
 .def DISPLAYTRES_FECHA = R9
 .def DISPLAYCUATRO_FECHA = R8
+//----registros para poder desplegar la alarma----//
 .def ALARMA_MINUTOS_UNIDADES = R7
 .def ALARMA_MINUTOS_DECENAS = R6
 .def ALARMA_HORAS_UNIDADES = R5
 .def ALARMA_HORAS_DECENAS = R4
+//----registros para poder mostrar la alarma manualmente----//
 .def ALARMA_DISPLAYUNO = R3
 .def ALARMA_DISPLAYDOS = R2
 .def ALARMA_DISPLAYTRES = R1
@@ -174,11 +182,11 @@ SETUP:
 	LD DISPLAYCUATRO, X
 
 	//----inicializamos todos los displays para la fecha----//
-	LDI XL, 0X01
+	LDI XL, 0X01 //le cargamos 0x01 al XL para que nuestra fecha inicie en 01/01
 	LD DISPLAYUNO_FECHA, X
 	LDI XL, 0X00
 	LD DISPLAYDOS_FECHA, X
-	LDI XL, 0X01
+	LDI XL, 0X01 //le cargamos 0x01 al XL para que nuestra fecha inicie en 01/01
 	LD DISPLAYTRES_FECHA, X
 	LDI XL, 0X00
 	LD DISPLAYCUATRO_FECHA, X
@@ -187,81 +195,84 @@ SETUP:
 	LD ALARMA_DISPLAYUNO, X
 	LD ALARMA_DISPLAYDOS, X
 	LD ALARMA_DISPLAYTRES, X 
-	LD ALARMA_DISPLAYCUATRO, X
+	LD ALARMA_DISPLAYCUATRO, X ; esto se hace para poder sacar el valor 0 en el display cuando se conecta el atmega328p
 	
 //----Iniciamos el Main Loop----//
 LOOP:
-	CPI CONT_TIMER2, 4 ;comparamo si ya es 5 
+//----logica de para multiplexar con timer2----//
+
+	CPI CONT_TIMER2, 4 ;incrementara 1 unidad cada 5ms, para saber si ya pasaron los 20ms se compara con 4 y luego se limpia. 
 	BRNE FIN_TIMER ;si no es igual lo sacamos de la interrupcion 
 	CLR CONT_TIMER2 ;si es igual lo limpiamos
 FIN_TIMER:
 	//----Aumento cada 60s----//
-	CPI CONT_TIMER0, 120
-	BRNE MODO0
-	CLR CONT_TIMER0
-	RJMP DESACTIVACION
+	CPI CONT_TIMER0, 120 ;este es la logica que permite incrementar cada 60s el display de minutos
+	BRNE MODO0 ;Si no cuenta 60s salta al modo0 para comparar en que modo se encuetra 
+	CLR CONT_TIMER0 ; si ya pasaron los 60s se manda a la logica que permite incrementar cada 60s outomaticamente
+	RJMP DESACTIVACION ; hace un salto a una condicion previa, la cual permite mostrar que cuente en todos los modos eceptuando en config hora 
 MODO0:
-	RJMP MODO_0
+	RJMP MODO_0 ;Salta a hacer las comparaciones de modo
 //----Desactivacion de conteo automomatico----// 
 DESACTIVACION:
-	CPI MODO, 2
-	BRNE CUENTA_AUTOMATICA
-	RJMP MODO_0
+	CPI MODO, 2 ;compar si se encuentra en el modo 2 y no permitir la cuenta automatica
+	BRNE CUENTA_AUTOMATICA ;si no es igual al modo 2 salta a contar automaticamente
+	RJMP MODO_0 ;si fuera igual se va a comparar modos
 CUENTA_AUTOMATICA:
 //----UNIDADES MINUTOS----//
 	LDI XH, 0X01
-	LDI XL, 0X00 
-	INC UNIDADES_MINUTOS
-	CPI UNIDADES_MINUTOS, 10
-	BREQ DECENAS_MIN
-	ADD XL, UNIDADES_MINUTOS
-	LD DISPLAYUNO, X
-	RJMP MODO_0
+	LDI XL, 0X00 ;se ponen los punteros al inicio de la tabla 
+	INC UNIDADES_MINUTOS ;incrementa unidades de minutos cada 60 segundos
+	CPI UNIDADES_MINUTOS, 10 ;compara si no existe overflow 
+	BREQ DECENAS_MIN	;si existe overflow se manda a resetear
+	ADD XL, UNIDADES_MINUTOS	;si no existe si deplazada en la tabla al numero deseado 
+	LD DISPLAYUNO, X ;se carga en el display y se muestra al usuario
+	RJMP MODO_0 ;Se va a modo 0 para comparar en que modo esta
 
 DECENAS_MIN:
 	LDI XH, 0X01
-	LDI XL, 0X00
-	CLR R26
-	CLR	UNIDADES_MINUTOS
-	ADD XL, UNIDADES_MINUTOS
-	LD DISPLAYUNO, X
-	INC DECENAS_MINUTOS
-	CPI DECENAS_MINUTOS, 6 
-	BREQ UNIDADES_HOR
-	ADD XL, DECENAS_MINUTOS
-	LD DISPLAYDOS, X
-	RJMP MODO_0
+	LDI XL, 0X00 ;se ponen los punteros al inicio de la tabla
+	CLR R26 ;se limpia el lo que existe en R26
+	CLR	UNIDADES_MINUTOS ;Limpiamos unidades de minutos por overflow
+	ADD XL, UNIDADES_MINUTOS 
+	LD DISPLAYUNO, X ;cargamos el valor limpio
+	INC DECENAS_MINUTOS ;incrementamos las decenas de minutos para poder hacer overflow
+	CPI DECENAS_MINUTOS, 6 ;comparamos para ver si existe overflow
+	BREQ UNIDADES_HOR	;si existe overflow se manda a unidades horas para limpiar el display 2
+	ADD XL, DECENAS_MINUTOS ;se apunta al numero de la tabla que deseamos mostrar
+	LD DISPLAYDOS, X	;cargamos a display 2 el valor de x
+	RJMP MODO_0	;mandamos a comparar a modos
 UNIDADES_HOR:
 	LDI XH, 0X01
-	LDI XL, 0X00
-	CLR DECENAS_MINUTOS
-	ADD XL, DECENAS_MINUTOS
-	LD DISPLAYDOS, X
-	INC UNIDADES_HORAS
-	CPI UNIDADES_HORAS, 4
-	BREQ CASO_ESPECIAL
+	LDI XL, 0X00 ;apuntamos al inicio de la tabla
+	CLR DECENAS_MINUTOS	;limpiamos las decenas de minutos por overflow
+	ADD XL, DECENAS_MINUTOS	
+	LD DISPLAYDOS, X	;se carga el valor limpio al display 
+	INC UNIDADES_HORAS	;incrementamos las unidades de las horas 
+	CPI UNIDADES_HORAS, 4	;comparamos si existe overflow de 24 horas 
+	BREQ CASO_ESPECIAL	;si es igual saltamos a caso espacial para ver que no se haya pasado de las 23 horas 
 REGRESO:
-	CPI UNIDADES_HORAS, 10 
-	BREQ DECENAS_HOR
-	ADD XL, UNIDADES_HORAS
-	LD DISPLAYTRES, X
-	RJMP MODO_0   
+	CPI UNIDADES_HORAS, 10 ;aqui si no se ha pasado de las 23 horas mira si no existe overflow de decenas de horas
+	BREQ DECENAS_HOR	;si son iguales manda a overflow
+	ADD XL, UNIDADES_HORAS	; si no son iguales apunta al valor que se quiere mostrar en el display
+	LD DISPLAYTRES, X	;cargamos el valor deseado al display 3
+	RJMP MODO_0   ;saltamos a los modos
 CASO_ESPECIAL:
-	CPI DECENAS_HORAS, 2
-	BREQ FIN_RELOJ
-	RJMP REGRESO
+	CPI DECENAS_HORAS, 2	;el caso especial para ver si ya se paso de las 23 horas, si se cumple que unidades horas sean 4 y decenas horas sean 2 hace el overflow 
+	BREQ FIN_RELOJ ;si no es igual se va a final de la logica de incrementar hora 
+	RJMP REGRESO ;si no se cumplio se regresa al flujo normal de analisis de overflow para las unidades de horas
 DECENAS_HOR:
 	LDI XH, 0X01
-	LDI XL, 0X00
-	CLR UNIDADES_HORAS
-	ADD XL, DECENAS_MINUTOS
-	LD DISPLAYTRES, X
-	INC DECENAS_HORAS 
-	ADD XL, DECENAS_HORAS
-	LD DISPLAYCUATRO, X
+	LDI XL, 0X00 ;apuntamos de nuevo al inicio de la tabla 
+	CLR UNIDADES_HORAS ;limpiamos unidades 
+	ADD XL, DECENAS_MINUTOS	
+	LD DISPLAYTRES, X	;mostramos en display 3
+	INC DECENAS_HORAS ;incrementamos las decenas de horas
+	ADD XL, DECENAS_HORAS ;lo mandamos a moverse a la posicion que deseamos
+	LD DISPLAYCUATRO, X ; se muestra en el display 4
 	RJMP MODO_0
 FIN_RELOJ:
-	LDI XH, 0X01
+	;aqui se realiza el overflow global, ya que se llego al final de las 23 horas
+	LDI XH, 0X01	
 	LDI XL, 0X00
 	CLR DECENAS_HORAS
 	CLR UNIDADES_HORAS
@@ -273,33 +284,37 @@ FIN_RELOJ:
 	LD DISPLAYUNO, X
 
 //----DESACTIVACION FECHA----//
-	CPI MODO, 3
+	;esta e la logica que desactiva la fecha, si esta en el modo 3 deja de aumentar la fecha automaticamente
+	CPI MODO, 3 
 	BRNE FECHA
 	RJMP MODO_0
 //----LOGICA DE DESPLIEGUE DE FECHA----//
 FECHA:
-    LDI XH, 0X01
-    LDI XL, 0X00
+    LDI XH, 0X01 ;una vez que ya se cumplieron las 24 horas y se hacer overflow, se pasa a esta seccion de codigo que permite que avance de dia cada vez que se cumplen 24 horas
+    LDI XL, 0X00; se apunta con el puntero al inicio de la tabla 
 	CLR R26
-    LD DISPLAYUNO_FECHA, X
-    INC UNIDADES_DIAS
-    MOV R20, UNIDADES_DIAS
-    CPI R20, 9
-    BREQ CASO_FEBRERO
-	RJMP REGRESO_NO_FEBRERO
+    LD DISPLAYUNO_FECHA, X ;se carga el valor de x al display 
+    INC UNIDADES_DIAS ;se incrementan los dias cada vez que existe overflow 
+    MOV R20, UNIDADES_DIAS	;hacemos esta logica de hacer un mov al registro R20, ya que los registros utilizados para la fecha estan en los que van de R0 a R15
+    CPI R20, 9	;hacemos la comparacion del overflow para febrero 
+    BRSH CASO_FEBRERO	; primero analiza si esta en el caso de febrero si no esta en el caso de febrero salta para seguir el flujo normal
+	RJMP REGRESO_NO_FEBRERO 
 
 CASO_FEBRERO:
+;esta logica se asegura que este en el mes de febrero y que no se pase a 29 de febrero
     MOV R20, DECENAS_DIAS
     CPI R20, 2
-    BRNE REGRESO_NO_FEBRERO
+    BRSH REGRESO_NO_FEBRERO
 	MOV R20, UNIDADES_MES 
-	CPI R20, 2
+	CPI R20, 2;Se asegura que este en el mes 2 
 	BRNE REGRESO_NO_FEBRERO
 	MOV R20, DECENAS_MES 
-	CPI R20, 0
+	CPI R20, 0; Tambien se asegura que las decenas de meses esten en 0 para que no interfiera con diciembre 
 	BREQ UNIDADES_MESES
 
 REGRESO_NO_FEBRERO:
+;esta es la logica que permite que ciertos meses no muestren 31, 
+;primero analiza si esta en 31, si esta en 31 luego manda a analizar si esta en los meses que solo tienen 30 dias 
     MOV R20, UNIDADES_DIAS
     CPI R20, 1 
     BRNE CASO_NO_TREINTA
@@ -312,31 +327,34 @@ REGRESO_NO_FEBRERO:
     CPI R20, 6
     BREQ UNIDADES_MESES    ; Junio
     CPI R20, 9
-    BREQ DECENAS_MESES 
+    BREQ DECENAS_MESES		;septiembre 
 	MOV R20, UNIDADES_MES
 	CPI R20, 1
 	BRNE CASO_NO_TREINTA
     MOV R20, DECENAS_MES
-    CPI R20, 1
+    CPI R20, 1;				
     BREQ UNIDADES_MESES    ; Noviembre (mes 11)
 
 CASO_NO_TREINTA:
+;Si el codigo detecta que no esta en un mes que solo posee 30 meses sale de la logica para hacer el overflow
     MOV R20, UNIDADES_DIAS
     CPI R20, 2
     BRNE FLUJO_NORMAL
     MOV R20, DECENAS_DIAS
-    CPI R20, 3
+    CPI R20, 3		;Esta logica compara si ya se paso de 31 y hace el overflow
     BREQ UNIDADES_MESES
 
 FLUJO_NORMAL:
+;Esta logica permite hacer el overflow solo en las unidades de dias.
     MOV R20, UNIDADES_DIAS
-    CPI R20, 10
-    BREQ DECENAS_DIA
+    CPI R20, 10	;si detecta que se oaso de 9 este hace el overflow en el display de los dias
+    BREQ DECENAS_DIA	
     ADD XL, UNIDADES_DIAS
     LD DISPLAYUNO_FECHA, X
     RJMP MODO_0
-
+;Esta logica permite borrar lo que este en el display de unidades dias y aumentar uno en decenas dias
 DECENAS_DIA:
+;Esta logica permite hacer el overflow en el display de decenas de dias
     CLR R26
     LDI XH, 0X01
     LDI XL, 0X00
@@ -348,19 +366,21 @@ DECENAS_DIA:
     RJMP MODO_0
 
 UNIDADES_MESES:
+;esta es la logica que permite hacer en overflow en el display de decenas de dias
     LDI XH, 0X01
     LDI XL, 0X00
     CLR DECENAS_DIAS
-    CLR UNIDADES_DIAS
+    CLR UNIDADES_DIAS ;limpia ambos displays, e 1 y el 2 y les carga el valor de 0
     ADD XL, DECENAS_DIAS
     LD DISPLAYDOS_FECHA, X
 	LD DISPLAYUNO_FECHA, X
     INC UNIDADES_MES
     MOV R20, UNIDADES_MES
-    CPI R20, 3
+    CPI R20, 3	;primero compara si ya esta en tres para ver si ya se paso de 12 meses
     BREQ CASO_ESPECIAL_FECHA
 
 REGRESO_FECHA:
+;esta es la logica que permite seguir incrementando si no existe overflow de ningun tipo
     CPI R20, 10
     BREQ DECENAS_MESES
     ADD XL, UNIDADES_MES
@@ -368,12 +388,14 @@ REGRESO_FECHA:
     RJMP MODO_0
 	  
 CASO_ESPECIAL_FECHA:
+;aqui se analiaza si ya nos pasamos de 12 meses 
     MOV R20, DECENAS_MES
-    CPI R20, 1
+    CPI R20, 1	;si se encuentra que se pasaron de 12 meses se va a hacer un overflow que limpia todos los displays
     BREQ FIN_FECHA
     RJMP REGRESO_FECHA
 
 DECENAS_MESES:
+;aqui entra solo si hubo un overflow en el display de unidades de meses 
     LDI XH, 0X01
     LDI XL, 0X00
 	CLR UNIDADES_MES
@@ -386,7 +408,7 @@ DECENAS_MESES:
     ADD XL, DECENAS_MES
     LD DISPLAYCUATRO_FECHA, X
     RJMP MODO_0
-
+;Esta es la logica que hace que si se paso de 12 meses todo se reinicie y le limpien todos los registros
 FIN_FECHA:
     LDI XH, 0X01
     LDI XL, 0X00
@@ -404,37 +426,38 @@ FIN_FECHA:
 	LDI XL, 0X00
 	LD DISPLAYCUATRO_FECHA, X
 
-
+;modo donde se muestra la hora
 MODO_0:
 	CPI MODO, 0 ;Comparamos para ver si estamos en el modo correcto.
 	BRNE MODO_1	;si no lo mandamos a comparar a al siguente modo
 	//----500ms----// 
-	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+	SBRS CONT_TIMER0, 0 ;Analizamos si cada el bit 0 de CONT_TIMER0 esta en 1 para encender la led de los segundos =
 	SBI PORTC, 0
-	SBRC CONT_TIMER0, 0
+	SBRC CONT_TIMER0, 0 ; luego miramos si esta en 0 para apagarla 
 	CBI PORTC, 0
 	CBI PORTC, 5 ;apagamos en pin 5 de PORTC por si estaba encendido al salir del modo 5 
 	CBI PORTB, 5
 //----indicador de hora----//
 	SBI PORTB, 3 ;encendemos el indicador de modo hora 
 //----Inicio de la multiplexacion----//
-	CALL MULTIPLEXACION 
+	CALL MULTIPLEXACION ;se manda a llamar la subrutina que muestra la hora en los displays
 	RJMP LOOP
 
 MODO_1:
+;se analiza se esta en el modo 1 que es mostrar la fecha
 	CPI MODO, 1
-	BRNE MODO_2
-	CBI PORTB, 3
-	SBI PORTB, 4
-	SBI PORTC, 0
+	BRNE MODO_2	; si no esta en este modo se va a modo 2 
+	CBI PORTB, 3	;se apaga el indicador de fecha
+	SBI PORTB, 4; se enciende el indicador de fecha 
+	SBI PORTC, 0; se pausan las luces de los segundos en el display y se dejan encendidas 
 //----MULTIPLEXACION FECHA----//
-	CALL MULTIPLEXACION_FECHA
+	CALL MULTIPLEXACION_FECHA	;se llama a la subrutina que permite mostrar a fecha 
 	RJMP LOOP 
 
 MODO_2:
-	CPI MODO, 2 
-	BRNE MODO_3
-	CBI PORTB, 4
+	CPI MODO, 2 ;se compara si estamos en el modo 2 que es el de configurar hora
+	BRNE MODO_3 ; si no es asi manda al siguiente modo
+	CBI PORTB, 4	;se apaga el indicador de fecha
 //----INDICADOR MODO CONFIG HORA----//
 	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
 	SBI PORTB, 3
@@ -442,52 +465,53 @@ MODO_2:
 	CBI PORTB, 3
 	CBI PORTC, 0
 //---cambio de hora manual---//
-	CALL DECENAS_UNIDADES_MIN
-	CALL UNIDADES_DECENAS_HOR
-	CALL MULTIPLEXACION 
+	CALL DECENAS_UNIDADES_MIN	;se manda a llamar a la subrutina que permite hacer el incremento manual de los minutos
+	CALL UNIDADES_DECENAS_HOR	;se manda a llamar a la subrutina que permite hacer el incremento manual de las horas 
+	CALL MULTIPLEXACION		;se llama a la subrutina que permite mostrar la hora manual 
 	RJMP LOOP
 MODO_3:
-	CPI MODO, 3
-	BRNE MODO_4
-	CBI PORTB, 3
+	CPI MODO, 3 ;se analiza si esta en el modo de configuracion de fecha
+	BRNE MODO_4	;si no salta al sigguiente modo
+	CBI PORTB, 3 ;desactiva el indicador de configuracion de hora
 //----INDICADOR CONFIG FECHA----//
-	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+	SBRS CONT_TIMER0, 0 ;encendemos cada 500ms la led de indicador de fecha 
 	SBI PORTB, 4
 	SBRC CONT_TIMER0, 0
 	CBI PORTB, 4
 //----CONFIGURACION FECHA----//
-	CALL FECHA_MANUAL
-	CALL FECHA_MESES_MANUAL
-	CALL MULTIPLEXACION_FECHA
+	CALL FECHA_MANUAL	;rutina que permite aumentar manualmente pero solo para los dias 
+	CALL FECHA_MESES_MANUAL	;rutina que permite incrementar manualmente los meses 
+	CALL MULTIPLEXACION_FECHA	;permite mostra la configuracion en los displays 
 	RJMP LOOP 
 
 MODO_4:
-	CPI MODO, 4
-	BRNE MODO_5
+	CPI MODO, 4 ;analiza si estamos seleccionano el modo de la configuracion de la alarma
+	BRNE MODO_5	;si no salta al siguiente
 	CBI PORTB, 4
 //----Indicador de CONFIG ALARMA----//
-	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
-	SBI PORTB, 5
+	SBRS CONT_TIMER0, 0 ;encedemos en indicador cada 500ms 
+	SBI PORTB, 5	
 	SBRC CONT_TIMER0, 0
 	CBI PORTB, 5
 //CONFIGURACION ALARMA MANUAL----//
-	CALL CONFIG_ALARMA_MINUTOS
-	CALL CONFIG_ALARMA_HORAS 
-	CALL MULTIPLEXACION_ALARMA
+	CALL CONFIG_ALARMA_MINUTOS	;llamamos a la rutina que permite configurar los minutos manualmente
+	CALL CONFIG_ALARMA_HORAS	;llamamos a la rutina que permite configurar las horas manualmente
+	CALL MULTIPLEXACION_ALARMA	;llamamos a la funcion que permite mostrar la alarma deseada en los displays
 	RJMP LOOP
 	 
 MODO_5:
-	CPI MODO, 5
+	CPI MODO, 5 ;comparamos si estamos en el modo 5 que es el modo que arma la alarma. 
 	BRNE FIN
-	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+	SBRS CONT_TIMER0, 0 ;este es el indicador de segundos 
 	SBI PORTC, 0
 	SBRC CONT_TIMER0, 0
 	CBI PORTC, 0
 //----INDICADOR DE ALARMA ARMADA----//
 	SBI PORTB, 5
 	SBI PORTB, 3
-	CALL MULTIPLEXACION
+	CALL MULTIPLEXACION ;aqui se muestra la hora
 //----LOGICA DE COMPARACION DE ALARMA----//
+;se compara si todos los registros de la hora son iguales a los de configuracion alarma.
 	CP UNIDADES_MINUTOS, ALARMA_MINUTOS_UNIDADES
 	BREQ BANDERA_1
 	RJMP LOOP
@@ -504,7 +528,7 @@ BANDERA_3:
 	BREQ BANDERA_4
 	RJMP LOOP
 BANDERA_4:
-	SBI PORTC, 5
+	SBI PORTC, 5 ;si son iguales suena la alarma.
 	RJMP LOOP
 FIN:
 	RJMP LOOP
@@ -528,8 +552,9 @@ RI_BOTONES:
 	IN R16, PINB ;Hacemos lectura de los botones
 	SBRC R16, 0 ;Si el bit 0 esta en 0 significa que se presiono el boyon de cambiar de modo
 	RJMP BIT_1 ;Si no es asi sale
-	INC MODO
-BIT_1:	
+	INC MODO ;incrementa el modo 
+BIT_1:
+;esta logica lo que permite es poder hacer incrementos dependiendo de los modos en los que se encuentra el reloj	
 	SBRC R16, 1 
 	RJMP BIT_2
 	CPI MODO, 2
@@ -540,13 +565,13 @@ BIT_1:
 	BREQ INCREMENTO_ALARMA_MINUTOS
 	RJMP BIT_2
 INCREMENTO_HORA_MINUTOS:
-	INC UNIDADES_MINUTOS 
+	INC UNIDADES_MINUTOS ;solo permite hacer incrementos en los minutos si esta en el modo 2
 	RJMP BIT_2
 INCREMENTO_FECHA_DIAS:
-	INC UNIDADES_DIAS
+	INC UNIDADES_DIAS ; solo permite hacer incrementos en los dias si esta en el modo 3
 	RJMP BIT_2
 INCREMENTO_ALARMA_MINUTOS:
-	INC ALARMA_MINUTOS_UNIDADES
+	INC ALARMA_MINUTOS_UNIDADES ;solo permite hacer incrementos si se encuentra en el modo 4
 BIT_2:
 	SBRC R16, 2
 	RJMP COMPARACION
@@ -558,21 +583,22 @@ BIT_2:
 	BREQ INCREMENTO_ALARMA_HORAS
 	RJMP COMPARACION
 INCREMENTO_HORAS:
-	INC UNIDADES_HORAS
+	INC UNIDADES_HORAS ;solo permite hacer incrementos en las horas si esta en el modo 2
 	RJMP COMPARACION
 INCREMENTO_FECHA_MESES:
-	INC UNIDADES_MES
+	INC UNIDADES_MES ;solo permite hacer incrementos en los mses si esta en el modo 3
 	RJMP COMPARACION
 INCREMENTO_ALARMA_HORAS:
-	INC ALARMA_HORAS_UNIDADES 
+	INC ALARMA_HORAS_UNIDADES ; solo permite hacer incrementos en las horas de la alarma si solo esta en el modo 4
 COMPARACION:
-	CPI MODO, 6 
+	CPI MODO, 6 ;si el contador se paso de 5 lo limpia y regresa a 0/
 	BRNE EXIT 
 	CLR MODO
 EXIT:
 	RETI
 //----SUBRUTINA DE MULTIPLEXACION
 MULTIPLEXACION:
+;la rutina de multiplexacion funciona de forma tal que cada 5 ms aumenta 1 unidad, y cada vez que incrementa 1 unidad corresponde a un display 
 	CPI CONT_TIMER2, 0
 	BRNE DISPLAY2 
 	SBI PORTC, 1
@@ -600,56 +626,61 @@ FIN_MULTI:
 	RET
 
 //----SUB-RUTINA DE DECENAS Y UNIDADES DE MINUTOS----//
+;si existe un incremento de los minutos en la interrupcion este aumente de posicion en la tabla 
 DECENAS_UNIDADES_MIN:
 	LDI XH, 0X01
 	LDI XL, 0X00
 	CLR R26
-	CPI UNIDADES_MINUTOS, 10
+	CPI UNIDADES_MINUTOS, 10	;si se pasa de nueve el contador hace overflow 
 	BRSH DECENAS_MIN_MANUAL
 	ADD XL, UNIDADES_MINUTOS
 	LD DISPLAYUNO, X
 	RET
 DECENAS_MIN_MANUAL:
+;esta es la logica para que el display de unidades de minutos haga overflow 
 `	LDI XH, 0X01
 	LDI XL, 0X00
 	CLR R26
 	CLR	UNIDADES_MINUTOS
 	ADD XL, UNIDADES_MINUTOS
 	LD DISPLAYUNO, X
-	INC DECENAS_MINUTOS
+	INC DECENAS_MINUTOS ;incrementa cada vez que el el display de unidades de minutos se pase de 9 
 	CPI DECENAS_MINUTOS, 6 
 	BRSH OVERFLOW_UNIDADES_MIN 
 	CLR R26 
 	ADD XL, DECENAS_MINUTOS
-	LD DISPLAYDOS, X
+	LD DISPLAYDOS, X; se saca el valor de la decenas de minutos
 	RET
 OVERFLOW_UNIDADES_MIN:
+;logica que reinicia las unidades de minutos y decenas de minutos
 	LDI XH, 0X01
 	LDI XL, 0X00
 	CLR R26
 	CLR DECENAS_MINUTOS
-	ADD XL, DECENAS_MINUTOS
+	ADD XL, DECENAS_MINUTOS	
 	LD DISPLAYDOS, X
 	RET
 
 //----RUTINA DECENAS UNIDADES HORAS----//
+;si existe un incremento de las horas  en la interrupcion este aumente de posicion en la tabla
 UNIDADES_DECENAS_HOR:
 	LDI XH, 0X01
 	LDI XL, 0X00
 	CLR R26
-	CPI UNIDADES_HORAS, 4
+	CPI UNIDADES_HORAS, 4 ;compara si es cuatro, ya que necesita estar chequeando constante mente si ya se paso de las 23 horas 
 	BREQ CASO_ESPECIAL_MANUAL
 REGRESO_MANUAL:
-	CPI UNIDADES_HORAS, 10 
+	CPI UNIDADES_HORAS, 10 ;si el caso de que se paso de 23 horas no aplica chequea overflow normal en el display 
 	BREQ DECENAS_HOR_MANUAL 
 	ADD XL, UNIDADES_HORAS
 	LD DISPLAYTRES, X
 	RJMP FIN_CAMBIOS   
 CASO_ESPECIAL_MANUAL:
-	CPI DECENAS_HORAS, 2
+	CPI DECENAS_HORAS, 2 ;analiza si ya se paso de 23 horas y si si reinicia todos los displays 
 	BREQ FIN_RELOJ_MANUAL
 	RJMP REGRESO_MANUAL 
 DECENAS_HOR_MANUAL:
+;logica que incrementa las decenas de horas cada vez que las unidades de horas hacen overflow 
 	LDI XH, 0X01
 	LDI XL, 0X00
 	CLR R26
@@ -662,6 +693,7 @@ DECENAS_HOR_MANUAL:
 	LD DISPLAYCUATRO, X
 	RJMP FIN_CAMBIOS
 FIN_RELOJ_MANUAL:
+;si se pasa de 24 horas manda a reiniciar todos los displays
 	LDI XH, 0X01
 	LDI XL, 0X00
 	CLR R26
@@ -681,6 +713,7 @@ FIN_CAMBIOS:
 	RET
 
 //----RUTINA DE MULTIPLEXACION PARA LA FECHA----//
+;misma logica que todos los displays, permite encender los displays cada 5ms ya que un contador incrementa cada 5ms
 MULTIPLEXACION_FECHA:
 	CPI CONT_TIMER2, 0
 	BRNE DISPLAY2_FECHA 
@@ -710,15 +743,17 @@ FIN_MULTI_FECHA:
 
 //----SUBRUTINA DE FECHA MANUAL DIAS----//
 FECHA_MANUAL:
+;cada vez que existe un incremento dentro de la interrupcion este incrementa un dia manual mente
 	LDI XH, 0X01
     LDI XL, 0X00
 	LD DISPLAYUNO_FECHA, X
     MOV R20, UNIDADES_DIAS
-    CPI R20, 9
-    BRSH CASO_FEBRERO_MANUAL 
-	RJMP REGRESO_NO_FEBRERO_MANUAL
+    CPI R20, 9	;realiza el mismo chequeo que permite ver si ya se paso de 29 
+    BREQ CASO_FEBRERO_MANUAL ;manda a rutina que permite ver si esta en el mes de febrero
+	RJMP REGRESO_NO_FEBRERO_MANUAL;Si no sigue el flujo normal.
 
 CASO_FEBRERO_MANUAL:
+;aqui analiza si esta en el caso de febrero y que no se pase de los 28 dias 
     MOV R20, DECENAS_DIAS
     CPI R20, 2
     BRNE REGRESO_NO_FEBRERO_MANUAL
@@ -732,7 +767,6 @@ CASO_FEBRERO_MANUAL:
 
 REGRESO_NO_FEBRERO_MANUAL:
     ; Para meses de 30 días (abril, junio, septiembre, noviembre) 
-    ; se debe reiniciar al llegar al día 31 (31 = 3*10 + 1)
     MOV R20, UNIDADES_DIAS
     CPI R20, 1 
     BRNE CASO_NO_TREINTA_MANUAL
@@ -762,7 +796,6 @@ SEGUIR_MANUAL3:
 
 CASO_NO_TREINTA_MANUAL:
     ; Para meses de 31 días, el overflow se produce al llegar al día 32
-    ; (32 = 3*10 + 2)
     MOV R20, UNIDADES_DIAS
     CPI R20, 2
     BRNE FLUJO_NORMAL_MANUAL
@@ -781,6 +814,7 @@ OVERFLOW_DIAS:
 	RET
 
 FLUJO_NORMAL_MANUAL:
+;si no existe overflow permite seguir con el flujo normal para poder seguir incrementando 
     MOV R20, UNIDADES_DIAS
     CPI R20, 10
     BRSH DECENAS_DIA_MANUAL
@@ -789,6 +823,7 @@ FLUJO_NORMAL_MANUAL:
     RET
 
 DECENAS_DIA_MANUAL:
+;si existe overflow entre aqui para aumentar las decenas de dia manual mente 
     CLR R26
     LDI XH, 0X01
     LDI XL, 0X00
@@ -800,15 +835,16 @@ DECENAS_DIA_MANUAL:
     RET
 
 //----RUTINA MESES CONFIG MANUAL----//
+;se aplica la misma logica que arriba solo que en lugar de incrementarse automaticamente se incrementa manual mente 
 FECHA_MESES_MANUAL:
     LDI XH, 0X01
     LDI XL, 0X00
     MOV R20, UNIDADES_MES
-    CPI R20, 3
+    CPI R20, 3	;aqui analiza si no se ha pasado de 12 meses y reinicia automaticamente 
     BREQ CASO_ESPECIAL_FECHA_MANUAL
 
 REGRESO_FECHA_MANUAL:
-    CPI R20, 10
+    CPI R20, 10 ;si no se ha pasado de los 12 meses sigue el flujo manual de los dias 
     BRSH DECENAS_MESES_MANUAL
     ADD XL, UNIDADES_MES
     LD DISPLAYTRES_FECHA, X
@@ -816,11 +852,12 @@ REGRESO_FECHA_MANUAL:
 	  
 CASO_ESPECIAL_FECHA_MANUAL:
     MOV R20, DECENAS_MES
-    CPI R20, 1
+    CPI R20, 1	;si ya se pasaron los 12 meses lo manda al overflow 
     BREQ FIN_FECHA_MANUAL
     RJMP REGRESO_FECHA_MANUAL
 
 DECENAS_MESES_MANUAL:
+;cada vez que el display de unidades de meses hace overflow incrementa en esta logica. 
     LDI XH, 0X01
     LDI XL, 0X00
 	CLR UNIDADES_MES
@@ -831,6 +868,7 @@ DECENAS_MESES_MANUAL:
     RET
 
 FIN_FECHA_MANUAL:
+;si se paso de los 12 meses regresa a todo los displays a 01/01
     LDI XH, 0X01
     LDI XL, 0X00
 	CLR UNIDADES_DIAS
@@ -850,6 +888,7 @@ FIN_FECHA_MANUAL:
 	RET
 
 //----RUTINA DE CONFIGURACION DE ALARMA----//
+;este es una copia de  configuracion de hora manual
 CONFIG_ALARMA_MINUTOS:
 	LDI XH, 0X01
 	LDI XL, 0X00
@@ -883,6 +922,7 @@ OVERFLOW_ALARMA_MIN:
 	LD ALARMA_DISPLAYDOS, X
 	RET
 //----RUTINA MULTIPLEXACION ALARMA----//
+;se encienden cada 5ms los displays por medio de un contador que incrementa cada 5 ms 
 MULTIPLEXACION_ALARMA:
 	CPI CONT_TIMER2, 0
 	BRNE DISPLAY2_ALARMA  
@@ -911,6 +951,7 @@ FIN_MULTI_ALARMA:
 	RET
 
 //----RUTINA DE INCREMENTO ALARMA HORAS----//
+;este codigo es una copia del codigo de configuracion de hora
 CONFIG_ALARMA_HORAS:
 	LDI XH, 0X01
 	LDI XL, 0X00

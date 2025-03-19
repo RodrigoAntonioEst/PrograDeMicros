@@ -1,12 +1,12 @@
 
-AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm Mon Mar 17 18:49:14 2025
+AVRASM ver. 2.2.8  C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm Tue Mar 18 20:08:42 2025
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
 C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(9): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
-C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(19): warning: Register r28 already defined by the .DEF directive
-C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(20): warning: Register r29 already defined by the .DEF directive
-C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(21): warning: Register r30 already defined by the .DEF directive
-C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(22): warning: Register r31 already defined by the .DEF directive
+C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(22): warning: Register r28 already defined by the .DEF directive
+C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(23): warning: Register r29 already defined by the .DEF directive
+C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(24): warning: Register r30 already defined by the .DEF directive
+C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(26): warning: Register r31 already defined by the .DEF directive
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
 C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de micros\PrograDeMicros\Proyecto_Reloj_Rodrigoest\Proyecto_Reloj_Rodrigoest\main.asm(9): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\M328PDEF.inc'
                                  
@@ -1042,31 +1042,39 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  #endif  /* _M328PDEF_INC_ */
                                  
                                  ; ***** END OF FILE ******************************************************
-                                 .equ SIZE = 12
+                                 .equ SIZE = 12 ;Definimos cuantas veces queremos que haga el bucle de copiar de flash a ram.
                                  .def MODO = R18 ;Aqui guardaremos el estado de nuestro reloj
                                  .def CONT_TIMER0 = R19 ;Aqui guardaremos la cuenta para llegar a un segundo
                                  //.def SALIDA_X = R20 ;Aqui se guardara a lo que este apuntando el registro X
+                                 
+                                 //----Establecemos los registros para incrementar la hora----//
                                  .def UNIDADES_MINUTOS = R21 
-                                 .def DECENAS_MINUTOS = R22
+                                 .def DECENAS_MINUTOS = R22	
                                  .def UNIDADES_HORAS = R23 
                                  .def DECENAS_HORAS = R24
+                                 //----Establcemos los registros para desplegar la hora----//
                                  .def DISPLAYUNO = R25 
                                  .def DISPLAYDOS = R28 
                                  .def DISPLAYTRES = R29 
                                  .def DISPLAYCUATRO = R30
+                                 //----Registro que lleva el conteo de TIMER2----//
                                  .def CONT_TIMER2 = R31
+                                 //----Registros para poder aumentar la fecha----//
                                  .def UNIDADES_DIAS = R15
                                  .def DECENAS_DIAS = R14
                                  .def UNIDADES_MES = R13
                                  .def DECENAS_MES = R12 
+                                 //----Registros para poder desplegar la fecha----//
                                  .def DISPLAYUNO_FECHA = R11
                                  .def DISPLAYDOS_FECHA = R10
                                  .def DISPLAYTRES_FECHA = R9
                                  .def DISPLAYCUATRO_FECHA = R8
+                                 //----registros para poder desplegar la alarma----//
                                  .def ALARMA_MINUTOS_UNIDADES = R7
                                  .def ALARMA_MINUTOS_DECENAS = R6
                                  .def ALARMA_HORAS_UNIDADES = R5
                                  .def ALARMA_HORAS_DECENAS = R4
+                                 //----registros para poder mostrar la alarma manualmente----//
                                  .def ALARMA_DISPLAYUNO = R3
                                  .def ALARMA_DISPLAYDOS = R2
                                  .def ALARMA_DISPLAYTRES = R1
@@ -1214,11 +1222,11 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000081 91ec                      	LD DISPLAYCUATRO, X
                                  
                                  	//----inicializamos todos los displays para la fecha----//
-000082 e0a1                      	LDI XL, 0X01
+000082 e0a1                      	LDI XL, 0X01 //le cargamos 0x01 al XL para que nuestra fecha inicie en 01/01
 000083 90bc                      	LD DISPLAYUNO_FECHA, X
 000084 e0a0                      	LDI XL, 0X00
 000085 90ac                      	LD DISPLAYDOS_FECHA, X
-000086 e0a1                      	LDI XL, 0X01
+000086 e0a1                      	LDI XL, 0X01 //le cargamos 0x01 al XL para que nuestra fecha inicie en 01/01
 000087 909c                      	LD DISPLAYTRES_FECHA, X
 000088 e0a0                      	LDI XL, 0X00
 000089 908c                      	LD DISPLAYCUATRO_FECHA, X
@@ -1227,81 +1235,84 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00008a 903c                      	LD ALARMA_DISPLAYUNO, X
 00008b 902c                      	LD ALARMA_DISPLAYDOS, X
 00008c 901c                      	LD ALARMA_DISPLAYTRES, X 
-00008d 900c                      	LD ALARMA_DISPLAYCUATRO, X
+00008d 900c                      	LD ALARMA_DISPLAYCUATRO, X ; esto se hace para poder sacar el valor 0 en el display cuando se conecta el atmega328p
                                  	
                                  //----Iniciamos el Main Loop----//
                                  LOOP:
-00008e 30f4                      	CPI CONT_TIMER2, 4 ;comparamo si ya es 5 
+                                 //----logica de para multiplexar con timer2----//
+                                 
+00008e 30f4                      	CPI CONT_TIMER2, 4 ;incrementara 1 unidad cada 5ms, para saber si ya pasaron los 20ms se compara con 4 y luego se limpia. 
 00008f f409                      	BRNE FIN_TIMER ;si no es igual lo sacamos de la interrupcion 
 000090 27ff                      	CLR CONT_TIMER2 ;si es igual lo limpiamos
                                  FIN_TIMER:
                                  	//----Aumento cada 60s----//
-000091 3738                      	CPI CONT_TIMER0, 120
-000092 f411                      	BRNE MODO0
-000093 2733                      	CLR CONT_TIMER0
-000094 c001                      	RJMP DESACTIVACION
+000091 3738                      	CPI CONT_TIMER0, 120 ;este es la logica que permite incrementar cada 60s el display de minutos
+000092 f411                      	BRNE MODO0 ;Si no cuenta 60s salta al modo0 para comparar en que modo se encuetra 
+000093 2733                      	CLR CONT_TIMER0 ; si ya pasaron los 60s se manda a la logica que permite incrementar cada 60s outomaticamente
+000094 c001                      	RJMP DESACTIVACION ; hace un salto a una condicion previa, la cual permite mostrar que cuente en todos los modos eceptuando en config hora 
                                  MODO0:
-000095 c0a6                      	RJMP MODO_0
+000095 c0a6                      	RJMP MODO_0 ;Salta a hacer las comparaciones de modo
                                  //----Desactivacion de conteo automomatico----// 
                                  DESACTIVACION:
-000096 3022                      	CPI MODO, 2
-000097 f409                      	BRNE CUENTA_AUTOMATICA
-000098 c0a3                      	RJMP MODO_0
+000096 3022                      	CPI MODO, 2 ;compar si se encuentra en el modo 2 y no permitir la cuenta automatica
+000097 f409                      	BRNE CUENTA_AUTOMATICA ;si no es igual al modo 2 salta a contar automaticamente
+000098 c0a3                      	RJMP MODO_0 ;si fuera igual se va a comparar modos
                                  CUENTA_AUTOMATICA:
                                  //----UNIDADES MINUTOS----//
 000099 e0b1                      	LDI XH, 0X01
-00009a e0a0                      	LDI XL, 0X00 
-00009b 9553                      	INC UNIDADES_MINUTOS
-00009c 305a                      	CPI UNIDADES_MINUTOS, 10
-00009d f019                      	BREQ DECENAS_MIN
-00009e 0fa5                      	ADD XL, UNIDADES_MINUTOS
-00009f 919c                      	LD DISPLAYUNO, X
-0000a0 c09b                      	RJMP MODO_0
+00009a e0a0                      	LDI XL, 0X00 ;se ponen los punteros al inicio de la tabla 
+00009b 9553                      	INC UNIDADES_MINUTOS ;incrementa unidades de minutos cada 60 segundos
+00009c 305a                      	CPI UNIDADES_MINUTOS, 10 ;compara si no existe overflow 
+00009d f019                      	BREQ DECENAS_MIN	;si existe overflow se manda a resetear
+00009e 0fa5                      	ADD XL, UNIDADES_MINUTOS	;si no existe si deplazada en la tabla al numero deseado 
+00009f 919c                      	LD DISPLAYUNO, X ;se carga en el display y se muestra al usuario
+0000a0 c09b                      	RJMP MODO_0 ;Se va a modo 0 para comparar en que modo esta
                                  
                                  DECENAS_MIN:
 0000a1 e0b1                      	LDI XH, 0X01
-0000a2 e0a0                      	LDI XL, 0X00
-0000a3 27aa                      	CLR R26
-0000a4 2755                      	CLR	UNIDADES_MINUTOS
-0000a5 0fa5                      	ADD XL, UNIDADES_MINUTOS
-0000a6 919c                      	LD DISPLAYUNO, X
-0000a7 9563                      	INC DECENAS_MINUTOS
-0000a8 3066                      	CPI DECENAS_MINUTOS, 6 
-0000a9 f019                      	BREQ UNIDADES_HOR
-0000aa 0fa6                      	ADD XL, DECENAS_MINUTOS
-0000ab 91cc                      	LD DISPLAYDOS, X
-0000ac c08f                      	RJMP MODO_0
+0000a2 e0a0                      	LDI XL, 0X00 ;se ponen los punteros al inicio de la tabla
+0000a3 27aa                      	CLR R26 ;se limpia el lo que existe en R26
+0000a4 2755                      	CLR	UNIDADES_MINUTOS ;Limpiamos unidades de minutos por overflow
+0000a5 0fa5                      	ADD XL, UNIDADES_MINUTOS 
+0000a6 919c                      	LD DISPLAYUNO, X ;cargamos el valor limpio
+0000a7 9563                      	INC DECENAS_MINUTOS ;incrementamos las decenas de minutos para poder hacer overflow
+0000a8 3066                      	CPI DECENAS_MINUTOS, 6 ;comparamos para ver si existe overflow
+0000a9 f019                      	BREQ UNIDADES_HOR	;si existe overflow se manda a unidades horas para limpiar el display 2
+0000aa 0fa6                      	ADD XL, DECENAS_MINUTOS ;se apunta al numero de la tabla que deseamos mostrar
+0000ab 91cc                      	LD DISPLAYDOS, X	;cargamos a display 2 el valor de x
+0000ac c08f                      	RJMP MODO_0	;mandamos a comparar a modos
                                  UNIDADES_HOR:
 0000ad e0b1                      	LDI XH, 0X01
-0000ae e0a0                      	LDI XL, 0X00
-0000af 2766                      	CLR DECENAS_MINUTOS
-0000b0 0fa6                      	ADD XL, DECENAS_MINUTOS
-0000b1 91cc                      	LD DISPLAYDOS, X
-0000b2 9573                      	INC UNIDADES_HORAS
-0000b3 3074                      	CPI UNIDADES_HORAS, 4
-0000b4 f029                      	BREQ CASO_ESPECIAL
+0000ae e0a0                      	LDI XL, 0X00 ;apuntamos al inicio de la tabla
+0000af 2766                      	CLR DECENAS_MINUTOS	;limpiamos las decenas de minutos por overflow
+0000b0 0fa6                      	ADD XL, DECENAS_MINUTOS	
+0000b1 91cc                      	LD DISPLAYDOS, X	;se carga el valor limpio al display 
+0000b2 9573                      	INC UNIDADES_HORAS	;incrementamos las unidades de las horas 
+0000b3 3074                      	CPI UNIDADES_HORAS, 4	;comparamos si existe overflow de 24 horas 
+0000b4 f029                      	BREQ CASO_ESPECIAL	;si es igual saltamos a caso espacial para ver que no se haya pasado de las 23 horas 
                                  REGRESO:
-0000b5 307a                      	CPI UNIDADES_HORAS, 10 
-0000b6 f031                      	BREQ DECENAS_HOR
-0000b7 0fa7                      	ADD XL, UNIDADES_HORAS
-0000b8 91dc                      	LD DISPLAYTRES, X
-0000b9 c082                      	RJMP MODO_0   
+0000b5 307a                      	CPI UNIDADES_HORAS, 10 ;aqui si no se ha pasado de las 23 horas mira si no existe overflow de decenas de horas
+0000b6 f031                      	BREQ DECENAS_HOR	;si son iguales manda a overflow
+0000b7 0fa7                      	ADD XL, UNIDADES_HORAS	; si no son iguales apunta al valor que se quiere mostrar en el display
+0000b8 91dc                      	LD DISPLAYTRES, X	;cargamos el valor deseado al display 3
+0000b9 c082                      	RJMP MODO_0   ;saltamos a los modos
                                  CASO_ESPECIAL:
-0000ba 3082                      	CPI DECENAS_HORAS, 2
-0000bb f051                      	BREQ FIN_RELOJ
-0000bc cff8                      	RJMP REGRESO
+0000ba 3082                      	CPI DECENAS_HORAS, 2	;el caso especial para ver si ya se paso de las 23 horas, si se cumple que unidades horas sean 4 y decenas horas sean 2 hace el overflow 
+0000bb f051                      	BREQ FIN_RELOJ ;si no es igual se va a final de la logica de incrementar hora 
+0000bc cff8                      	RJMP REGRESO ;si no se cumplio se regresa al flujo normal de analisis de overflow para las unidades de horas
                                  DECENAS_HOR:
 0000bd e0b1                      	LDI XH, 0X01
-0000be e0a0                      	LDI XL, 0X00
-0000bf 2777                      	CLR UNIDADES_HORAS
-0000c0 0fa6                      	ADD XL, DECENAS_MINUTOS
-0000c1 91dc                      	LD DISPLAYTRES, X
-0000c2 9583                      	INC DECENAS_HORAS 
-0000c3 0fa8                      	ADD XL, DECENAS_HORAS
-0000c4 91ec                      	LD DISPLAYCUATRO, X
+0000be e0a0                      	LDI XL, 0X00 ;apuntamos de nuevo al inicio de la tabla 
+0000bf 2777                      	CLR UNIDADES_HORAS ;limpiamos unidades 
+0000c0 0fa6                      	ADD XL, DECENAS_MINUTOS	
+0000c1 91dc                      	LD DISPLAYTRES, X	;mostramos en display 3
+0000c2 9583                      	INC DECENAS_HORAS ;incrementamos las decenas de horas
+0000c3 0fa8                      	ADD XL, DECENAS_HORAS ;lo mandamos a moverse a la posicion que deseamos
+0000c4 91ec                      	LD DISPLAYCUATRO, X ; se muestra en el display 4
 0000c5 c076                      	RJMP MODO_0
                                  FIN_RELOJ:
-0000c6 e0b1                      	LDI XH, 0X01
+                                 	;aqui se realiza el overflow global, ya que se llego al final de las 23 horas
+0000c6 e0b1                      	LDI XH, 0X01	
 0000c7 e0a0                      	LDI XL, 0X00
 0000c8 2788                      	CLR DECENAS_HORAS
 0000c9 2777                      	CLR UNIDADES_HORAS
@@ -1313,33 +1324,37 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 0000cf 919c                      	LD DISPLAYUNO, X
                                  
                                  //----DESACTIVACION FECHA----//
-0000d0 3023                      	CPI MODO, 3
+                                 	;esta e la logica que desactiva la fecha, si esta en el modo 3 deja de aumentar la fecha automaticamente
+0000d0 3023                      	CPI MODO, 3 
 0000d1 f409                      	BRNE FECHA
 0000d2 c069                      	RJMP MODO_0
                                  //----LOGICA DE DESPLIEGUE DE FECHA----//
                                  FECHA:
-0000d3 e0b1                          LDI XH, 0X01
-0000d4 e0a0                          LDI XL, 0X00
+0000d3 e0b1                          LDI XH, 0X01 ;una vez que ya se cumplieron las 24 horas y se hacer overflow, se pasa a esta seccion de codigo que permite que avance de dia cada vez que se cumplen 24 horas
+0000d4 e0a0                          LDI XL, 0X00; se apunta con el puntero al inicio de la tabla 
 0000d5 27aa                      	CLR R26
-0000d6 90bc                          LD DISPLAYUNO_FECHA, X
-0000d7 94f3                          INC UNIDADES_DIAS
-0000d8 2d4f                          MOV R20, UNIDADES_DIAS
-0000d9 3049                          CPI R20, 9
-0000da f009                          BREQ CASO_FEBRERO
-0000db c009                      	RJMP REGRESO_NO_FEBRERO
+0000d6 90bc                          LD DISPLAYUNO_FECHA, X ;se carga el valor de x al display 
+0000d7 94f3                          INC UNIDADES_DIAS ;se incrementan los dias cada vez que existe overflow 
+0000d8 2d4f                          MOV R20, UNIDADES_DIAS	;hacemos esta logica de hacer un mov al registro R20, ya que los registros utilizados para la fecha estan en los que van de R0 a R15
+0000d9 3049                          CPI R20, 9	;hacemos la comparacion del overflow para febrero 
+0000da f408                          BRSH CASO_FEBRERO	; primero analiza si esta en el caso de febrero si no esta en el caso de febrero salta para seguir el flujo normal
+0000db c009                      	RJMP REGRESO_NO_FEBRERO 
                                  
                                  CASO_FEBRERO:
+                                 ;esta logica se asegura que este en el mes de febrero y que no se pase a 29 de febrero
 0000dc 2d4e                          MOV R20, DECENAS_DIAS
 0000dd 3042                          CPI R20, 2
-0000de f431                          BRNE REGRESO_NO_FEBRERO
+0000de f430                          BRSH REGRESO_NO_FEBRERO
 0000df 2d4d                      	MOV R20, UNIDADES_MES 
-0000e0 3042                      	CPI R20, 2
+0000e0 3042                      	CPI R20, 2;Se asegura que este en el mes 2 
 0000e1 f419                      	BRNE REGRESO_NO_FEBRERO
 0000e2 2d4c                      	MOV R20, DECENAS_MES 
-0000e3 3040                      	CPI R20, 0
+0000e3 3040                      	CPI R20, 0; Tambien se asegura que las decenas de meses esten en 0 para que no interfiera con diciembre 
 0000e4 f141                      	BREQ UNIDADES_MESES
                                  
                                  REGRESO_NO_FEBRERO:
+                                 ;esta es la logica que permite que ciertos meses no muestren 31, 
+                                 ;primero analiza si esta en 31, si esta en 31 luego manda a analizar si esta en los meses que solo tienen 30 dias 
 0000e5 2d4f                          MOV R20, UNIDADES_DIAS
 0000e6 3041                          CPI R20, 1 
 0000e7 f481                          BRNE CASO_NO_TREINTA
@@ -1352,31 +1367,34 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 0000ee 3046                          CPI R20, 6
 0000ef f0e9                          BREQ UNIDADES_MESES    ; Junio
 0000f0 3049                          CPI R20, 9
-0000f1 f179                          BREQ DECENAS_MESES 
+0000f1 f179                          BREQ DECENAS_MESES		;septiembre 
 0000f2 2d4d                      	MOV R20, UNIDADES_MES
 0000f3 3041                      	CPI R20, 1
 0000f4 f419                      	BRNE CASO_NO_TREINTA
 0000f5 2d4c                          MOV R20, DECENAS_MES
-0000f6 3041                          CPI R20, 1
+0000f6 3041                          CPI R20, 1;				
 0000f7 f0a9                          BREQ UNIDADES_MESES    ; Noviembre (mes 11)
                                  
                                  CASO_NO_TREINTA:
+                                 ;Si el codigo detecta que no esta en un mes que solo posee 30 meses sale de la logica para hacer el overflow
 0000f8 2d4f                          MOV R20, UNIDADES_DIAS
 0000f9 3042                          CPI R20, 2
 0000fa f419                          BRNE FLUJO_NORMAL
 0000fb 2d4e                          MOV R20, DECENAS_DIAS
-0000fc 3043                          CPI R20, 3
+0000fc 3043                          CPI R20, 3		;Esta logica compara si ya se paso de 31 y hace el overflow
 0000fd f079                          BREQ UNIDADES_MESES
                                  
                                  FLUJO_NORMAL:
+                                 ;Esta logica permite hacer el overflow solo en las unidades de dias.
 0000fe 2d4f                          MOV R20, UNIDADES_DIAS
-0000ff 304a                          CPI R20, 10
-000100 f019                          BREQ DECENAS_DIA
+0000ff 304a                          CPI R20, 10	;si detecta que se oaso de 9 este hace el overflow en el display de los dias
+000100 f019                          BREQ DECENAS_DIA	
 000101 0daf                          ADD XL, UNIDADES_DIAS
 000102 90bc                          LD DISPLAYUNO_FECHA, X
 000103 c038                          RJMP MODO_0
-                                 
+                                 ;Esta logica permite borrar lo que este en el display de unidades dias y aumentar uno en decenas dias
                                  DECENAS_DIA:
+                                 ;Esta logica permite hacer el overflow en el display de decenas de dias
 000104 27aa                          CLR R26
 000105 e0b1                          LDI XH, 0X01
 000106 e0a0                          LDI XL, 0X00
@@ -1388,19 +1406,21 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00010c c02f                          RJMP MODO_0
                                  
                                  UNIDADES_MESES:
+                                 ;esta es la logica que permite hacer en overflow en el display de decenas de dias
 00010d e0b1                          LDI XH, 0X01
 00010e e0a0                          LDI XL, 0X00
 00010f 24ee                          CLR DECENAS_DIAS
-000110 24ff                          CLR UNIDADES_DIAS
+000110 24ff                          CLR UNIDADES_DIAS ;limpia ambos displays, e 1 y el 2 y les carga el valor de 0
 000111 0dae                          ADD XL, DECENAS_DIAS
 000112 90ac                          LD DISPLAYDOS_FECHA, X
 000113 90bc                      	LD DISPLAYUNO_FECHA, X
 000114 94d3                          INC UNIDADES_MES
 000115 2d4d                          MOV R20, UNIDADES_MES
-000116 3043                          CPI R20, 3
+000116 3043                          CPI R20, 3	;primero compara si ya esta en tres para ver si ya se paso de 12 meses
 000117 f029                          BREQ CASO_ESPECIAL_FECHA
                                  
                                  REGRESO_FECHA:
+                                 ;esta es la logica que permite seguir incrementando si no existe overflow de ningun tipo
 000118 304a                          CPI R20, 10
 000119 f039                          BREQ DECENAS_MESES
 00011a 0dad                          ADD XL, UNIDADES_MES
@@ -1408,12 +1428,14 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00011c c01f                          RJMP MODO_0
                                  	  
                                  CASO_ESPECIAL_FECHA:
+                                 ;aqui se analiaza si ya nos pasamos de 12 meses 
 00011d 2d4c                          MOV R20, DECENAS_MES
-00011e 3041                          CPI R20, 1
+00011e 3041                          CPI R20, 1	;si se encuentra que se pasaron de 12 meses se va a hacer un overflow que limpia todos los displays
 00011f f069                          BREQ FIN_FECHA
 000120 cff7                          RJMP REGRESO_FECHA
                                  
                                  DECENAS_MESES:
+                                 ;aqui entra solo si hubo un overflow en el display de unidades de meses 
 000121 e0b1                          LDI XH, 0X01
 000122 e0a0                          LDI XL, 0X00
 000123 24dd                      	CLR UNIDADES_MES
@@ -1426,7 +1448,7 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00012a 0dac                          ADD XL, DECENAS_MES
 00012b 908c                          LD DISPLAYCUATRO_FECHA, X
 00012c c00f                          RJMP MODO_0
-                                 
+                                 ;Esta es la logica que hace que si se paso de 12 meses todo se reinicie y le limpien todos los registros
                                  FIN_FECHA:
 00012d e0b1                          LDI XH, 0X01
 00012e e0a0                          LDI XL, 0X00
@@ -1444,37 +1466,38 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00013a e0a0                      	LDI XL, 0X00
 00013b 908c                      	LD DISPLAYCUATRO_FECHA, X
                                  
-                                 
+                                 ;modo donde se muestra la hora
                                  MODO_0:
 00013c 3020                      	CPI MODO, 0 ;Comparamos para ver si estamos en el modo correcto.
 00013d f451                      	BRNE MODO_1	;si no lo mandamos a comparar a al siguente modo
                                  	//----500ms----// 
-00013e ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+00013e ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada el bit 0 de CONT_TIMER0 esta en 1 para encender la led de los segundos =
 00013f 9a40                      	SBI PORTC, 0
-000140 fd30                      	SBRC CONT_TIMER0, 0
+000140 fd30                      	SBRC CONT_TIMER0, 0 ; luego miramos si esta en 0 para apagarla 
 000141 9840                      	CBI PORTC, 0
 000142 9845                      	CBI PORTC, 5 ;apagamos en pin 5 de PORTC por si estaba encendido al salir del modo 5 
 000143 982d                      	CBI PORTB, 5
                                  //----indicador de hora----//
 000144 9a2b                      	SBI PORTB, 3 ;encendemos el indicador de modo hora 
                                  //----Inicio de la multiplexacion----//
-000145 940e 01c1                 	CALL MULTIPLEXACION 
+000145 940e 01c1                 	CALL MULTIPLEXACION ;se manda a llamar la subrutina que muestra la hora en los displays
 000147 cf46                      	RJMP LOOP
                                  
                                  MODO_1:
+                                 ;se analiza se esta en el modo 1 que es mostrar la fecha
 000148 3021                      	CPI MODO, 1
-000149 f431                      	BRNE MODO_2
-00014a 982b                      	CBI PORTB, 3
-00014b 9a2c                      	SBI PORTB, 4
-00014c 9a40                      	SBI PORTC, 0
+000149 f431                      	BRNE MODO_2	; si no esta en este modo se va a modo 2 
+00014a 982b                      	CBI PORTB, 3	;se apaga el indicador de fecha
+00014b 9a2c                      	SBI PORTB, 4; se enciende el indicador de fecha 
+00014c 9a40                      	SBI PORTC, 0; se pausan las luces de los segundos en el display y se dejan encendidas 
                                  //----MULTIPLEXACION FECHA----//
-00014d 940e 021a                 	CALL MULTIPLEXACION_FECHA
+00014d 940e 021a                 	CALL MULTIPLEXACION_FECHA	;se llama a la subrutina que permite mostrar a fecha 
 00014f cf3e                      	RJMP LOOP 
                                  
                                  MODO_2:
-000150 3022                      	CPI MODO, 2 
-000151 f469                      	BRNE MODO_3
-000152 982c                      	CBI PORTB, 4
+000150 3022                      	CPI MODO, 2 ;se compara si estamos en el modo 2 que es el de configurar hora
+000151 f469                      	BRNE MODO_3 ; si no es asi manda al siguiente modo
+000152 982c                      	CBI PORTB, 4	;se apaga el indicador de fecha
                                  //----INDICADOR MODO CONFIG HORA----//
 000153 ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
 000154 9a2b                      	SBI PORTB, 3
@@ -1482,52 +1505,53 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000156 982b                      	CBI PORTB, 3
 000157 9840                      	CBI PORTC, 0
                                  //---cambio de hora manual---//
-000158 940e 01d6                 	CALL DECENAS_UNIDADES_MIN
-00015a 940e 01f2                 	CALL UNIDADES_DECENAS_HOR
-00015c 940e 01c1                 	CALL MULTIPLEXACION 
+000158 940e 01d6                 	CALL DECENAS_UNIDADES_MIN	;se manda a llamar a la subrutina que permite hacer el incremento manual de los minutos
+00015a 940e 01f2                 	CALL UNIDADES_DECENAS_HOR	;se manda a llamar a la subrutina que permite hacer el incremento manual de las horas 
+00015c 940e 01c1                 	CALL MULTIPLEXACION		;se llama a la subrutina que permite mostrar la hora manual 
 00015e cf2f                      	RJMP LOOP
                                  MODO_3:
-00015f 3023                      	CPI MODO, 3
-000160 f461                      	BRNE MODO_4
-000161 982b                      	CBI PORTB, 3
+00015f 3023                      	CPI MODO, 3 ;se analiza si esta en el modo de configuracion de fecha
+000160 f461                      	BRNE MODO_4	;si no salta al sigguiente modo
+000161 982b                      	CBI PORTB, 3 ;desactiva el indicador de configuracion de hora
                                  //----INDICADOR CONFIG FECHA----//
-000162 ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+000162 ff30                      	SBRS CONT_TIMER0, 0 ;encendemos cada 500ms la led de indicador de fecha 
 000163 9a2c                      	SBI PORTB, 4
 000164 fd30                      	SBRC CONT_TIMER0, 0
 000165 982c                      	CBI PORTB, 4
                                  //----CONFIGURACION FECHA----//
-000166 940e 022f                 	CALL FECHA_MANUAL
-000168 940e 0275                 	CALL FECHA_MESES_MANUAL
-00016a 940e 021a                 	CALL MULTIPLEXACION_FECHA
+000166 940e 022f                 	CALL FECHA_MANUAL	;rutina que permite aumentar manualmente pero solo para los dias 
+000168 940e 0275                 	CALL FECHA_MESES_MANUAL	;rutina que permite incrementar manualmente los meses 
+00016a 940e 021a                 	CALL MULTIPLEXACION_FECHA	;permite mostra la configuracion en los displays 
 00016c cf21                      	RJMP LOOP 
                                  
                                  MODO_4:
-00016d 3024                      	CPI MODO, 4
-00016e f461                      	BRNE MODO_5
+00016d 3024                      	CPI MODO, 4 ;analiza si estamos seleccionano el modo de la configuracion de la alarma
+00016e f461                      	BRNE MODO_5	;si no salta al siguiente
 00016f 982c                      	CBI PORTB, 4
                                  //----Indicador de CONFIG ALARMA----//
-000170 ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
-000171 9a2d                      	SBI PORTB, 5
+000170 ff30                      	SBRS CONT_TIMER0, 0 ;encedemos en indicador cada 500ms 
+000171 9a2d                      	SBI PORTB, 5	
 000172 fd30                      	SBRC CONT_TIMER0, 0
 000173 982d                      	CBI PORTB, 5
                                  //CONFIGURACION ALARMA MANUAL----//
-000174 940e 029c                 	CALL CONFIG_ALARMA_MINUTOS
-000176 940e 02cd                 	CALL CONFIG_ALARMA_HORAS 
-000178 940e 02b8                 	CALL MULTIPLEXACION_ALARMA
+000174 940e 029c                 	CALL CONFIG_ALARMA_MINUTOS	;llamamos a la rutina que permite configurar los minutos manualmente
+000176 940e 02cd                 	CALL CONFIG_ALARMA_HORAS	;llamamos a la rutina que permite configurar las horas manualmente
+000178 940e 02b8                 	CALL MULTIPLEXACION_ALARMA	;llamamos a la funcion que permite mostrar la alarma deseada en los displays
 00017a cf13                      	RJMP LOOP
                                  	 
                                  MODO_5:
-00017b 3025                      	CPI MODO, 5
+00017b 3025                      	CPI MODO, 5 ;comparamos si estamos en el modo 5 que es el modo que arma la alarma. 
 00017c f4b1                      	BRNE FIN
-00017d ff30                      	SBRS CONT_TIMER0, 0 ;Analizamos si cada 
+00017d ff30                      	SBRS CONT_TIMER0, 0 ;este es el indicador de segundos 
 00017e 9a40                      	SBI PORTC, 0
 00017f fd30                      	SBRC CONT_TIMER0, 0
 000180 9840                      	CBI PORTC, 0
                                  //----INDICADOR DE ALARMA ARMADA----//
 000181 9a2d                      	SBI PORTB, 5
 000182 9a2b                      	SBI PORTB, 3
-000183 940e 01c1                 	CALL MULTIPLEXACION
+000183 940e 01c1                 	CALL MULTIPLEXACION ;aqui se muestra la hora
                                  //----LOGICA DE COMPARACION DE ALARMA----//
+                                 ;se compara si todos los registros de la hora son iguales a los de configuracion alarma.
 000185 1557                      	CP UNIDADES_MINUTOS, ALARMA_MINUTOS_UNIDADES
 000186 f009                      	BREQ BANDERA_1
 000187 cf06                      	RJMP LOOP
@@ -1544,7 +1568,7 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00018f f009                      	BREQ BANDERA_4
 000190 cefd                      	RJMP LOOP
                                  BANDERA_4:
-000191 9a45                      	SBI PORTC, 5
+000191 9a45                      	SBI PORTC, 5 ;si son iguales suena la alarma.
 000192 cefb                      	RJMP LOOP
                                  FIN:
 000193 cefa                      	RJMP LOOP
@@ -1568,8 +1592,9 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00019d b103                      	IN R16, PINB ;Hacemos lectura de los botones
 00019e fd00                      	SBRC R16, 0 ;Si el bit 0 esta en 0 significa que se presiono el boyon de cambiar de modo
 00019f c001                      	RJMP BIT_1 ;Si no es asi sale
-0001a0 9523                      	INC MODO
-                                 BIT_1:	
+0001a0 9523                      	INC MODO ;incrementa el modo 
+                                 BIT_1:
+                                 ;esta logica lo que permite es poder hacer incrementos dependiendo de los modos en los que se encuentra el reloj	
 0001a1 fd01                      	SBRC R16, 1 
 0001a2 c00c                      	RJMP BIT_2
 0001a3 3022                      	CPI MODO, 2
@@ -1580,13 +1605,13 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 0001a8 f029                      	BREQ INCREMENTO_ALARMA_MINUTOS
 0001a9 c005                      	RJMP BIT_2
                                  INCREMENTO_HORA_MINUTOS:
-0001aa 9553                      	INC UNIDADES_MINUTOS 
+0001aa 9553                      	INC UNIDADES_MINUTOS ;solo permite hacer incrementos en los minutos si esta en el modo 2
 0001ab c003                      	RJMP BIT_2
                                  INCREMENTO_FECHA_DIAS:
-0001ac 94f3                      	INC UNIDADES_DIAS
+0001ac 94f3                      	INC UNIDADES_DIAS ; solo permite hacer incrementos en los dias si esta en el modo 3
 0001ad c001                      	RJMP BIT_2
                                  INCREMENTO_ALARMA_MINUTOS:
-0001ae 9473                      	INC ALARMA_MINUTOS_UNIDADES
+0001ae 9473                      	INC ALARMA_MINUTOS_UNIDADES ;solo permite hacer incrementos si se encuentra en el modo 4
                                  BIT_2:
 0001af fd02                      	SBRC R16, 2
 0001b0 c00c                      	RJMP COMPARACION
@@ -1598,21 +1623,22 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 0001b6 f029                      	BREQ INCREMENTO_ALARMA_HORAS
 0001b7 c005                      	RJMP COMPARACION
                                  INCREMENTO_HORAS:
-0001b8 9573                      	INC UNIDADES_HORAS
+0001b8 9573                      	INC UNIDADES_HORAS ;solo permite hacer incrementos en las horas si esta en el modo 2
 0001b9 c003                      	RJMP COMPARACION
                                  INCREMENTO_FECHA_MESES:
-0001ba 94d3                      	INC UNIDADES_MES
+0001ba 94d3                      	INC UNIDADES_MES ;solo permite hacer incrementos en los mses si esta en el modo 3
 0001bb c001                      	RJMP COMPARACION
                                  INCREMENTO_ALARMA_HORAS:
-0001bc 9453                      	INC ALARMA_HORAS_UNIDADES 
+0001bc 9453                      	INC ALARMA_HORAS_UNIDADES ; solo permite hacer incrementos en las horas de la alarma si solo esta en el modo 4
                                  COMPARACION:
-0001bd 3026                      	CPI MODO, 6 
+0001bd 3026                      	CPI MODO, 6 ;si el contador se paso de 5 lo limpia y regresa a 0/
 0001be f409                      	BRNE EXIT 
 0001bf 2722                      	CLR MODO
                                  EXIT:
 0001c0 9518                      	RETI
                                  //----SUBRUTINA DE MULTIPLEXACION
                                  MULTIPLEXACION:
+                                 ;la rutina de multiplexacion funciona de forma tal que cada 5 ms aumenta 1 unidad, y cada vez que incrementa 1 unidad corresponde a un display 
 0001c1 30f0                      	CPI CONT_TIMER2, 0
 0001c2 f419                      	BRNE DISPLAY2 
 0001c3 9a41                      	SBI PORTC, 1
@@ -1640,56 +1666,61 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 0001d5 9508                      	RET
                                  
                                  //----SUB-RUTINA DE DECENAS Y UNIDADES DE MINUTOS----//
+                                 ;si existe un incremento de los minutos en la interrupcion este aumente de posicion en la tabla 
                                  DECENAS_UNIDADES_MIN:
 0001d6 e0b1                      	LDI XH, 0X01
 0001d7 e0a0                      	LDI XL, 0X00
 0001d8 27aa                      	CLR R26
-0001d9 305a                      	CPI UNIDADES_MINUTOS, 10
+0001d9 305a                      	CPI UNIDADES_MINUTOS, 10	;si se pasa de nueve el contador hace overflow 
 0001da f418                      	BRSH DECENAS_MIN_MANUAL
 0001db 0fa5                      	ADD XL, UNIDADES_MINUTOS
 0001dc 919c                      	LD DISPLAYUNO, X
 0001dd 9508                      	RET
                                  DECENAS_MIN_MANUAL:
+                                 ;esta es la logica para que el display de unidades de minutos haga overflow 
 0001de e0b1                      `	LDI XH, 0X01
 0001df e0a0                      	LDI XL, 0X00
 0001e0 27aa                      	CLR R26
 0001e1 2755                      	CLR	UNIDADES_MINUTOS
 0001e2 0fa5                      	ADD XL, UNIDADES_MINUTOS
 0001e3 919c                      	LD DISPLAYUNO, X
-0001e4 9563                      	INC DECENAS_MINUTOS
+0001e4 9563                      	INC DECENAS_MINUTOS ;incrementa cada vez que el el display de unidades de minutos se pase de 9 
 0001e5 3066                      	CPI DECENAS_MINUTOS, 6 
 0001e6 f420                      	BRSH OVERFLOW_UNIDADES_MIN 
 0001e7 27aa                      	CLR R26 
 0001e8 0fa6                      	ADD XL, DECENAS_MINUTOS
-0001e9 91cc                      	LD DISPLAYDOS, X
+0001e9 91cc                      	LD DISPLAYDOS, X; se saca el valor de la decenas de minutos
 0001ea 9508                      	RET
                                  OVERFLOW_UNIDADES_MIN:
+                                 ;logica que reinicia las unidades de minutos y decenas de minutos
 0001eb e0b1                      	LDI XH, 0X01
 0001ec e0a0                      	LDI XL, 0X00
 0001ed 27aa                      	CLR R26
 0001ee 2766                      	CLR DECENAS_MINUTOS
-0001ef 0fa6                      	ADD XL, DECENAS_MINUTOS
+0001ef 0fa6                      	ADD XL, DECENAS_MINUTOS	
 0001f0 91cc                      	LD DISPLAYDOS, X
 0001f1 9508                      	RET
                                  
                                  //----RUTINA DECENAS UNIDADES HORAS----//
+                                 ;si existe un incremento de las horas  en la interrupcion este aumente de posicion en la tabla
                                  UNIDADES_DECENAS_HOR:
 0001f2 e0b1                      	LDI XH, 0X01
 0001f3 e0a0                      	LDI XL, 0X00
 0001f4 27aa                      	CLR R26
-0001f5 3074                      	CPI UNIDADES_HORAS, 4
+0001f5 3074                      	CPI UNIDADES_HORAS, 4 ;compara si es cuatro, ya que necesita estar chequeando constante mente si ya se paso de las 23 horas 
 0001f6 f029                      	BREQ CASO_ESPECIAL_MANUAL
                                  REGRESO_MANUAL:
-0001f7 307a                      	CPI UNIDADES_HORAS, 10 
+0001f7 307a                      	CPI UNIDADES_HORAS, 10 ;si el caso de que se paso de 23 horas no aplica chequea overflow normal en el display 
 0001f8 f031                      	BREQ DECENAS_HOR_MANUAL 
 0001f9 0fa7                      	ADD XL, UNIDADES_HORAS
 0001fa 91dc                      	LD DISPLAYTRES, X
 0001fb c01d                      	RJMP FIN_CAMBIOS   
                                  CASO_ESPECIAL_MANUAL:
-0001fc 3082                      	CPI DECENAS_HORAS, 2
+0001fc 3082                      	CPI DECENAS_HORAS, 2 ;analiza si ya se paso de 23 horas y si si reinicia todos los displays 
 0001fd f061                      	BREQ FIN_RELOJ_MANUAL
 0001fe cff8                      	RJMP REGRESO_MANUAL 
                                  DECENAS_HOR_MANUAL:
+                                 ;logica que incrementa las decenas de horas cada vez que las unidades de horas hacen overflow 
 0001ff e0b1                      	LDI XH, 0X01
 000200 e0a0                      	LDI XL, 0X00
 000201 27aa                      	CLR R26
@@ -1702,6 +1733,7 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000208 91ec                      	LD DISPLAYCUATRO, X
 000209 c00f                      	RJMP FIN_CAMBIOS
                                  FIN_RELOJ_MANUAL:
+                                 ;si se pasa de 24 horas manda a reiniciar todos los displays
 00020a e0b1                      	LDI XH, 0X01
 00020b e0a0                      	LDI XL, 0X00
 00020c 27aa                      	CLR R26
@@ -1721,6 +1753,7 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000219 9508                      	RET
                                  
                                  //----RUTINA DE MULTIPLEXACION PARA LA FECHA----//
+                                 ;misma logica que todos los displays, permite encender los displays cada 5ms ya que un contador incrementa cada 5ms
                                  MULTIPLEXACION_FECHA:
 00021a 30f0                      	CPI CONT_TIMER2, 0
 00021b f419                      	BRNE DISPLAY2_FECHA 
@@ -1750,15 +1783,17 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  
                                  //----SUBRUTINA DE FECHA MANUAL DIAS----//
                                  FECHA_MANUAL:
+                                 ;cada vez que existe un incremento dentro de la interrupcion este incrementa un dia manual mente
 00022f e0b1                      	LDI XH, 0X01
 000230 e0a0                          LDI XL, 0X00
 000231 90bc                      	LD DISPLAYUNO_FECHA, X
 000232 2d4f                          MOV R20, UNIDADES_DIAS
-000233 3049                          CPI R20, 9
-000234 f408                          BRSH CASO_FEBRERO_MANUAL 
-000235 c00a                      	RJMP REGRESO_NO_FEBRERO_MANUAL
+000233 3049                          CPI R20, 9	;realiza el mismo chequeo que permite ver si ya se paso de 29 
+000234 f009                          BREQ CASO_FEBRERO_MANUAL ;manda a rutina que permite ver si esta en el mes de febrero
+000235 c00a                      	RJMP REGRESO_NO_FEBRERO_MANUAL;Si no sigue el flujo normal.
                                  
                                  CASO_FEBRERO_MANUAL:
+                                 ;aqui analiza si esta en el caso de febrero y que no se pase de los 28 dias 
 000236 2d4e                          MOV R20, DECENAS_DIAS
 000237 3042                          CPI R20, 2
 000238 f439                          BRNE REGRESO_NO_FEBRERO_MANUAL
@@ -1772,7 +1807,6 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  
                                  REGRESO_NO_FEBRERO_MANUAL:
                                      ; Para meses de 30 días (abril, junio, septiembre, noviembre) 
-                                     ; se debe reiniciar al llegar al día 31 (31 = 3*10 + 1)
 000240 2d4f                          MOV R20, UNIDADES_DIAS
 000241 3041                          CPI R20, 1 
 000242 f4a1                          BRNE CASO_NO_TREINTA_MANUAL
@@ -1802,7 +1836,6 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  
                                  CASO_NO_TREINTA_MANUAL:
                                      ; Para meses de 31 días, el overflow se produce al llegar al día 32
-                                     ; (32 = 3*10 + 2)
 000257 2d4f                          MOV R20, UNIDADES_DIAS
 000258 3042                          CPI R20, 2
 000259 f461                          BRNE FLUJO_NORMAL_MANUAL
@@ -1821,6 +1854,7 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000265 9508                      	RET
                                  
                                  FLUJO_NORMAL_MANUAL:
+                                 ;si no existe overflow permite seguir con el flujo normal para poder seguir incrementando 
 000266 2d4f                          MOV R20, UNIDADES_DIAS
 000267 304a                          CPI R20, 10
 000268 f418                          BRSH DECENAS_DIA_MANUAL
@@ -1829,6 +1863,7 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00026b 9508                          RET
                                  
                                  DECENAS_DIA_MANUAL:
+                                 ;si existe overflow entre aqui para aumentar las decenas de dia manual mente 
 00026c 27aa                          CLR R26
 00026d e0b1                          LDI XH, 0X01
 00026e e0a0                          LDI XL, 0X00
@@ -1840,15 +1875,16 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 000274 9508                          RET
                                  
                                  //----RUTINA MESES CONFIG MANUAL----//
+                                 ;se aplica la misma logica que arriba solo que en lugar de incrementarse automaticamente se incrementa manual mente 
                                  FECHA_MESES_MANUAL:
 000275 e0b1                          LDI XH, 0X01
 000276 e0a0                          LDI XL, 0X00
 000277 2d4d                          MOV R20, UNIDADES_MES
-000278 3043                          CPI R20, 3
+000278 3043                          CPI R20, 3	;aqui analiza si no se ha pasado de 12 meses y reinicia automaticamente 
 000279 f029                          BREQ CASO_ESPECIAL_FECHA_MANUAL
                                  
                                  REGRESO_FECHA_MANUAL:
-00027a 304a                          CPI R20, 10
+00027a 304a                          CPI R20, 10 ;si no se ha pasado de los 12 meses sigue el flujo manual de los dias 
 00027b f438                          BRSH DECENAS_MESES_MANUAL
 00027c 0dad                          ADD XL, UNIDADES_MES
 00027d 909c                          LD DISPLAYTRES_FECHA, X
@@ -1856,11 +1892,12 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
                                  	  
                                  CASO_ESPECIAL_FECHA_MANUAL:
 00027f 2d4c                          MOV R20, DECENAS_MES
-000280 3041                          CPI R20, 1
+000280 3041                          CPI R20, 1	;si ya se pasaron los 12 meses lo manda al overflow 
 000281 f049                          BREQ FIN_FECHA_MANUAL
 000282 cff7                          RJMP REGRESO_FECHA_MANUAL
                                  
                                  DECENAS_MESES_MANUAL:
+                                 ;cada vez que el display de unidades de meses hace overflow incrementa en esta logica. 
 000283 e0b1                          LDI XH, 0X01
 000284 e0a0                          LDI XL, 0X00
 000285 24dd                      	CLR UNIDADES_MES
@@ -1871,6 +1908,7 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00028a 9508                          RET
                                  
                                  FIN_FECHA_MANUAL:
+                                 ;si se paso de los 12 meses regresa a todo los displays a 01/01
 00028b e0b1                          LDI XH, 0X01
 00028c e0a0                          LDI XL, 0X00
 00028d 24ff                      	CLR UNIDADES_DIAS
@@ -1890,6 +1928,7 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 00029b 9508                      	RET
                                  
                                  //----RUTINA DE CONFIGURACION DE ALARMA----//
+                                 ;este es una copia de  configuracion de hora manual
                                  CONFIG_ALARMA_MINUTOS:
 00029c e0b1                      	LDI XH, 0X01
 00029d e0a0                      	LDI XL, 0X00
@@ -1923,6 +1962,7 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 0002b6 902c                      	LD ALARMA_DISPLAYDOS, X
 0002b7 9508                      	RET
                                  //----RUTINA MULTIPLEXACION ALARMA----//
+                                 ;se encienden cada 5ms los displays por medio de un contador que incrementa cada 5 ms 
                                  MULTIPLEXACION_ALARMA:
 0002b8 30f0                      	CPI CONT_TIMER2, 0
 0002b9 f419                      	BRNE DISPLAY2_ALARMA  
@@ -1951,6 +1991,7 @@ C:\Users\rodro\OneDrive\Escritorio\ARCHIVOS DE LA U\QUINTO SEMESTRE\Progra de mi
 0002cc 9508                      	RET
                                  
                                  //----RUTINA DE INCREMENTO ALARMA HORAS----//
+                                 ;este codigo es una copia del codigo de configuracion de hora
                                  CONFIG_ALARMA_HORAS:
 0002cd e0b1                      	LDI XH, 0X01
 0002ce e0a0                      	LDI XL, 0X00
@@ -2027,7 +2068,7 @@ Registers used: 34 out of 35 (97.1%)
 andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
 brcc  :   0 brcs  :   0 break :   0 breq  :  36 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :  39 brpl  :   0 brsh  :   8 brtc  :   0 brts  :   0 brvc  :   0 
+brne  :  38 brpl  :   0 brsh  :   9 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 call  :  12 cbi   :  24 cbr   :   0 
 clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :  83 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   4 cpc   :   0 
