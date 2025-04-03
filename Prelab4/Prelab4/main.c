@@ -12,6 +12,25 @@
 
 volatile uint8_t multiplaxado; 
 volatile uint8_t incremento;
+const uint8_t display[16] = {
+	0b11000000, // 0
+	0b11111001, // 1
+	0b10100100, // 2
+	0b10110000, // 3
+	0b10011001, // 4
+	0b10010010, // 5
+	0b10000010, // 6
+	0b11111000, // 7
+	0b10000000, // 8
+	0b10010000, // 9
+	0b10001000, // A
+	0b10000011, // b
+	0b11000110, // C
+	0b10100001, // d
+	0b10000110, // E
+	0b10001110  // F
+};
+
 //
 // Function prototypes
 void setup();
@@ -24,21 +43,29 @@ int main(void)
 	setup();
 	while (1)
 	{
+		uint8_t valor = ADCH;
+		uint8_t unidades_dis = valor & 0x0F;
+		uint8_t decenas_dis = (valor >> 4) & 0x0F;
+		
 		if(multiplaxado == 0){
 		PORTB |= (1 << PORTB4);
 		PORTD = incremento;
-		PORTB &= ~(1 << PORTB4);
+		PORTB &= ~(1 << PORTB2);
 		}
 		else if(multiplaxado == 1){
-			//PORTB |= (1 << PORTB3);
-			//PORTD = 0x05;
-			//PORTB &= ~(1 << PORTB3);
+			PORTB &= ~(1 << PORTB4);
+			PORTB |= (1 << PORTB3);
+			PORTD = display[unidades_dis];
+
 		}
 		else{
-			//PORTB |= (1 << PORTB2);
-			//PORTD = 0x03;
-			//PORTB &= ~(1 << PORTB2);
+			PORTB &= ~(1 << PORTB3);
+			PORTB |= (1 << PORTB2);
+			PORTD = display[decenas_dis];
+			
 		}
+		
+		
 	}
 }
 //
@@ -71,6 +98,18 @@ void setup(){
 	PCMSK0 = (1 << PCINT0) | (1 << PCINT1); //Configuramos el pinchage para PB0 y PB! 
 	PCICR = (1 << PCIE0); //Habilitamos las interrupciones por pinchange 
 	
+	//Configuramos el ADC,
+	ADMUX = 0; //Realizamos est configuracion para poder elimninar cualquier configuracion previa
+	ADMUX |= (1<<REFS0); //Utilizamos la referencia de los 5v 
+	ADMUX |= (1<< ADLAR);	//usamos los bits mas significativos 
+	ADMUX |= (1 << MUX0) | (1 << MUX1) | (1 << MUX2);
+	
+	ADCSRA = 0;
+	ADCSRA |= (1<<ADPS1) | (1<<ADPS0);
+	ADCSRA |= (1 << ADEN);
+	ADCSRA |= (1 << ADIE);
+	ADCSRA |= (1 << ADSC);
+	
 	sei();
 	
 }
@@ -91,12 +130,16 @@ ISR(PCINT0_vect){
 ISR(TIMER0_OVF_vect){
 	TCNT0 = 178; 
 	multiplaxado++; 
-	if(multiplaxado == 4){
+	if(multiplaxado == 3){
 		multiplaxado = 0;
 	}
 	else{
 
 	}
+}
+
+ISR(ADC_vect){
+	ADCSRA |= (1 << ADSC);
 }
 
 
