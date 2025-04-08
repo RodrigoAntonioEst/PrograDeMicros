@@ -46,20 +46,29 @@ int main(void)
 		uint8_t valor = ADCH;
 		uint8_t unidades_dis = valor & 0x0F;
 		uint8_t decenas_dis = (valor >> 4) & 0x0F;
+		if (ADCH <= incremento){
+			PORTB &= ~(1 << PORTB5);
+		}
+		else{
+			PORTB |= (1 << PORTB5);
+		}
 		
 		if(multiplaxado == 0){
+		PORTB &= ~(1 << PORTB2);
+		PORTB &= ~(1 << PORTB3);
 		PORTB |= (1 << PORTB4);
 		PORTD = incremento;
-		PORTB &= ~(1 << PORTB2);
 		}
 		else if(multiplaxado == 1){
 			PORTB &= ~(1 << PORTB4);
+			PORTB &= ~(1 << PORTB2);
 			PORTB |= (1 << PORTB3);
 			PORTD = display[unidades_dis];
 
 		}
 		else{
 			PORTB &= ~(1 << PORTB3);
+			PORTB &= ~(1 << PORTB4);
 			PORTB |= (1 << PORTB2);
 			PORTD = display[decenas_dis];
 			
@@ -116,10 +125,10 @@ void setup(){
 //
 // Interrupt routines
 ISR(PCINT0_vect){
-	if (~PINB & (1 << PB0)){
+	if (~PINB & (1 << PORTB0)){
 		incremento++;
 	}
-	else if(~PINB & (1 << PB1)){
+	else if(~PINB & (1 << PORTB1)){
 		incremento--;
 	}
 	else{
