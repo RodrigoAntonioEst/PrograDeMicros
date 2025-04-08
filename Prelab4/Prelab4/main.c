@@ -43,22 +43,26 @@ int main(void)
 	setup();
 	while (1)
 	{
-		uint8_t valor = ADCH;
+		uint8_t valor = ADCH; 
+		//se analizan los 4 bits menos significativos para poder mostrar las unidades
 		uint8_t unidades_dis = valor & 0x0F;
+		//se analizan los 4 bits mas significativos para las decenas, devido a que cada que las unidads hacen overflow se incrementan las decenas. 
 		uint8_t decenas_dis = (valor >> 4) & 0x0F;
+		//Hacemos hacemos la logica para poder encender la alarma si el ADC es mayor al contador de 8 bits 
 		if (ADCH <= incremento){
 			PORTB &= ~(1 << PORTB5);
 		}
 		else{
 			PORTB |= (1 << PORTB5);
 		}
-		
+		//Aqui se eejecuta la rutina para poder mostrar el contador de 8bits 
 		if(multiplaxado == 0){
 		PORTB &= ~(1 << PORTB2);
 		PORTB &= ~(1 << PORTB3);
 		PORTB |= (1 << PORTB4);
 		PORTD = incremento;
 		}
+		//Aqui se ejecuta la rutina de las unidades del ADC
 		else if(multiplaxado == 1){
 			PORTB &= ~(1 << PORTB4);
 			PORTB &= ~(1 << PORTB2);
@@ -66,6 +70,7 @@ int main(void)
 			PORTD = display[unidades_dis];
 
 		}
+		//aqui se ejecuta la rutina de las decena del ADC
 		else{
 			PORTB &= ~(1 << PORTB3);
 			PORTB &= ~(1 << PORTB4);
@@ -125,9 +130,11 @@ void setup(){
 //
 // Interrupt routines
 ISR(PCINT0_vect){
+	//cada vez que PB0 se preciona aumenta. 
 	if (~PINB & (1 << PORTB0)){
 		incremento++;
 	}
+	//cada vez que PB1 se preciona se decrementa.
 	else if(~PINB & (1 << PORTB1)){
 		incremento--;
 	}
@@ -137,8 +144,10 @@ ISR(PCINT0_vect){
 }
 
 ISR(TIMER0_OVF_vect){
-	TCNT0 = 178; 
+	TCNT0 = 178; //se recarga el valor del TIMER0
+	//se incrementa cada que pasa overflow 
 	multiplaxado++; 
+	//runtina para multiplexar cada 5ms 
 	if(multiplaxado == 3){
 		multiplaxado = 0;
 	}
@@ -148,6 +157,7 @@ ISR(TIMER0_OVF_vect){
 }
 
 ISR(ADC_vect){
+	//se recarga el enable del ADC 
 	ADCSRA |= (1 << ADSC);
 }
 

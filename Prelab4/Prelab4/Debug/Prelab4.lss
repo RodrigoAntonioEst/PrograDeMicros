@@ -206,16 +206,19 @@ int main(void)
  110:	0e 94 53 00 	call	0xa6	; 0xa6 <setup>
 	while (1)
 	{
-		uint8_t valor = ADCH;
+		uint8_t valor = ADCH; 
  114:	a9 e7       	ldi	r26, 0x79	; 121
  116:	b0 e0       	ldi	r27, 0x00	; 0
  118:	ec 91       	ld	r30, X
+		//se analizan los 4 bits menos significativos para poder mostrar las unidades
 		uint8_t unidades_dis = valor & 0x0F;
  11a:	2e 2f       	mov	r18, r30
  11c:	2f 70       	andi	r18, 0x0F	; 15
+		//se analizan los 4 bits mas significativos para las decenas, devido a que cada que las unidads hacen overflow se incrementan las decenas. 
 		uint8_t decenas_dis = (valor >> 4) & 0x0F;
  11e:	e2 95       	swap	r30
  120:	ef 70       	andi	r30, 0x0F	; 15
+		//Hacemos hacemos la logica para poder encender la alarma si el ADC es mayor al contador de 8 bits 
 		if (ADCH <= incremento){
  122:	9c 91       	ld	r25, X
  124:	80 91 10 01 	lds	r24, 0x0110	; 0x800110 <__data_end>
@@ -233,7 +236,7 @@ int main(void)
  136:	80 62       	ori	r24, 0x20	; 32
  138:	85 b9       	out	0x05, r24	; 5
 		}
-		
+		//Aqui se eejecuta la rutina para poder mostrar el contador de 8bits 
 		if(multiplaxado == 0){
  13a:	80 91 11 01 	lds	r24, 0x0111	; 0x800111 <multiplaxado>
  13e:	81 11       	cpse	r24, r1
@@ -255,6 +258,7 @@ int main(void)
  158:	8b b9       	out	0x0b, r24	; 11
  15a:	dc cf       	rjmp	.-72     	; 0x114 <main+0x4>
 		}
+		//Aqui se ejecuta la rutina de las unidades del ADC
 		else if(multiplaxado == 1){
  15c:	80 91 11 01 	lds	r24, 0x0111	; 0x800111 <multiplaxado>
  160:	81 30       	cpi	r24, 0x01	; 1
@@ -281,6 +285,7 @@ int main(void)
  182:	c8 cf       	rjmp	.-112    	; 0x114 <main+0x4>
 
 		}
+		//aqui se ejecuta la rutina de las decena del ADC
 		else{
 			PORTB &= ~(1 << PORTB3);
  184:	85 b1       	in	r24, 0x05	; 5
@@ -315,6 +320,7 @@ ISR(PCINT0_vect){
  1a8:	0f 92       	push	r0
  1aa:	11 24       	eor	r1, r1
  1ac:	8f 93       	push	r24
+	//cada vez que PB0 se preciona aumenta. 
 	if (~PINB & (1 << PORTB0)){
  1ae:	18 99       	sbic	0x03, 0	; 3
  1b0:	06 c0       	rjmp	.+12     	; 0x1be <__vector_3+0x1c>
@@ -324,6 +330,7 @@ ISR(PCINT0_vect){
  1b8:	80 93 10 01 	sts	0x0110, r24	; 0x800110 <__data_end>
  1bc:	07 c0       	rjmp	.+14     	; 0x1cc <__vector_3+0x2a>
 	}
+	//cada vez que PB1 se preciona se decrementa.
 	else if(~PINB & (1 << PORTB1)){
  1be:	19 99       	sbic	0x03, 1	; 3
  1c0:	05 c0       	rjmp	.+10     	; 0x1cc <__vector_3+0x2a>
@@ -352,13 +359,15 @@ ISR(TIMER0_OVF_vect){
  1de:	0f 92       	push	r0
  1e0:	11 24       	eor	r1, r1
  1e2:	8f 93       	push	r24
-	TCNT0 = 178; 
+	TCNT0 = 178; //se recarga el valor del TIMER0
  1e4:	82 eb       	ldi	r24, 0xB2	; 178
  1e6:	86 bd       	out	0x26, r24	; 38
+	//se incrementa cada que pasa overflow 
 	multiplaxado++; 
  1e8:	80 91 11 01 	lds	r24, 0x0111	; 0x800111 <multiplaxado>
  1ec:	8f 5f       	subi	r24, 0xFF	; 255
  1ee:	80 93 11 01 	sts	0x0111, r24	; 0x800111 <multiplaxado>
+	//runtina para multiplexar cada 5ms 
 	if(multiplaxado == 3){
  1f2:	80 91 11 01 	lds	r24, 0x0111	; 0x800111 <multiplaxado>
  1f6:	83 30       	cpi	r24, 0x03	; 3
@@ -388,6 +397,7 @@ ISR(ADC_vect){
  214:	8f 93       	push	r24
  216:	ef 93       	push	r30
  218:	ff 93       	push	r31
+	//se recarga el enable del ADC 
 	ADCSRA |= (1 << ADSC);
  21a:	ea e7       	ldi	r30, 0x7A	; 122
  21c:	f0 e0       	ldi	r31, 0x00	; 0
