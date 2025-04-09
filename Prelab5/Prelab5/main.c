@@ -9,7 +9,6 @@
 // Encabezado (Libraries)
 #include <avr/io.h>
 #include <avr/interrupt.h>
-volatile uint8_t pot;
 //
 // Function prototypes
 void setup();
@@ -20,8 +19,8 @@ int main(void)
 	setup();
 	while (1)
 	{
-		uint8_t valor = (((ADCH*30)/255)+7);
-		OCR0A = valor;
+		uint16_t valor = (((ADCH*(30))/255)+7);
+		OCR1A = valor;
 	}
 }
 //
@@ -37,17 +36,18 @@ void setup(){
 	ADCSRA |= (1 << ADPS1) | (1 << ADPS0) | (1 << ADEN) | (1 << ADIE) | (1 << ADSC);
 	
 	//configuramos el pin D6 para sacar el pwm
-	DDRD |= (1 << DDD6);
+	DDRB |= (1 << DDB1);
 	
 	//Configuramos la frecuencia de micro a 1MHz
 	CLKPR = (1 << CLKPCE);
 	CLKPR = (1 << CLKPS2);
 	
 	//configuramos nuestro PWM en modo FAST
-	TCCR0A |= (1 << COM0A1);
-	TCCR0A |= (1 << WGM01) | (1 << WGM00);
-	//Configuramos el periodo a 16ms
-	TCCR0B |= (1 << CS01) | (1 << CS00);
+	TCCR1A |= (1 << COM1A1) | (1 << WGM11);
+	TCCR1B |= (1 << WGM12) | (1 << WGM13) | (1<< CS11 ) | (1 << CS10);
+	ICR1 = 312;
+
+	
 	
 	sei();
 }
@@ -56,6 +56,4 @@ void setup(){
 ISR(ADC_vect){
 	ADCSRA |= (1 << ADSC);
 	
-}
-
-
+} 
