@@ -9,18 +9,22 @@
 // Encabezado (Libraries)
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "PWM/PWM.h"
 //
 // Function prototypes
 void setup();
+void PMW1CONFIG(uint16_t top, uint16_t prescaler);
+void CICLODETRABAJO(uint16_t VAL, uint16_t LIMITE_INF, uint16_t LIMITE_SUP);
+
 //
 // Main Function
 int main(void)
 {
 	setup();
+	PMW1CONFIG(312,64);
 	while (1)
 	{
-		uint16_t valor = (((ADCH*(30))/255)+7);
-		OCR1A = valor;
+		CICLODETRABAJO(ADCH,7,37);
 	}
 }
 //
@@ -40,14 +44,7 @@ void setup(){
 	
 	//Configuramos la frecuencia de micro a 1MHz
 	CLKPR = (1 << CLKPCE);
-	CLKPR = (1 << CLKPS2);
-	
-	//configuramos nuestro PWM en modo FAST
-	TCCR1A |= (1 << COM1A1) | (1 << WGM11);
-	TCCR1B |= (1 << WGM12) | (1 << WGM13) | (1<< CS11 ) | (1 << CS10);
-	ICR1 = 312;
-
-	
+	CLKPR = (1 << CLKPS2);	
 	
 	sei();
 }
