@@ -15,7 +15,6 @@
 uint8_t MULTIPLEXACION;
 uint8_t POT1; 
 uint8_t POT2;
-uint8_t PWMCONT = 150;
 uint8_t PWMCOMP;
 
 //
@@ -23,7 +22,6 @@ uint8_t PWMCOMP;
 void setup();
 void PMW1CONFIG(uint16_t top, uint16_t prescaler);
 void CICLODETRABAJO(uint16_t VAL, uint16_t LIMITE_INF, uint16_t LIMITE_SUP);
-void PWM2CONFIG(uint16_t prescaler2);
 void CICLODETRABJO0(uint16_t VAL0, uint16_t LIMITE_INF0, uint16_t LIMITE_SUP0);
 
 //
@@ -32,7 +30,7 @@ int main(void)
 {
 	setup();
 	PMW1CONFIG(312,64);
-	PWM2CONFIG(64);
+	//PWM2CONFIG(64);
 	while (1)
 	{
 		//MULTIPLEXACION
@@ -54,8 +52,8 @@ int main(void)
 			ADMUX =0; 
 			ADMUX |= (1 << REFS0) | (1 << ADLAR ) | ( 1<< MUX0 );
 			PWMCOMP = ADCH;
-			if(PWMCONT == PWMCOMP){
-				//PORTD &= ~(1 << PORTD5);
+			if(TCNT2 >= PWMCOMP){
+				PORTD &= ~(1 << PORTD5);
 			}
 		}
 		
@@ -66,16 +64,19 @@ int main(void)
 void setup(){
 	cli();
 	
+	DDRD |= (1 << DDD5);
+	PORTD |= (1 << PORTD5);
+	
 	TCCR0B |= (1 << CS01) | (1 << CS00);
-	TCNT0 = 100;
+	TCNT0 = 177;
 	TIMSK0 |= (1 << TOIE0);
+	
+	TCCR2B |= (1 << CS22);
+	TCNT2 = 0;
+	TIMSK2 |= (1 << TOIE2);
 	
 	ADCSRA = 0;
 	ADCSRA |= (1 << ADPS1) | (1 << ADPS0) | (1 << ADEN) | (1 << ADIE) | (1 << ADSC);
-	 
-	
-	//configuramos el pin D6 para sacar el pwm
-	//DDRB |= (1 << DDB1);
 	
 	//Configuramos la frecuencia de micro a 1MHz
 	CLKPR = (1 << CLKPCE);
@@ -90,12 +91,12 @@ ISR(ADC_vect){
 } 
 ISR(TIMER0_OVF_vect){
 	MULTIPLEXACION++;
-	if(PWMCONT >= 155){
-		PWMCONT = 0;
-		PORTD |= (1<<PORTD5);
-	} 
-	TCNT0 = 100;
+	TCNT0 = 177;
 	if(MULTIPLEXACION >= 3){
 		MULTIPLEXACION = 0;
 	};  
+}
+ISR(TIMER2_OVF_vect){
+	TCNT2 = 0;
+	PORTD |= (1 << PORTD5);
 }
