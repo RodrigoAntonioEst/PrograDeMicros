@@ -46,3 +46,41 @@ void CICLODETRABAJO(uint16_t VAL, uint16_t LIMITE_INF, uint16_t LIMITE_SUP){
 	uint16_t valor = (((VAL*(LIMITE_SUP - LIMITE_INF))/255)+LIMITE_INF);
 	OCR1A = valor;
 }
+void PWM2CONFIG(uint16_t prescaler2){
+	
+	DDRB |= (1 << DDB3);
+	
+	//seleccionamos no invertido
+	TCCR2A |= (1 << COM2A1);
+	
+	//iniciamos el modo fast pwm 
+	TCCR2A |= (1 << WGM21) | (1 << WGM20);
+	
+	//seleccionamos el prescaler 
+	switch (prescaler2) {
+		case 1:
+		TCCR2B |= (1 << CS20);
+		break;
+		case 8:
+		TCCR2B |= (1 << CS21);
+		break;
+		case 64:
+		TCCR2B |= (1 << CS22);
+		break;
+		case 256:
+		TCCR2B |= (1 << CS22);
+		break;
+		case 1024:
+		TCCR2B |= (1 << CS22) | (1 << CS20);
+		break;
+		default:
+		// Si el valor no es válido, usar prescaler = 64 por defecto
+		TCCR2B |= (1 << CS21) | (1 << CS20);
+		break;
+	}
+	
+}
+void CICLODETRABJO0(uint16_t VAL0 ,uint16_t LIMITE_INF0, uint16_t LIMITE_SUP0){
+	OCR2A = (((VAL0*(LIMITE_SUP0 - LIMITE_INF0))/255)+LIMITE_INF0);
+	
+}
