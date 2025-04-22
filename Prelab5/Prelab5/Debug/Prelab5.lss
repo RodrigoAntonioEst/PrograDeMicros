@@ -96,41 +96,41 @@ void setup(){
 	cli();
   90:	f8 94       	cli
 	
-	DDRD |= (1 << DDD5);
+	DDRD |= (1 << DDD5); //configuramos el puerto del PWM manual
   92:	8a b1       	in	r24, 0x0a	; 10
   94:	80 62       	ori	r24, 0x20	; 32
   96:	8a b9       	out	0x0a, r24	; 10
-	PORTD |= (1 << PORTD5);
+	PORTD |= (1 << PORTD5); //ponemos un 1 logico
   98:	8b b1       	in	r24, 0x0b	; 11
   9a:	80 62       	ori	r24, 0x20	; 32
   9c:	8b b9       	out	0x0b, r24	; 11
 	
-	TCCR2B |= (1 << CS22);
+	TCCR2B |= (1 << CS22); //configuramos el prescaler del TIMER2
   9e:	e1 eb       	ldi	r30, 0xB1	; 177
   a0:	f0 e0       	ldi	r31, 0x00	; 0
   a2:	80 81       	ld	r24, Z
   a4:	84 60       	ori	r24, 0x04	; 4
   a6:	80 83       	st	Z, r24
-	TCNT2 = 0;
+	TCNT2 = 0; //le cargamos el valor 0 para que cuente hasta 255 teniendo un periodo de 16ms
   a8:	10 92 b2 00 	sts	0x00B2, r1	; 0x8000b2 <__TEXT_REGION_LENGTH__+0x7f80b2>
-	TIMSK2 |= (1 << TOIE2);
+	TIMSK2 |= (1 << TOIE2); //activamos la interrupcion de TIMER2 por overflow 
   ac:	e0 e7       	ldi	r30, 0x70	; 112
   ae:	f0 e0       	ldi	r31, 0x00	; 0
   b0:	80 81       	ld	r24, Z
   b2:	81 60       	ori	r24, 0x01	; 1
   b4:	80 83       	st	Z, r24
 	
-	ADCSRA = 0;
+	ADCSRA = 0; //eliminamos las configuraciones previos del ADC 
   b6:	ea e7       	ldi	r30, 0x7A	; 122
   b8:	f0 e0       	ldi	r31, 0x00	; 0
   ba:	10 82       	st	Z, r1
-	ADCSRA |= (1 << ADPS1) | (1 << ADPS0) | (1 << ADEN) | (1 << ADIE) | (1 << ADSC);
+	ADCSRA |= (1 << ADPS1) | (1 << ADPS0) | (1 << ADEN) | (1 << ADIE) | (1 << ADSC); //activamos prescaler, interrupcion e iniciamos la conversion 
   bc:	80 81       	ld	r24, Z
   be:	8b 6c       	ori	r24, 0xCB	; 203
   c0:	80 83       	st	Z, r24
 	
 	//Configuramos la frecuencia de micro a 1MHz
-	CLKPR = (1 << CLKPCE);
+	CLKPR = (1 << CLKPCE); 
   c2:	e1 e6       	ldi	r30, 0x61	; 97
   c4:	f0 e0       	ldi	r31, 0x00	; 0
   c6:	80 e8       	ldi	r24, 0x80	; 128
@@ -149,9 +149,9 @@ void setup(){
 // Main Function
 int main(void)
 {
-	setup();
+	setup();//llamamos la funcion de setup
   d2:	0e 94 48 00 	call	0x90	; 0x90 <setup>
-	PMW1CONFIG(312,64);
+	PMW1CONFIG(312,64); //configuramos el PWM de de OCR1A y OCR1B
   d6:	60 e4       	ldi	r22, 0x40	; 64
   d8:	70 e0       	ldi	r23, 0x00	; 0
   da:	88 e3       	ldi	r24, 0x38	; 56
@@ -183,6 +183,7 @@ ISR(ADC_vect){
  100:	bf 93       	push	r27
  102:	ef 93       	push	r30
  104:	ff 93       	push	r31
+	//hacemos un switch case para que cada vez que se termine de realizar una conversion este aumente un contador y compara de que pin de ADC viene la senal
 	switch(MULTIPLEXACION){
  106:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <MULTIPLEXACION>
  10a:	82 30       	cpi	r24, 0x02	; 2
@@ -261,11 +262,11 @@ ISR(ADC_vect){
  182:	10 92 01 01 	sts	0x0101, r1	; 0x800101 <MULTIPLEXACION>
 		break;
 	}
-	MULTIPLEXACION++;
+	MULTIPLEXACION++; //incremento cada vez que se termina de convertir el ADC 
  186:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <MULTIPLEXACION>
  18a:	8f 5f       	subi	r24, 0xFF	; 255
  18c:	80 93 01 01 	sts	0x0101, r24	; 0x800101 <MULTIPLEXACION>
-	ADCSRA |= (1 << ADSC);
+	ADCSRA |= (1 << ADSC); //iniciamos una nueva conversion
  190:	ea e7       	ldi	r30, 0x7A	; 122
  192:	f0 e0       	ldi	r31, 0x00	; 0
  194:	80 81       	ld	r24, Z
@@ -304,14 +305,14 @@ ISR(TIMER2_OVF_vect){
  1cc:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <PWMCOMP>
  1d0:	81 11       	cpse	r24, r1
  1d2:	04 c0       	rjmp	.+8      	; 0x1dc <__vector_9+0x20>
-		PORTD &= ~(1 << PORTD5);
+		PORTD &= ~(1 << PORTD5); //si ya llego a 0 el potenciometro que apague el por completo la luz para evitar errores 
  1d4:	8b b1       	in	r24, 0x0b	; 11
  1d6:	8f 7d       	andi	r24, 0xDF	; 223
  1d8:	8b b9       	out	0x0b, r24	; 11
  1da:	03 c0       	rjmp	.+6      	; 0x1e2 <__vector_9+0x26>
 	}
 	else {
-		PORTD |= (1 << PORTD5);
+		PORTD |= (1 << PORTD5); //de la contrario enciende la led hasta que compare 
  1dc:	8b b1       	in	r24, 0x0b	; 11
  1de:	80 62       	ori	r24, 0x20	; 32
  1e0:	8b b9       	out	0x0b, r24	; 11

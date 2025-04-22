@@ -20,17 +20,16 @@ uint8_t PWMCOMP;
 //
 // Function prototypes
 void setup();
-void PMW1CONFIG(uint16_t top, uint16_t prescaler);
-void CICLODETRABAJO(uint16_t VAL, uint16_t LIMITE_INF, uint16_t LIMITE_SUP);
-void CICLODETRABJO0(uint16_t VAL0, uint16_t LIMITE_INF0, uint16_t LIMITE_SUP0);
+void PMW1CONFIG(uint16_t top, uint16_t prescaler); //ponemos el prototipo de la configuracion PWM1
+void CICLODETRABAJO(uint16_t VAL, uint16_t LIMITE_INF, uint16_t LIMITE_SUP); //este es el protipo para OCR1A
+void CICLODETRABJO0(uint16_t VAL0, uint16_t LIMITE_INF0, uint16_t LIMITE_SUP0); //este es el protipo para OCR1B
 
 //
 // Main Function
 int main(void)
 {
-	setup();
-	PMW1CONFIG(312,64);
-	//PWM2CONFIG(64);
+	setup();//llamamos la funcion de setup
+	PMW1CONFIG(312,64); //configuramos el PWM de de OCR1A y OCR1B
 	while (1)
 	{
 	
@@ -42,18 +41,18 @@ int main(void)
 void setup(){
 	cli();
 	
-	DDRD |= (1 << DDD5);
-	PORTD |= (1 << PORTD5);
+	DDRD |= (1 << DDD5); //configuramos el puerto del PWM manual
+	PORTD |= (1 << PORTD5); //ponemos un 1 logico
 	
-	TCCR2B |= (1 << CS22);
-	TCNT2 = 0;
-	TIMSK2 |= (1 << TOIE2);
+	TCCR2B |= (1 << CS22); //configuramos el prescaler del TIMER2
+	TCNT2 = 0; //le cargamos el valor 0 para que cuente hasta 255 teniendo un periodo de 16ms
+	TIMSK2 |= (1 << TOIE2); //activamos la interrupcion de TIMER2 por overflow 
 	
-	ADCSRA = 0;
-	ADCSRA |= (1 << ADPS1) | (1 << ADPS0) | (1 << ADEN) | (1 << ADIE) | (1 << ADSC);
+	ADCSRA = 0; //eliminamos las configuraciones previos del ADC 
+	ADCSRA |= (1 << ADPS1) | (1 << ADPS0) | (1 << ADEN) | (1 << ADIE) | (1 << ADSC); //activamos prescaler, interrupcion e iniciamos la conversion 
 	
 	//Configuramos la frecuencia de micro a 1MHz
-	CLKPR = (1 << CLKPCE);
+	CLKPR = (1 << CLKPCE); 
 	CLKPR = (1 << CLKPS2);	
 	
 	sei();
@@ -61,6 +60,7 @@ void setup(){
 //
 // Interrupt routines
 ISR(ADC_vect){
+	//hacemos un switch case para que cada vez que se termine de realizar una conversion este aumente un contador y compara de que pin de ADC viene la senal
 	switch(MULTIPLEXACION){
 		case 1:
 		PWMCOMP = ADCH;
@@ -86,16 +86,16 @@ ISR(ADC_vect){
 		MULTIPLEXACION = 0;
 		break;
 	}
-	MULTIPLEXACION++;
-	ADCSRA |= (1 << ADSC);
+	MULTIPLEXACION++; //incremento cada vez que se termina de convertir el ADC 
+	ADCSRA |= (1 << ADSC); //iniciamos una nueva conversion
 } 
 ISR(TIMER2_OVF_vect){
 	TCNT2 = 0;
 	if(PWMCOMP == 0){
-		PORTD &= ~(1 << PORTD5);
+		PORTD &= ~(1 << PORTD5); //si ya llego a 0 el potenciometro que apague el por completo la luz para evitar errores 
 	}
 	else {
-		PORTD |= (1 << PORTD5);
+		PORTD |= (1 << PORTD5); //de la contrario enciende la led hasta que compare 
 	}
 	
 }
