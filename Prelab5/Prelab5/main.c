@@ -33,30 +33,8 @@ int main(void)
 	//PWM2CONFIG(64);
 	while (1)
 	{
-		//MULTIPLEXACION
-		if (MULTIPLEXACION == 0){
-			//Configuramos el ADC
-			ADMUX = 0;
-			ADMUX |= (1 << REFS0) | (1 << ADLAR) | (1 << MUX0) | (1 << MUX1) | (1 << MUX2);
-			POT1 = ADCH;
-			CICLODETRABAJO(POT1,7,37);
-		}
-		else if(MULTIPLEXACION == 1){
-			//Configuramos el ADC
-			ADMUX = 0;
-			ADMUX |= (1 << REFS0) | (1 << ADLAR) | (1 << MUX1) | (1 << MUX2);
-			POT2 = ADCH;
-			CICLODETRABJO0(POT2,7,37);
-		}
-		else{
-			ADMUX =0; 
-			ADMUX |= (1 << REFS0) | (1 << ADLAR ) | ( 1<< MUX0 );
-			PWMCOMP = ADCH;
-			if(TCNT2 >= PWMCOMP){
-				PORTD &= ~(1 << PORTD5);
-			}
-		}
-		
+	
+						
 	}
 }
 //
@@ -66,10 +44,6 @@ void setup(){
 	
 	DDRD |= (1 << DDD5);
 	PORTD |= (1 << PORTD5);
-	
-	TCCR0B |= (1 << CS01) | (1 << CS00);
-	TCNT0 = 177;
-	TIMSK0 |= (1 << TOIE0);
 	
 	TCCR2B |= (1 << CS22);
 	TCNT2 = 0;
@@ -87,16 +61,41 @@ void setup(){
 //
 // Interrupt routines
 ISR(ADC_vect){
+	switch(MULTIPLEXACION){
+		case 1:
+		PWMCOMP = ADCH;
+		if(TCNT2 >= PWMCOMP){
+			PORTD &= ~(1 << PORTD5);
+		}
+		ADMUX = 0;
+		ADMUX |= (1 << REFS0) | (1 << ADLAR) | (1 << MUX0) | (1 << MUX1) | (1 << MUX2);
+		break;
+		case 2:
+		POT1 = ADCH;
+		CICLODETRABAJO(POT1,7,37);
+		ADMUX = 0;
+		ADMUX |= (1 << REFS0) | (1 << ADLAR) | (1 << MUX1) | (1 << MUX2);
+		break;
+		case 3:
+		POT2 = ADCH;
+		CICLODETRABJO0(POT2,7,37);
+		break;
+		default:
+		ADMUX =0;
+		ADMUX |= (1 << REFS0) | (1 << ADLAR ) | ( 1<< MUX0 );
+		MULTIPLEXACION = 0;
+		break;
+	}
+	MULTIPLEXACION++;
 	ADCSRA |= (1 << ADSC);
 } 
-ISR(TIMER0_OVF_vect){
-	MULTIPLEXACION++;
-	TCNT0 = 177;
-	if(MULTIPLEXACION >= 3){
-		MULTIPLEXACION = 0;
-	};  
-}
 ISR(TIMER2_OVF_vect){
 	TCNT2 = 0;
-	PORTD |= (1 << PORTD5);
+	if(PWMCOMP == 0){
+		PORTD &= ~(1 << PORTD5);
+	}
+	else {
+		PORTD |= (1 << PORTD5);
+	}
+	
 }
