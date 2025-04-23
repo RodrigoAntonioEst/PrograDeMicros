@@ -29,7 +29,14 @@ int main(void)
 // NON-Interrupt subroutines
 void setup(void){
 cli();
+DDRB = 0XFF;
+PORTB = 0X00;
+
+DDRC = 0XFF;
+PORTC = 0X00;
+
 UART_init();
+
 sei();
 }
 void UART_init(void)
@@ -48,7 +55,13 @@ void UART_init(void)
 }
 void writechar(char caracter)
 {
- UDR0 = caracter;
+	while((UCSR0A & (1 << UDRE0))== 0);
+	UDR0 = caracter;
 }
 //
 // Interrupt routines 
+ISR(USART_RX_vect){
+	char dato = UDR0;
+	PORTB = 0X0F & dato;
+	PORTC = 0X0F & (dato >> 4);
+}

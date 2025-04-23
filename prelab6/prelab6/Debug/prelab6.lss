@@ -3,27 +3,29 @@ prelab6.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  00000122  2**0
+  0 .data         00000000  00800100  00800100  00000160  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000000ce  00000000  00000000  00000054  2**1
+  1 .text         0000010c  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  00000122  2**0
+  2 .comment      00000030  00000000  00000000  00000160  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000154  2**2
+  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000190  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000038  00000000  00000000  00000194  2**0
+  4 .debug_aranges 00000040  00000000  00000000  000001d0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000713  00000000  00000000  000001cc  2**0
+  5 .debug_info   0000073d  00000000  00000000  00000210  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 0000065b  00000000  00000000  000008df  2**0
+  6 .debug_abbrev 00000684  00000000  00000000  0000094d  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000024d  00000000  00000000  00000f3a  2**0
+  7 .debug_line   00000297  00000000  00000000  00000fd1  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000054  00000000  00000000  00001188  2**2
+  8 .debug_frame  00000078  00000000  00000000  00001268  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    000003ad  00000000  00000000  000011dc  2**0
+  9 .debug_str    000003be  00000000  00000000  000012e0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_ranges 00000028  00000000  00000000  00001589  2**0
+ 10 .debug_loc    0000005c  00000000  00000000  0000169e  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000030  00000000  00000000  000016fa  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -47,7 +49,7 @@ Disassembly of section .text:
   3c:	0c 94 3e 00 	jmp	0x7c	; 0x7c <__bad_interrupt>
   40:	0c 94 3e 00 	jmp	0x7c	; 0x7c <__bad_interrupt>
   44:	0c 94 3e 00 	jmp	0x7c	; 0x7c <__bad_interrupt>
-  48:	0c 94 3e 00 	jmp	0x7c	; 0x7c <__bad_interrupt>
+  48:	0c 94 6e 00 	jmp	0xdc	; 0xdc <__vector_18>
   4c:	0c 94 3e 00 	jmp	0x7c	; 0x7c <__bad_interrupt>
   50:	0c 94 3e 00 	jmp	0x7c	; 0x7c <__bad_interrupt>
   54:	0c 94 3e 00 	jmp	0x7c	; 0x7c <__bad_interrupt>
@@ -63,8 +65,8 @@ Disassembly of section .text:
   6e:	d8 e0       	ldi	r29, 0x08	; 8
   70:	de bf       	out	0x3e, r29	; 62
   72:	cd bf       	out	0x3d, r28	; 61
-  74:	0e 94 5d 00 	call	0xba	; 0xba <main>
-  78:	0c 94 65 00 	jmp	0xca	; 0xca <_exit>
+  74:	0e 94 66 00 	call	0xcc	; 0xcc <main>
+  78:	0c 94 84 00 	jmp	0x108	; 0x108 <_exit>
 
 0000007c <__bad_interrupt>:
   7c:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -110,39 +112,87 @@ void UART_init(void)
 void setup(void){
 cli();
   aa:	f8 94       	cli
-UART_init();
-  ac:	0e 94 40 00 	call	0x80	; 0x80 <UART_init>
-sei();
-  b0:	78 94       	sei
-  b2:	08 95       	ret
+DDRB = 0XFF;
+  ac:	8f ef       	ldi	r24, 0xFF	; 255
+  ae:	84 b9       	out	0x04, r24	; 4
+PORTB = 0X00;
+  b0:	15 b8       	out	0x05, r1	; 5
 
-000000b4 <writechar>:
+DDRC = 0XFF;
+  b2:	87 b9       	out	0x07, r24	; 7
+PORTC = 0X00;
+  b4:	18 b8       	out	0x08, r1	; 8
+
+UART_init();
+  b6:	0e 94 40 00 	call	0x80	; 0x80 <UART_init>
+
+sei();
+  ba:	78 94       	sei
+  bc:	08 95       	ret
+
+000000be <writechar>:
 	//Configuramos baudrate 9600 a 16MHz
 	UBRR0 = 103;
 }
 void writechar(char caracter)
 {
- UDR0 = caracter;
-  b4:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7f80c6>
-  b8:	08 95       	ret
+	while((UCSR0A & (1 << UDRE0))== 0);
+  be:	90 91 c0 00 	lds	r25, 0x00C0	; 0x8000c0 <__TEXT_REGION_LENGTH__+0x7f80c0>
+  c2:	95 ff       	sbrs	r25, 5
+  c4:	fc cf       	rjmp	.-8      	; 0xbe <writechar>
+	UDR0 = caracter;
+  c6:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7f80c6>
+  ca:	08 95       	ret
 
-000000ba <main>:
+000000cc <main>:
 void writechar(char caracter);
 //
 // Main Function
 int main(void)
 {
 	setup();
-  ba:	0e 94 55 00 	call	0xaa	; 0xaa <setup>
+  cc:	0e 94 55 00 	call	0xaa	; 0xaa <setup>
 	UART_init();
-  be:	0e 94 40 00 	call	0x80	; 0x80 <UART_init>
+  d0:	0e 94 40 00 	call	0x80	; 0x80 <UART_init>
 	writechar('P');
-  c2:	80 e5       	ldi	r24, 0x50	; 80
-  c4:	0e 94 5a 00 	call	0xb4	; 0xb4 <writechar>
-  c8:	ff cf       	rjmp	.-2      	; 0xc8 <main+0xe>
+  d4:	80 e5       	ldi	r24, 0x50	; 80
+  d6:	0e 94 5f 00 	call	0xbe	; 0xbe <writechar>
+  da:	ff cf       	rjmp	.-2      	; 0xda <main+0xe>
 
-000000ca <_exit>:
-  ca:	f8 94       	cli
+000000dc <__vector_18>:
+	while((UCSR0A & (1 << UDRE0))== 0);
+	UDR0 = caracter;
+}
+//
+// Interrupt routines 
+ISR(USART_RX_vect){
+  dc:	1f 92       	push	r1
+  de:	0f 92       	push	r0
+  e0:	0f b6       	in	r0, 0x3f	; 63
+  e2:	0f 92       	push	r0
+  e4:	11 24       	eor	r1, r1
+  e6:	8f 93       	push	r24
+  e8:	9f 93       	push	r25
+	char dato = UDR0;
+  ea:	80 91 c6 00 	lds	r24, 0x00C6	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7f80c6>
+	PORTB = 0X0F & dato;
+  ee:	98 2f       	mov	r25, r24
+  f0:	9f 70       	andi	r25, 0x0F	; 15
+  f2:	95 b9       	out	0x05, r25	; 5
+	PORTC = 0X0F & (dato >> 4);
+  f4:	82 95       	swap	r24
+  f6:	8f 70       	andi	r24, 0x0F	; 15
+  f8:	88 b9       	out	0x08, r24	; 8
+  fa:	9f 91       	pop	r25
+  fc:	8f 91       	pop	r24
+  fe:	0f 90       	pop	r0
+ 100:	0f be       	out	0x3f, r0	; 63
+ 102:	0f 90       	pop	r0
+ 104:	1f 90       	pop	r1
+ 106:	18 95       	reti
 
-000000cc <__stop_program>:
-  cc:	ff cf       	rjmp	.-2      	; 0xcc <__stop_program>
+00000108 <_exit>:
+ 108:	f8 94       	cli
+
+0000010a <__stop_program>:
+ 10a:	ff cf       	rjmp	.-2      	; 0x10a <__stop_program>
