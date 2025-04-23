@@ -13,13 +13,15 @@
 void setup(void);
 void UART_init(void);
 void writechar(char caracter);
+void cadena(char* frase);
 //
 // Main Function
 int main(void)
 {
 	setup();
 	UART_init();
-	writechar('P');
+	//writechar('P');
+	cadena("Hola mundohhjkghjghddsgfdsgfhghjhk");
 	while (1)
 	{
 		
@@ -57,6 +59,11 @@ void writechar(char caracter)
 {
 	while((UCSR0A & (1 << UDRE0))== 0);
 	UDR0 = caracter;
+}
+void cadena(char* frase){
+	for(uint8_t i = 0; *(frase+i) != '\0'; i++){
+		writechar(*(frase+i));
+	}
 }
 //
 // Interrupt routines 
