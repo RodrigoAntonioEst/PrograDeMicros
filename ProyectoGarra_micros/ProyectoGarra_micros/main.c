@@ -8,6 +8,7 @@
 //
 // Encabezado (Libraries)
 #include <avr/io.h>
+#include <stdlib.h>
 #include <avr/interrupt.h>
 #include "PWM/PWM.h"
 volatile uint8_t MULTIPLEXACION;
@@ -28,7 +29,14 @@ volatile uint8_t POSICION2_LEIDA;
 volatile uint8_t POSICION3_LEIDA;
 volatile uint8_t POSICION4_LEIDA;
 volatile uint8_t POSICION5_LEIDA;
-
+volatile uint8_t servo1; 
+volatile uint8_t servo2;
+volatile uint8_t servo3;
+volatile uint8_t servo4;
+volatile uint8_t servo5;
+uint8_t posicion;
+char concatenacion[10]; 
+uint8_t conversion; 
 //
 // Function prototypes
 void setup();
@@ -148,6 +156,20 @@ void setup(){
 	ADCSRA = 0; //eliminamos las configuraciones previos del ADC
 	ADCSRA |= (1 << ADPS1) | (1 << ADPS0) | (1 << ADEN) | (1 << ADIE) | (1 << ADSC); //activamos prescaler, interrupcion e iniciamos la conversion
 	
+	//desactivamos RX Y activamos TX 
+	DDRD |= (1<<DDD1); // TX
+	DDRD &= ~(1<<DDD0); // RX
+	 
+	UCSR0A = (1 << U2X0);
+
+	// Configurar baudrate para doble velocidad
+	UBRR0 = 12;
+
+	// Habilitar TX, RX y la interrupción por recepción
+	UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
+
+	// Formato: 8 bits, 1 stop bit, sin paridad
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 	
 	sei();
 }
@@ -220,6 +242,142 @@ ISR(PCINT2_vect){
 		MODOS=3;
 	}
 }
-
+ISR(USART_RX_vect){
+	//recibimos dato
+	char dato = UDR0;
+		
+	//logica para controlar servos mediante adafruit
+	if (servo1 == 1){
+		if(dato == 'T'){
+			//pasamos de string a int
+			conversion = atoi(&concatenacion[0]);
+			//sacar valor al OCR
+			if(MODOS == 3){
+				duty2A(7,37, conversion);
+			}
+			//Reiniciamos las condicionales 
+			servo1 = 0;
+			posicion = 0;
+			concatenacion[0] = '\0'; 
+		}
+		else{
+			if(posicion < 10 - 1){
+				//operacion para que la libreria de atoi reconzca el espacion 
+				concatenacion[posicion++]=dato;
+				concatenacion[posicion] = '\0';  
+			}
+	}	
+	}
+	else if(servo2 == 1){
+		if(dato == 'T'){
+			//pasamos de string a int
+			conversion = atoi(&concatenacion[0]);
+			//sacar valor al OCR
+			if(MODOS == 3){
+				duty1A(7, 37, conversion);
+			}
+			//Reiniciamos las condicionales
+			servo2 = 0;
+			posicion = 0;
+			concatenacion[0] = '\0';
+		}
+		else{
+			if(posicion < 10 - 1){
+				//operacion para que la libreria de atoi reconzca el espacion
+				concatenacion[posicion++]=dato;
+				concatenacion[posicion] = '\0';
+			}
+	}	
+	}
+	if (servo3 == 1){
+		if(dato == 'T'){
+			//pasamos de string a int
+			conversion = atoi(&concatenacion[0]);
+			//sacar valor al OCR
+			if(MODOS == 3){
+				duty1B(7,37,conversion);
+			}
+			//Reiniciamos las condicionales
+			servo3 = 0;
+			posicion = 0;
+			concatenacion[0] = '\0';
+		}
+		else{
+			if(posicion < 10 - 1){
+				//operacion para que la libreria de atoi reconzca el espacion
+				concatenacion[posicion++]=dato;
+				concatenacion[posicion] = '\0';
+			}
+	}	
+	}
+	else if (servo4 == 1){
+		if(dato == 'T'){
+			//pasamos de string a int
+			conversion = atoi(&concatenacion[0]);
+			//sacar valor al OCR
+			if(MODOS == 3){
+				duty0A(7,37,conversion);
+			}
+			//Reiniciamos las condicionales
+			servo4 = 0;
+			posicion = 0;
+			concatenacion[0] = '\0';
+		}
+		else{
+			if(posicion < 10 - 1){
+				//operacion para que la libreria de atoi reconzca el espacion
+				concatenacion[posicion++]=dato;
+				concatenacion[posicion] = '\0';
+			}
+	}	
+	}
+	else if (servo5 == 1){
+		if(dato == 'T'){
+			//pasamos de string a int
+			conversion = atoi(&concatenacion[0]);
+			//sacar valor al OCR
+			if(MODOS == 3){
+				duty0B(7,37,conversion);
+			}
+			//Reiniciamos las condicionales
+			servo5 = 0;
+			posicion = 0;
+			concatenacion[0] = '\0';
+		}
+		else{
+			if(posicion < 10 - 1){
+				//operacion para que la libreria de atoi reconzca el espacion
+				concatenacion[posicion++]=dato;
+				concatenacion[posicion] = '\0';
+			}
+	}	
+	}
+	//Analizamos a que servo va dirigida la informacion
+	if(dato == 'A'){
+		servo1 = 1;
+		posicion = 0;
+		concatenacion[0] = '\0';
+	}
+	else if(dato == 'B'){
+		servo2 = 1;
+		posicion = 0;
+		concatenacion[0] = '\0';
+	}
+	else if(dato == 'C'){
+		servo3 = 1;
+		posicion = 0;
+		concatenacion[0]= '\0';
+	}
+	else if(dato == 'D'){
+		servo4 = 1;
+		posicion = 0;
+		concatenacion[0] = '\0';
+	}
+	else if(dato == 'E'){
+		servo5 = 1;
+		posicion = 0;
+		concatenacion[0] = '\0';
+	}
+}
 
 
