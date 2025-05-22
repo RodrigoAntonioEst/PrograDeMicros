@@ -12,7 +12,7 @@ run_count = 0
 # Remember, your key is a secret,
 # so make sure not to publish it when you publish this code!
 ADAFRUIT_IO_USERNAME = "rodrigo_estrad"
-ADAFRUIT_IO_KEY = "aio_HznE10cCVMnjLc897oj868huNpPi"
+ADAFRUIT_IO_KEY = "aio_dDRR27kwo3EYJrnecP36jchp9vat"
 # Set to the ID of the feed to subscribe to for updates.
 FEED_ID_receive1 = 'Servo1_TX'
 FEED_ID_Send1  =  'Servo1_RX'
