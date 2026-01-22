@@ -472,13 +472,13 @@ END GROUP
  .debug_frame   0x00000000       0x24 7segmentos_anodo.o
  .debug_frame   0x00000024       0xcc main.o
 
-.debug_str      0x00000000      0x3e9
+.debug_str      0x00000000      0x44a
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328/avr5/crtatmega328.o
  .debug_str     0x00000208      0x171 7segmentos_anodo.o
                                 0x1a5 (size before relaxing)
- .debug_str     0x00000379       0x70 main.o
-                                0x1e1 (size before relaxing)
+ .debug_str     0x00000379       0xd1 main.o
+                                0x1f9 (size before relaxing)
 
 .debug_loc      0x00000000      0x164
  *(.debug_loc)
