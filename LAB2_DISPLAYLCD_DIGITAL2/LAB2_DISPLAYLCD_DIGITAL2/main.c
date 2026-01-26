@@ -10,10 +10,19 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <stdlib.h>
 //llamamos a la libreria para poder utilizar display 16x2
 #include "DISPLAYLCD/DISPLAYLCD.h"
-//llamamos a la libreria para poder hacer 
-#include "LECTURA_ADC/LECTURA_ADC.h"
+//llamamos a la libreria del ADC
+#include "ADC/ADC.h"
+volatile uint8_t MULTIPLEXADO = 0;
+volatile uint16_t POT1;
+volatile uint16_t POT2;
+char t[16];
+char u[10];
+float ADC1;
+float ADC2;
+
 /****************************************/
 // Function prototypes
 
@@ -22,10 +31,11 @@
 int main(void)
 {
 	init8bits();
-	LCD_SET_CURSOR(1,1);
-	LCD_WRITE_CHAR('H');
-	LCD_SET_CURSOR(1,2);
-	LCD_WRITE_STRING("Mundo");
+	init_ADC(1, 128, 3);
+	
+	
+	LCD_SET_CURSOR(12,1);
+	LCD_WRITE_STRING("S3");
 	while (1)
 	{
 	}
@@ -35,3 +45,34 @@ int main(void)
 
 /****************************************/
 // Interrupt routines
+ISR(ADC_vect){
+	switch(MULTIPLEXADO){
+		case 1:
+			POT1 = ADCH;
+			ADC1 = (POT1 * 5.00)/255.0;
+			dtostrf(ADC1, 4, 2, t);
+			LCD_SET_CURSOR(2,1);
+			LCD_WRITE_STRING("S1");
+			LCD_SET_CURSOR(1,2);
+			LCD_WRITE_STRING(t);
+			LCD_WRITE_STRING("V");
+			pinADC(4);
+		break;
+		case 2:
+			POT2 = ADCH;
+			ADC2 = (POT2*5.00)/255.0;
+			dtostrf(ADC2, 4, 2, t);
+			LCD_SET_CURSOR(8,1);
+			LCD_WRITE_STRING("S2");
+			LCD_SET_CURSOR(7,2);
+			LCD_WRITE_STRING(t);
+			LCD_WRITE_STRING("V");
+		break;
+		default:
+			MULTIPLEXADO = 0;
+			pinADC(3);
+		break;
+	}
+	MULTIPLEXADO++;
+	ADCSRA |= (1 << ADSC);
+}

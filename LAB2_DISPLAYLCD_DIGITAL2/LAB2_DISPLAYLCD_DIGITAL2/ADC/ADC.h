@@ -1,0 +1,20 @@
+/*
+ * ADC.h
+ *
+ * Created: 24/01/2026 23:34:33
+ *  Author: rodro
+ */ 
+
+
+#ifndef ADC_H_
+#define ADC_H_
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <stdio.h>
+//Prototipo de configuracion del ADC
+void init_ADC(uint8_t justificacion, uint8_t prescaler, uint8_t pin_adc);
+void pinADC(uint8_t pin_adc);
+
+
+
+#endif /* ADC_H_ */
