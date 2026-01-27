@@ -15,14 +15,18 @@
 #include "DISPLAYLCD/DISPLAYLCD.h"
 //llamamos a la libreria del ADC
 #include "ADC/ADC.h"
+//llamamos la funcion de usart
+#include "UART_RECEIVER/UART_RECEIVER.h"
 volatile uint8_t MULTIPLEXADO = 0;
 volatile uint16_t POT1;
 volatile uint16_t POT2;
 char t[16];
-char u[10];
 float ADC1;
 float ADC2;
-
+volatile uint8_t esperar_char = 0;
+char dato;
+volatile uint8_t contador = 0;
+char buf[10];
 /****************************************/
 // Function prototypes
 
@@ -31,13 +35,12 @@ float ADC2;
 int main(void)
 {
 	init8bits();
+	UART_RECEIVER(103);
 	init_ADC(1, 128, 3);
-	
-	
-	LCD_SET_CURSOR(12,1);
-	LCD_WRITE_STRING("S3");
+	cadena("Contador. Envie un '+' o '-'...\n");
 	while (1)
 	{
+		
 	}
 }
 /****************************************/
@@ -73,6 +76,34 @@ ISR(ADC_vect){
 			pinADC(3);
 		break;
 	}
+	if(contador == 0){
+	LCD_SET_CURSOR(14,1);
+	LCD_WRITE_STRING("S3");
+	LCD_SET_CURSOR(14,2);
+	LCD_WRITE_STRING("0");
+	}
 	MULTIPLEXADO++;
 	ADCSRA |= (1 << ADSC);
+}
+ISR(USART_RX_vect){
+	dato = UDR0;
+	
+	if(dato == '+'){
+		contador++;
+	}
+	else if(dato == '-'){
+		contador--;
+	}
+	else{
+		cadena("NO VALIDO\n");
+	}
+	
+	itoa(contador,buf, 10);
+	LCD_SET_CURSOR(14,1);
+	LCD_WRITE_STRING("S3");
+	LCD_SET_CURSOR(14,2);
+	LCD_WRITE_STRING(buf);
+	LCD_WRITE_STRING("  ");
+	cadena("Contador S3, Envie un '+' o '-'...\n");
+	
 }

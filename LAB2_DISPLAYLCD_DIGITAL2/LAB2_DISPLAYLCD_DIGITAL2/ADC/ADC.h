@@ -13,6 +13,7 @@
 #include <stdio.h>
 //Prototipo de configuracion del ADC
 void init_ADC(uint8_t justificacion, uint8_t prescaler, uint8_t pin_adc);
+//funcion para seleccionar el pin del ADC
 void pinADC(uint8_t pin_adc);
 
 
