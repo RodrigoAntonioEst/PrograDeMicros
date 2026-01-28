@@ -36,7 +36,7 @@ int main(void)
 {
 	init8bits();
 	UART_RECEIVER(103);
-	init_ADC(1, 128, 3);
+	init_ADC(0, 128, 3);
 	cadena("Contador. Envie un '+' o '-'...\n");
 	while (1)
 	{
@@ -51,35 +51,36 @@ int main(void)
 ISR(ADC_vect){
 	switch(MULTIPLEXADO){
 		case 1:
-			POT1 = ADCH;
-			ADC1 = (POT1 * 5.00)/255.0;
+			POT1 = ADC;
+			ADC1 = (POT1 * 5.00)/1023.0;
 			dtostrf(ADC1, 4, 2, t);
 			LCD_SET_CURSOR(2,1);
 			LCD_WRITE_STRING("S1");
 			LCD_SET_CURSOR(1,2);
 			LCD_WRITE_STRING(t);
 			LCD_WRITE_STRING("V");
-			pinADC(4);
+			pinADC(4, 0);
 		break;
 		case 2:
-			POT2 = ADCH;
-			ADC2 = (POT2*5.00)/255.0;
-			dtostrf(ADC2, 4, 2, t);
+			POT2 = ADC;
+			//ADC2 = (POT2*5.00)/255.0;
+			//dtostrf(ADC2, 4, 2, t);
+			itoa(POT2, buf, 10);
 			LCD_SET_CURSOR(8,1);
 			LCD_WRITE_STRING("S2");
 			LCD_SET_CURSOR(7,2);
-			LCD_WRITE_STRING(t);
-			LCD_WRITE_STRING("V");
+			LCD_WRITE_STRING(buf);
+			LCD_WRITE_STRING("  ");
 		break;
 		default:
 			MULTIPLEXADO = 0;
-			pinADC(3);
+			pinADC(3, 0);
 		break;
 	}
 	if(contador == 0){
-	LCD_SET_CURSOR(14,1);
+	LCD_SET_CURSOR(13,1);
 	LCD_WRITE_STRING("S3");
-	LCD_SET_CURSOR(14,2);
+	LCD_SET_CURSOR(13,2);
 	LCD_WRITE_STRING("0");
 	}
 	MULTIPLEXADO++;
@@ -103,7 +104,7 @@ ISR(USART_RX_vect){
 	LCD_WRITE_STRING("S3");
 	LCD_SET_CURSOR(14,2);
 	LCD_WRITE_STRING(buf);
-	LCD_WRITE_STRING("  ");
+	LCD_WRITE_STRING("   ");
 	cadena("Contador S3, Envie un '+' o '-'...\n");
 	
 }

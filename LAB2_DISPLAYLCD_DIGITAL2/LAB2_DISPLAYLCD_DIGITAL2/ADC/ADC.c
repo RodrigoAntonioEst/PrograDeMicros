@@ -62,9 +62,20 @@ void init_ADC(uint8_t justificacion, uint8_t prescaler, uint8_t pin_adc){
 	}
 	sei();
 }
-void pinADC(uint8_t pin_adc){
+void pinADC(uint8_t pin_adc, uint8_t just){
 	ADMUX = 0;
-	ADMUX |= (1<<REFS0) | (1<<ADLAR);
+	ADMUX |= (1<<REFS0);
+	switch(just){
+		case 0:
+		ADMUX &= ~(1<<ADLAR); //Activamos la justificacion a la derecha
+		break;
+		case 1:
+		ADMUX |= (1<<ADLAR);
+		break;
+		default:
+		ADMUX |= (1<<ADLAR);
+		break;
+	}
 	switch(pin_adc){
 		case 0:
 		ADMUX &= ~((1<<MUX0)|(1<<MUX1)|(1<<MUX2)|(1<<MUX3));
