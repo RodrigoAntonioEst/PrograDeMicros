@@ -588,7 +588,7 @@ END GROUP
  *(.rodata*)
  .rodata.str1.1
                 0x00800100       0x61 main.o
-                                 0x64 (size before relaxing)
+                                 0x63 (size before relaxing)
  *(.gnu.linkonce.r*)
                 0x00800162                . = ALIGN (0x2)
  *fill*         0x00800161        0x1 

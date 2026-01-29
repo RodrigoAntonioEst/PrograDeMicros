@@ -1051,16 +1051,16 @@ ISR(ADC_vect){
      642:	86 e2       	ldi	r24, 0x26	; 38
      644:	91 e0       	ldi	r25, 0x01	; 1
      646:	0e 94 7e 02 	call	0x4fc	; 0x4fc <LCD_WRITE_STRING>
-			LCD_SET_CURSOR(7,2);
+			LCD_SET_CURSOR(8,2);
      64a:	62 e0       	ldi	r22, 0x02	; 2
-     64c:	87 e0       	ldi	r24, 0x07	; 7
+     64c:	88 e0       	ldi	r24, 0x08	; 8
      64e:	0e 94 94 02 	call	0x528	; 0x528 <LCD_SET_CURSOR>
 			LCD_WRITE_STRING(buf);
      652:	8b e7       	ldi	r24, 0x7B	; 123
      654:	91 e0       	ldi	r25, 0x01	; 1
      656:	0e 94 7e 02 	call	0x4fc	; 0x4fc <LCD_WRITE_STRING>
-			LCD_WRITE_STRING("  ");
-     65a:	8a e3       	ldi	r24, 0x3A	; 58
+			LCD_WRITE_STRING(" ");
+     65a:	8b e3       	ldi	r24, 0x3B	; 59
      65c:	91 e0       	ldi	r25, 0x01	; 1
      65e:	0e 94 7e 02 	call	0x4fc	; 0x4fc <LCD_WRITE_STRING>
 		break;
@@ -1181,17 +1181,17 @@ ISR(USART_RX_vect){
      72c:	71 e0       	ldi	r23, 0x01	; 1
      72e:	90 e0       	ldi	r25, 0x00	; 0
      730:	0e 94 84 05 	call	0xb08	; 0xb08 <__itoa_ncheck>
-	LCD_SET_CURSOR(14,1);
+	LCD_SET_CURSOR(13,1);
      734:	61 e0       	ldi	r22, 0x01	; 1
-     736:	8e e0       	ldi	r24, 0x0E	; 14
+     736:	8d e0       	ldi	r24, 0x0D	; 13
      738:	0e 94 94 02 	call	0x528	; 0x528 <LCD_SET_CURSOR>
 	LCD_WRITE_STRING("S3");
      73c:	89 e2       	ldi	r24, 0x29	; 41
      73e:	91 e0       	ldi	r25, 0x01	; 1
      740:	0e 94 7e 02 	call	0x4fc	; 0x4fc <LCD_WRITE_STRING>
-	LCD_SET_CURSOR(14,2);
+	LCD_SET_CURSOR(13,2);
      744:	62 e0       	ldi	r22, 0x02	; 2
-     746:	8e e0       	ldi	r24, 0x0E	; 14
+     746:	8d e0       	ldi	r24, 0x0D	; 13
      748:	0e 94 94 02 	call	0x528	; 0x528 <LCD_SET_CURSOR>
 	LCD_WRITE_STRING(buf);
      74c:	8b e7       	ldi	r24, 0x7B	; 123

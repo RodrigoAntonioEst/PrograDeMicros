@@ -68,9 +68,9 @@ ISR(ADC_vect){
 			itoa(POT2, buf, 10);
 			LCD_SET_CURSOR(8,1);
 			LCD_WRITE_STRING("S2");
-			LCD_SET_CURSOR(7,2);
+			LCD_SET_CURSOR(8,2);
 			LCD_WRITE_STRING(buf);
-			LCD_WRITE_STRING("  ");
+			LCD_WRITE_STRING(" ");
 		break;
 		default:
 			MULTIPLEXADO = 0;
@@ -100,9 +100,9 @@ ISR(USART_RX_vect){
 	}
 	
 	itoa(contador,buf, 10);
-	LCD_SET_CURSOR(14,1);
+	LCD_SET_CURSOR(13,1);
 	LCD_WRITE_STRING("S3");
-	LCD_SET_CURSOR(14,2);
+	LCD_SET_CURSOR(13,2);
 	LCD_WRITE_STRING(buf);
 	LCD_WRITE_STRING("   ");
 	cadena("Contador S3, Envie un '+' o '-'...\n");
