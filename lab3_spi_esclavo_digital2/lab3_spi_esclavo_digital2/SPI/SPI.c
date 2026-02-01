@@ -31,6 +31,7 @@ void SPIinit(SPI_TYPE stype, SPI_DATA_ORDER	sDataOrder, SPI_CLOCK_POLARITY sCloc
 			SPCR |= (1<<SPR0);
 			SPCR &= ~(1<<SPR1);
 			SPSR |= (1<<SPI2X);
+			break;
 			case 3: //DIV16
 			SPCR |= (1<<SPR0);
 			SPCR &= ~(1<<SPR1);

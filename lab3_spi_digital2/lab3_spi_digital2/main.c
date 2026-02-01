@@ -19,8 +19,18 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "SPI/SPI.h"
-uint8_t valorSPI = 0;
+#include <util/delay.h>
+#include "UART/UART_RECEIVER.h"
+volatile uint8_t valorSPI;
+char buf[10];
+char dato;
+char concatenacion[10];
+volatile uint8_t num;
+volatile uint8_t posicion = 0;
+volatile uint8_t conversion;
+
 /****************************************/
 // Function prototypes
 void refreshPORT(uint8_t valor);
@@ -30,8 +40,9 @@ void setup(void);
 int main(void)
 {
 	setup();
+	UART_RECEIVER(103);
 	SPIinit(SPI_MASTER_OSC_DIV128, SPI_DATA_ORDER_MSB, SPI_CLOCK_IDLE_LOW, SPI_CLOCK_FIRST_EDGE);
-	/* Replace with your application code */
+	sei();
 	while (1)
 	{
 		PORTC &= ~(1<<PORTC5); //Indicamos que funcione como esclavo
@@ -40,10 +51,36 @@ int main(void)
 		
 		SPIwrite(0X00);
 		
-		valorSPI = spiRead();
-		refreshPORT(valorSPI);
 		
-		PORTC |= (1<<PORTC5); //apagamos el slave  
+		
+		valorSPI = spiRead();
+
+		utoa(valorSPI, buf, 10);          // si valorSPI es unsigned
+		cadena("Valor POT 1: ");
+		cadena(buf);
+		cadena("\r\n");
+		
+
+		PORTC |= (1<<PORTC5);             // CS en alto = deseleccionar slave (si es activo-bajo)
+		//
+		PORTC &= ~(1<<PORTC5); //Indicamos que funcione como esclavo
+		
+		SPIwrite('d');
+		
+		SPIwrite(0X00);
+		
+		
+		
+		valorSPI = spiRead();
+
+		utoa(valorSPI, buf, 10);          // si valorSPI es unsigned
+		cadena("Valor POT 2: ");
+		cadena(buf);
+		cadena("\r\n");
+
+		PORTC |= (1<<PORTC5);             // CS en alto = deseleccionar slave (si es activo-bajo)
+		
+		  
 	}
 }
 /****************************************/
@@ -100,6 +137,7 @@ void refreshPORT(uint8_t valor){
 	
 }
 void setup(){
+	concatenacion[0] = '\0';
 	DDRC |= (1<<DDC5);
 	DDRD |= (1<<DDD2)|(1<<DDD3)|(1<<DDD4)|(1<<DDD5)|(1<<DDD6)|(1<<DDD7);
 	DDRB |= (1<<DDB0)|(1<<DDB1);
@@ -111,3 +149,18 @@ void setup(){
 }	
 /****************************************/
 // Interrupt routines
+ISR(USART_RX_vect){
+	dato = UDR0;
+	if(dato == '\n'){             
+		conversion = atoi(&concatenacion[0]);
+		cadena("Numero recibido\r\n");
+		refreshPORT(conversion);
+		SPIwrite(conversion);
+		posicion = 0;
+		concatenacion[0] = '\0';
+	}
+	else if(posicion < 9){
+		concatenacion[posicion++] = dato;
+		concatenacion[posicion] = '\0';
+	}
+}

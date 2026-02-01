@@ -33,13 +33,15 @@ LINKER_SCRIPT_DEP:=
 
 # Every subdirectory with source files must be described here
 SUBDIRS :=  \
+../UART \
 ../SPI
 
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
 ../main.c \
-../SPI/SPI.c
+../SPI/SPI.c \
+../UART/UART_RECEIVER.c
 
 
 PREPROCESSING_SRCS += 
@@ -50,19 +52,23 @@ ASM_SRCS +=
 
 OBJS +=  \
 main.o \
-SPI/SPI.o
+SPI/SPI.o \
+UART/UART_RECEIVER.o
 
 OBJS_AS_ARGS +=  \
 main.o \
-SPI/SPI.o
+SPI/SPI.o \
+UART/UART_RECEIVER.o
 
 C_DEPS +=  \
 main.d \
-SPI/SPI.d
+SPI/SPI.d \
+UART/UART_RECEIVER.d
 
 C_DEPS_AS_ARGS +=  \
 main.d \
-SPI/SPI.d
+SPI/SPI.d \
+UART/UART_RECEIVER.d
 
 OUTPUT_FILE_PATH +=lab3_spi_digital2.elf
 
@@ -86,6 +92,13 @@ LINKER_SCRIPT_DEP+=
 	
 
 SPI/SPI.o: ../SPI/SPI.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 5.4.0
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+UART/UART_RECEIVER.o: ../UART/UART_RECEIVER.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 5.4.0
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
