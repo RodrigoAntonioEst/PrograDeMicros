@@ -78,3 +78,9 @@ uint8_t spiRead(void){ //lee la informacion recibida
 	while(!(SPSR & (1<<SPIF))); //esperar a la informacion este completa
 	return(SPDR); //leer la informacion recibida desde el buffer
 }
+
+uint8_t SPItransfer(uint8_t dat){
+    SPDR = dat;                         // carga byte a enviar
+    while(!(SPSR & (1<<SPIF)));         // espera fin de transferencia
+    return SPDR;                        // devuelve lo recibido
+}

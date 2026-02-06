@@ -45,40 +45,34 @@ int main(void)
 	sei();
 	while (1)
 	{
-		PORTC &= ~(1<<PORTC5); //Indicamos que funcione como esclavo
-		
-		SPIwrite('c');
-		
-		SPIwrite(0X00);
-		
-		
-		
-		valorSPI = spiRead();
+		PORTC &= ~(1<<PORTC5);          // CS LOW
 
-		utoa(valorSPI, buf, 10);          // si valorSPI es unsigned
+		SPItransfer('c');               // comando
+		valorSPI = SPItransfer(0x00);   // dummy para leer respuesta (POT1)
+
+		utoa(valorSPI, buf, 10);
 		cadena("Valor POT 1: ");
 		cadena(buf);
 		cadena("\r\n");
-		
 
-		PORTC |= (1<<PORTC5);             // CS en alto = deseleccionar slave (si es activo-bajo)
+		PORTC |= (1<<PORTC5);           // CS HIGH
+
 		//
-		PORTC &= ~(1<<PORTC5); //Indicamos que funcione como esclavo
-		
-		SPIwrite('d');
-		
-		SPIwrite(0X00);
-		
-		
-		
-		valorSPI = spiRead();
+		PORTC &= ~(1<<PORTC5);          // CS LOW
 
-		utoa(valorSPI, buf, 10);          // si valorSPI es unsigned
+		SPItransfer('d');               // comando
+		valorSPI = SPItransfer(0x00);   // dummy para leer respuesta (POT2)
+
+		utoa(valorSPI, buf, 10);
 		cadena("Valor POT 2: ");
 		cadena(buf);
 		cadena("\r\n");
 
-		PORTC |= (1<<PORTC5);             // CS en alto = deseleccionar slave (si es activo-bajo)
+		PORTC |= (1<<PORTC5);           // CS HIGH
+        
+        _delay_ms(50);
+
+
 		
 		  
 	}
@@ -141,6 +135,8 @@ void setup(){
 	DDRC |= (1<<DDC5);
 	DDRD |= (1<<DDD2)|(1<<DDD3)|(1<<DDD4)|(1<<DDD5)|(1<<DDD6)|(1<<DDD7);
 	DDRB |= (1<<DDB0)|(1<<DDB1);
+	
+	
 	//MSS para seleccionar el slave
 	PORTC |= (1<<PORTC5);
 	//limpiando el puerto de leds = 0
@@ -155,7 +151,12 @@ ISR(USART_RX_vect){
 		conversion = atoi(&concatenacion[0]);
 		cadena("Numero recibido\r\n");
 		refreshPORT(conversion);
-		SPIwrite(conversion);
+        // Mandar el mismo valor al esclavo para que lo muestre en sus LEDs
+        PORTC &= ~(1<<PORTC5);      // CS LOW
+        SPItransfer('L');           // comando: "LED"
+        SPItransfer(conversion);    // dato
+        PORTC |= (1<<PORTC5);       // CS HIGH
+
 		posicion = 0;
 		concatenacion[0] = '\0';
 	}

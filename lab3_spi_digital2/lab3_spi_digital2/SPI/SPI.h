@@ -44,6 +44,8 @@ void SPIinit(SPI_TYPE,SPI_DATA_ORDER, SPI_CLOCK_POLARITY, SPI_CLOCK_PHASE);
 void SPIwrite(uint8_t dat);
 unsigned SPIdataready();
 uint8_t spiRead(void); 
+uint8_t SPItransfer(uint8_t dat);
+
 
 
 #endif /* SPI_H_ */
