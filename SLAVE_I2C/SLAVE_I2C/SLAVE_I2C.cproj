@@ -12,9 +12,9 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>I2C_slave</AssemblyName>
-    <Name>I2C_slave</Name>
-    <RootNamespace>I2C_slave</RootNamespace>
+    <AssemblyName>SLAVE_I2C</AssemblyName>
+    <Name>SLAVE_I2C</Name>
+    <RootNamespace>SLAVE_I2C</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
@@ -120,9 +120,25 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ADC\ADC.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ADC\ADC.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="I2C\I2C.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="I2C\I2C.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="I2C" />
+    <Folder Include="ADC" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>
