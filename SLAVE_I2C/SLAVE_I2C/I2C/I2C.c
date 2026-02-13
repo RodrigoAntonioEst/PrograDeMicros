@@ -1,98 +1,133 @@
 /*
  * I2C.c
  *
- * Created: 5/02/2026 11:26:17
- *  Author: rodro
+ * Created: 2/8/2026 12:11:33 AM
+ *  Author: jargu
  */ 
+
 #include "I2C.h"
-void I2C_master_init(unsigned long SCL_clock, uint8_t prescaler){
-	DDRC &= ~((1<<DDC4)|(1<<DDC5));
-	switch(prescaler){
-		case 1:
-			TWSR &= ~((1<<TWPS1)|(1<<TWPS0));
-		break;
-		case 4:
-			TWSR &= ~(1<<TWPS1);
-			TWSR |= (1<<TWPS1);
-		break;
-		case 16:
-			TWSR &= ~(1<<TWPS0);
-			TWSR |= (1<<TWPS1);
-		break;
-		case 64:
-			TWSR |= ((1<<TWPS1)|(1<<TWPS0));
-		break;
-		default:
-			TWSR &= ~((1<<TWPS1)|(1<<TWPS0));
-			prescaler = 1;
-		break;
-		
-	}
-	TWBR = ((F_CPU/SCL_clock)/16)/(2*prescaler);//CALCULAR LA VELOCIDAD
-	TWCR |= (1<<TWEN);//ACTIVAR INTERFAZ (TWI) 12C
-}
-//funcion de la comunicacion I2C
-uint8_t I2C_master_start(void){
-	TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN); //MASTER, REINICIAR BANDERA INT, CONDICION DE START
-	while(!(TWCR & (1<<TWINT))); //ESPERAMOS A QUE SE ENCIENDA LA BANDERA
-	return ((TWSR & 0XF8) == 0X08); //NOS QUEDAMOS con los bits de estado TWI status 
+
+// Función para inicializar I2C maestro 
+void I2C_Master_Init(unsigned long SCL_Clock, uint8_t Prescaler){
+    DDRC &= ~((1<<DDC4)|(1<<DDC5));       // PC4, PC5 -> SDA, SCL (salidas) 
+    
+    // Valor de prescaler para registro TWSR
+    switch(Prescaler){
+        case 1: 
+            TWSR &= ~((1<<TWPS1)|(1<<TWPS0));
+        break;
+        case 4: 
+            TWSR &= ~(1<<TWPS1); 
+            TWSR |= (1<< TWPS0);
+        break; 
+        case 16: 
+            TWSR &= ~(1<<TWPS0);
+            TWSR |= (1<< TWPS1);
+        break;
+        case 64: 
+            TWSR |= ((1<<TWPS1)|(1<<TWPS0));
+        break; 
+        default:
+            TWSR &= ~((1<<TWPS1)|(1<<TWPS0));
+            Prescaler = 1; 
+        break;       
+    }
+    TWBR = ((F_CPU/SCL_Clock)-16)/(2*Prescaler); // selecciona el factor de división para el scl_clock
+    TWCR |= (1<<TWEN);  // Activar interfaz I2C (TWI)     
+    
+       
 }
 
-uint8_t I2C_master_Reapetedstart(void){
-	TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN); //MASTER, REINICIAR BANDERA INT, CONDICION DE START
-	while(!(TWCR & (1<<TWINT))); //ESPERAMOS A QUE SE ENCIENDA LA BANDERA
-	return ((TWSR & 0XF8) == 0X10); //NOS QUEDAMOS con los bits de estado TWI status
+// ----------------------------------------------------------------------------------------
+
+// Función de inicio comunicación I2C 
+
+uint8_t I2C_Master_Start(void){
+    TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTA);   
+    while (!(TWCR & (1<<TWINT)));       // Esperamos a que encienda la bandera 
+    
+    return ((TWSR & 0XF8) == 0X08);     // START condition transmited 
 }
 
-//funcion de parada a la comunicacion I2C
-void I2C_master_stop(void){
-	TWCR = (1<<TWEN)|(1<<TWINT)|(1<<TWSTO);
-	while(TWCR & (1<< TWSTO));
-	 
+// ----------------------------------------------------------------------------------------
+
+uint8_t I2C_Master_RepeatedStart(void){
+    TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTA);
+    while (!(TWCR & (1<<TWINT)));       // Esperamos a que encienda la bandera
+    
+    return ((TWSR & 0XF8) == 0X10);     // START condition transmited
 }
-//FUNCION PARA TRANSMITIR DATOS DE MAESTRO A ESCLAVO
-//ESTA FUNCION DEVOLVERA UN 0 SI ESCLAVO A RECIBIDO EL DATO
-uint8_t master_write(uint8_t dato){
-	uint8_t estado;
-	 TWDR = dato; //CARGAR EL DATO
-	 TWCR = (1<<TWEN)|(1<<TWINT); //INICIA LA SENCUENCIA DE ENVIO
-	 
-	 while(!(TWCR & (1<<TWINT))); //ESPERA LA FLAG DE  TWINT
-	 estado = TWSR & 0XF8; //NOS QUEDAMOS CON LOS BITS DE TWIN STATUS
-	 //VERIFICAR SI SE TRANSMITIO UNA SLA + W CON ACK, O UN DATO CON ACK
-	 if(estado == 0x18 || estado == 0x28){
-		 return 1;
-	 }
-	 else{
-		 return estado;
-	 }
-	 
-	  
+
+// ----------------------------------------------------------------------------------------
+
+void I2C_Master_Stop(void){
+    TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTO); 
+    while (TWCR & (1<<TWSTO));
 }
-uint8_t I2C_master_read(uint8_t *buffer, uint8_t ACK){
-	uint8_t estado;
-	
-	if(ACK){
-		//ack: quiero mas datos
-		TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA);//ACTIVAMOS I2C CON ENVIO DE ACK		
-	}
-	else{
-		TWCR = (1<<TWINT)|(1<<TWEN); //ACTIVAMOS INTERFAZ I2C CON SIN ENVIO DE ACK
-	}
-	while (!(TWCR & (1<<TWINT)));
-	
-	estado = TWSR & 0XF8;
-	
-	if(ACK && estado != 0X50) return 0;
-	if(!ACK && estado != 0X58) return 0;
-	
-	*buffer = TWDR;
-	return 1;
+
+// ----------------------------------------------------------------------------------------
+// Funcion de transmisión de datos maestro -> esclavo 
+// Si el esclavo YA recibió el dato, la función da 0 
+
+uint8_t I2C_Master_Write(uint8_t dato){  // dato es lo que yo voy a mandar 
+    uint8_t estado; 
+    
+    TWDR = dato; // cargar el dato 
+    TWCR = (1<<TWEN)|(1<<TWINT); 
+    
+    while (!(TWCR &(1<<TWINT))); // Esperamos a que TWNT = 1
+    estado = TWSR & 0XF8;        // Nos quedamos con los bits de estado
+    
+    if (estado == 0x18 || estado == 0x28)   // si se recibió ack después de enviar dirección o un byte de dato...
+    {
+        return 1;
+    }
+    else
+    {
+        return estado; 
+    }    
 }
-void I2C_slave_init(uint8_t address){
-	DDRC &= ~((1<<DDC4)|(1<<DDC5));
-	
-	TWAR = address << 1;
-	TWCR = (1<<TWEA)|(1<<TWEN)|(1<<TWIE);
-	
+
+// ----------------------------------------------------------------------------------------
+
+// Función de recepción de datos esclavo -> maestro 
+// Función para leer datos que están en el esclavo 
+
+uint8_t I2C_Master_Read(uint8_t *buffer, uint8_t ack){
+    uint8_t estado; 
+    
+    if (ack)
+    {
+        // ACK, quiero mas datos 
+        TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA); // habilitamos interfase I2C con envio de acknowledge 
+    }
+    else
+    {
+        // NACK, ultimo byte
+        TWCR = (1<<TWINT)|(1<<TWEN); // habilitamos interfase I2C sin envio de acknowledge 
+    }
+    
+    while (!(TWCR & (1<<TWINT)));   // esperar a interrupción 
+    
+
+        estado = TWSR & 0xF8;  // nos quedamos con los bits de estado 
+        
+        // verificar si se recibió Dato con ACK o NACK
+        if (ack && estado != 0x50) return 0; 
+        if (!ack && estado != 0x58) return 0; 
+        
+        *buffer = TWDR; // Obtenemos el contenido enviado por el esclavo 
+        return 1; 
+}
+
+// ----------------------------------------------------------------------------------------
+
+// Función para inicializar I2C eslcavo 
+void I2C_Slave_Init(uint8_t adress){
+    DDRC &= ~((1<<DDC4)|(1<<DDC5));     // Pines I2C de entrada 
+    
+    TWAR = adress << 1; // se asigna la dirección que tendrá, se corre 1 bit porque es de 7 bits
+    
+    // Se habilita la interfaz, ACK automatic0, activamos la ISR
+    TWCR = (1<<TWEA)|(1<<TWEN)|(1<<TWIE);  
 }
