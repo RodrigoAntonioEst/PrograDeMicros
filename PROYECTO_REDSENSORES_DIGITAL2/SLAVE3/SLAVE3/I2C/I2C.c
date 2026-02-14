@@ -89,7 +89,7 @@ uint8_t I2C_master_read(uint8_t *buffer, uint8_t ACK){
 	*buffer = TWDR;
 	return 1;
 }
-void I2C_slave_init(uint8_t address){
+void I2C_Slave_Init(uint8_t address){
 	DDRC &= ~((1<<DDC4)|(1<<DDC5));
 	
 	TWAR = address << 1;

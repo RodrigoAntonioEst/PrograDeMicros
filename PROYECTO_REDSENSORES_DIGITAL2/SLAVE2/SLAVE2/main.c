@@ -32,32 +32,22 @@ int main(void)
 {
     // LED debug en PB5 (Arduino Nano: D13)
     DDRB  |= (1<<DDB5);
-    PORTB &= ~(1<<PORTB5);
 	
-	DDRD |= (1<<DDD5)|(1<<DDD2)|(1<<DDD3)|(1<<DDD4);
-	PORTD &= ~((1<<PORTD5)|(1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4));
+	DDRD |= (1<<DDD0)|(1<<DDD2)|(1<<DDD3)|(1<<DDD4);
+	PORTD &= ~((1<<PORTD0)|(1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4));
     // I2C Slave init
 	setup();
     I2C_Slave_Init(Slaveadress);	
     while (1)
     {
-		if(buffer == 0){
-			PORTD &= ~((1<<PORTD5)|(1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4));
-			PORTD |= (1<<PORTD2);
+		if(buffer == 'M'){
+			PORTD |= (1<<PORTD0);
+			PORTD &= ~(1<<PORTD2);
 		}
-		else if(buffer == 1){
-			PORTD &= ~((1<<PORTD5)|(1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4));
-			PORTD |= (1<<PORTD3);
-		}
-		else if(buffer == 2){
-			PORTD &= ~((1<<PORTD5)|(1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4));
-			PORTD |= (1<<PORTD4);
-		}
-		else if(buffer == 3){
-			PORTD &= ~((1<<PORTD5)|(1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4));
-			PORTD |= (1<<PORTD5);
-		}
-		
+		else if(buffer == 'L'){
+			PORTD &= ~(1<<PORTD0);
+			PORTD &= ~(1<<PORTD2);
+		}	
     }
 }
 //NON INTERRUPTION SUBRUTINE/
@@ -78,7 +68,6 @@ void setup(void){
 ISR(TWI_vect)
 {
     estado = (TWSR & 0xF8);   // ? m?scara correcta: status en bits 7..3
-	PORTB |= (1<<PORTB5);
     switch(estado)
     {
         // --- MASTER -> SLAVE (SLA+W) ---
@@ -106,6 +95,7 @@ ISR(TWI_vect)
         case 0xC8: // ?ltimo dato transmitido, ACK recibido
             // volver a modo ?listo/escucha?
 			TWCR = 0;
+			DATOS = 0;
             TWCR = (1<<TWEN)|(1<<TWEA)|(1<<TWIE);
             break;
 
@@ -124,11 +114,11 @@ ISR(TWI_vect)
 /****************************************/
 //FUNCIONES DE INTERRUPCION
 ISR(PCINT2_vect){
-	if (!(PIND & (1<<PIND1))){
-		DATOS = 'D';
-	}
-	else{
-		DATOS = 0x00;
+	if(buffer == 'D'){
+		if (!(PIND & (1<<PIND1))){
+			PINB = PINB5;
+			DATOS = 'D';
+		}
 	}
 }
 
