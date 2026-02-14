@@ -11,7 +11,7 @@
  * Author : rodro
  */
 
-#define F_CPU 16000000UL
+#define F_CPU 16000000
 
 #include <avr/io.h>
 #include <stdint.h>
@@ -21,10 +21,10 @@
 void setup(void);
 /****************************************/
 // Globals
-volatile uint8_t valorADC = 0;   // valor que el master leer?
+   // valor que el master leer?
 volatile uint8_t buffer   = 0;   // ?ltimo byte recibido del master (por si us?s comandos)
-volatile uint8_t DETECTADO = 0;
-volatile uint8_t COLOR;
+volatile uint8_t DATOS = 0;
+uint8_t estado;
 /****************************************/
 // Main
 
@@ -33,19 +33,31 @@ int main(void)
     // LED debug en PB5 (Arduino Nano: D13)
     DDRB  |= (1<<DDB5);
     PORTB &= ~(1<<PORTB5);
-
+	
+	DDRD |= (1<<DDD5)|(1<<DDD2)|(1<<DDD3)|(1<<DDD4);
+	PORTD &= ~((1<<PORTD5)|(1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4));
     // I2C Slave init
 	setup();
     I2C_Slave_Init(Slaveadress);	
     while (1)
     {
-        // Debug opcional: si el master te escribe 'R', toggle LED
-        if(buffer == 'R'){
-            PINB |= (1<<PINB5);
-            buffer = 0;
-			
-        }
-        // Nada m?s: el slave trabaja por interrupciones
+		if(buffer == 0){
+			PORTD &= ~((1<<PORTD5)|(1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4));
+			PORTD |= (1<<PORTD2);
+		}
+		else if(buffer == 1){
+			PORTD &= ~((1<<PORTD5)|(1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4));
+			PORTD |= (1<<PORTD3);
+		}
+		else if(buffer == 2){
+			PORTD &= ~((1<<PORTD5)|(1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4));
+			PORTD |= (1<<PORTD4);
+		}
+		else if(buffer == 3){
+			PORTD &= ~((1<<PORTD5)|(1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4));
+			PORTD |= (1<<PORTD5);
+		}
+		
     }
 }
 //NON INTERRUPTION SUBRUTINE/
@@ -65,8 +77,8 @@ void setup(void){
 // ISR: TWI (I2C) SLAVE
 ISR(TWI_vect)
 {
-    uint8_t estado = (TWSR & 0xF8);   // ? m?scara correcta: status en bits 7..3
-
+    estado = (TWSR & 0xF8);   // ? m?scara correcta: status en bits 7..3
+	PORTB |= (1<<PORTB5);
     switch(estado)
     {
         // --- MASTER -> SLAVE (SLA+W) ---
@@ -84,14 +96,9 @@ ISR(TWI_vect)
         // --- MASTER <- SLAVE (SLA+R) ---
         case 0xA8: // SLA+R recibido, ACK devuelto
         case 0xB8: // dato transmitido, ACK recibido (piden otro byte)
-			if(buffer == 'D'){
-				TWDR = DETECTADO; //  (1 byte)
+				TWDR = DATOS; //  (1 byte)
 				TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA)|(1<<TWIE);
-			}
-			else if(buffer == 'C'){
-				TWDR = COLOR; //  (1 byte)
-				TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA)|(1<<TWIE);
-			}
+			
             break;
 
         // --- Fin de lectura (NACK) / fin de transmisi?n ---
@@ -118,10 +125,10 @@ ISR(TWI_vect)
 //FUNCIONES DE INTERRUPCION
 ISR(PCINT2_vect){
 	if (!(PIND & (1<<PIND1))){
-		DETECTADO = 'D';
+		DATOS = 'D';
 	}
 	else{
-		DETECTADO = 0x00;
+		DATOS = 0x00;
 	}
 }
 
