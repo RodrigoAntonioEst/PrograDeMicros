@@ -34,7 +34,7 @@ int main(void)
 			return;
 		}
 
-		I2C_Master_Write('R');
+		I2C_Master_Write('D');
 
 		if(!I2C_Master_RepeatedStart())
 		{
@@ -52,9 +52,7 @@ int main(void)
 		
 		PORTB  &= ~(1<<PORTB5);
 
-		if(rxdato1 == 0x01) PORTC |= (1<<PORTC1);
+		if(rxdato1 == 'D') PORTC |= (1<<PORTC1);
 		else PORTC &= ~(1<<PORTC1);
-
-		_delay_ms(100);
 	}
 }

@@ -24,6 +24,7 @@ void setup(void);
 volatile uint8_t valorADC = 0;   // valor que el master leer?
 volatile uint8_t buffer   = 0;   // ?ltimo byte recibido del master (por si us?s comandos)
 volatile uint8_t DETECTADO = 0;
+volatile uint8_t COLOR;
 /****************************************/
 // Main
 
@@ -80,12 +81,17 @@ ISR(TWI_vect)
             buffer = TWDR;  // guardo lo que envi? el master
             TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA)|(1<<TWIE);
             break;
-
         // --- MASTER <- SLAVE (SLA+R) ---
         case 0xA8: // SLA+R recibido, ACK devuelto
         case 0xB8: // dato transmitido, ACK recibido (piden otro byte)
-            TWDR = 0x01; //  (1 byte)
-            TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA)|(1<<TWIE);
+			if(buffer == 'D'){
+				TWDR = DETECTADO; //  (1 byte)
+				TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA)|(1<<TWIE);
+			}
+			else if(buffer == 'C'){
+				TWDR = COLOR; //  (1 byte)
+				TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA)|(1<<TWIE);
+			}
             break;
 
         // --- Fin de lectura (NACK) / fin de transmisi?n ---
@@ -112,7 +118,7 @@ ISR(TWI_vect)
 //FUNCIONES DE INTERRUPCION
 ISR(PCINT2_vect){
 	if (!(PIND & (1<<PIND1))){
-		DETECTADO = 0x01;
+		DETECTADO = 'D';
 	}
 	else{
 		DETECTADO = 0x00;
