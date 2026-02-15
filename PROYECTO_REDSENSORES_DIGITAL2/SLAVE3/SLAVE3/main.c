@@ -28,6 +28,11 @@ volatile uint8_t DATOS = 0;
 uint8_t estado;
 volatile uint8_t step;
 volatile uint8_t flagstep;
+char stepper[8] = {
+	0b10010000, 0b00110000, 0b01100000, 0b11000000,
+	0b10010000, 0b00110000, 0b01100000, 0b11000000
+};
+
 /****************************************/
 // Main
 
@@ -40,7 +45,7 @@ int main(void)
 	DDRD |= (1<<DDD5)|(1<<DDD6)|(1<<DDD7)|(1<<DDD4);
 	PORTD &= ~((1<<PORTD5)|(1<<PORTD6)|(1<<PORTD7)|(1<<PORTD4));
     // I2C Slave init
-	timer1_init(1024,49911);
+	timer1_init(64,65106);
 	setup();
     I2C_Slave_Init(Slaveadress);	
     while (1)
@@ -52,22 +57,7 @@ int main(void)
 			flagstep = 0;
 		}
 		if(flagstep == 1){	
-			if(step == 0){
-			PORTD &= ~((1<<PORTD5)|(1<<PORTD4)|(1<<PORTD6)|(1<<PORTD7));
-			PORTD |= (1<<PORTD4);
-			}
-			else if(step == 1){
-				PORTD &= ~((1<<PORTD5)|(1<<PORTD4)|(1<<PORTD6)|(1<<PORTD7));
-				PORTD |= (1<<PORTD5);
-			}
-			else if(step == 2){
-				PORTD &= ~((1<<PORTD5)|(1<<PORTD4)|(1<<PORTD6)|(1<<PORTD7));
-				PORTD |= (1<<PORTD6);
-			}
-			else if(step == 3){
-				PORTD &= ~((1<<PORTD5)|(1<<PORTD4)|(1<<PORTD6)|(1<<PORTD7));
-				PORTD |= (1<<PORTD7);
-			}
+			PORTD = stepper[step];
 		}
 		else {
 			PORTD &= ~((1<<PORTD5)|(1<<PORTD4)|(1<<PORTD6)|(1<<PORTD7));
@@ -148,8 +138,8 @@ ISR(PCINT2_vect){
 	}
 }
 ISR(TIMER1_OVF_vect){
-	TCNT1 = 49911;
+	TCNT1 = 65106;
 	step++;
-	if(step>3) step = 0;
+	if(step>7) step = 0;
 }
 
