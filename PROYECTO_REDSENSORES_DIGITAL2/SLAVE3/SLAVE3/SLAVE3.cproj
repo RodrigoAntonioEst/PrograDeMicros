@@ -120,6 +120,12 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="HX711\HX711.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HX711\HX711.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="I2C\I2C.c">
       <SubType>compile</SubType>
     </Compile>
@@ -135,9 +141,17 @@
     <Compile Include="Timer1\TIMER1.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="UART\UART_RECEIVER.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="UART\UART_RECEIVER.h">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="I2C" />
+    <Folder Include="HX711" />
+    <Folder Include="UART" />
     <Folder Include="Timer1" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />

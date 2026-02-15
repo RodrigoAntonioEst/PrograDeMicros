@@ -34,14 +34,18 @@ LINKER_SCRIPT_DEP:=
 # Every subdirectory with source files must be described here
 SUBDIRS :=  \
 ../I2C \
+../HX711 \
+../UART \
 ../TIMER1
 
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
+../HX711/HX711.c \
 ../I2C/I2C.c \
 ../main.c \
-../TIMER1/TIMER1.c
+../TIMER1/TIMER1.c \
+../UART/UART_RECEIVER.c
 
 
 PREPROCESSING_SRCS += 
@@ -51,24 +55,32 @@ ASM_SRCS +=
 
 
 OBJS +=  \
+HX711/HX711.o \
 I2C/I2C.o \
 main.o \
-TIMER1/TIMER1.o
+TIMER1/TIMER1.o \
+UART/UART_RECEIVER.o
 
 OBJS_AS_ARGS +=  \
+HX711/HX711.o \
 I2C/I2C.o \
 main.o \
-TIMER1/TIMER1.o
+TIMER1/TIMER1.o \
+UART/UART_RECEIVER.o
 
 C_DEPS +=  \
+HX711/HX711.d \
 I2C/I2C.d \
 main.d \
-TIMER1/TIMER1.d
+TIMER1/TIMER1.d \
+UART/UART_RECEIVER.d
 
 C_DEPS_AS_ARGS +=  \
+HX711/HX711.d \
 I2C/I2C.d \
 main.d \
-TIMER1/TIMER1.d
+TIMER1/TIMER1.d \
+UART/UART_RECEIVER.d
 
 OUTPUT_FILE_PATH +=I2C.elf
 
@@ -84,6 +96,13 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+HX711/HX711.o: ../HX711/HX711.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 5.4.0
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
 I2C/I2C.o: ../I2C/I2C.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 5.4.0
@@ -99,6 +118,13 @@ I2C/I2C.o: ../I2C/I2C.c
 	
 
 TIMER1/TIMER1.o: ../TIMER1/TIMER1.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 5.4.0
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+UART/UART_RECEIVER.o: ../UART/UART_RECEIVER.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 5.4.0
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
