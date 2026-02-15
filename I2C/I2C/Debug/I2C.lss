@@ -15,19 +15,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   5 .debug_aranges 000000f8  00000000  00000000  00001544  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000ea1  00000000  00000000  0000163c  2**0
+  6 .debug_info   00000e9a  00000000  00000000  0000163c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 000009f2  00000000  00000000  000024dd  2**0
+  7 .debug_abbrev 000009f2  00000000  00000000  000024d6  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000a68  00000000  00000000  00002ecf  2**0
+  8 .debug_line   00000a70  00000000  00000000  00002ec8  2**0
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  0000027c  00000000  00000000  00003938  2**2
                   CONTENTS, READONLY, DEBUGGING
  10 .debug_str    000005ee  00000000  00000000  00003bb4  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    0000090c  00000000  00000000  000041a2  2**0
+ 11 .debug_loc    00000955  00000000  00000000  000041a2  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 000000d0  00000000  00000000  00004aae  2**0
+ 12 .debug_ranges 000000d0  00000000  00000000  00004af7  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -692,7 +692,7 @@ int main(void)
      41a:	0e 94 ec 00 	call	0x1d8	; 0x1d8 <HX711_tare_fromRaw>
 	while (1)
 	{
-		//funcion para pedir peso 
+		//funcion para pedir peso
 		if(!I2C_Master_Start()) return;
      41e:	0e 94 91 01 	call	0x322	; 0x322 <I2C_Master_Start>
      422:	88 23       	and	r24, r24
@@ -754,7 +754,7 @@ int main(void)
      476:	0e 94 cb 01 	call	0x396	; 0x396 <I2C_Master_Read>
 		I2C_Master_Stop();
      47a:	0e 94 af 01 	call	0x35e	; 0x35e <I2C_Master_Stop>
-		datosprocesados = HX711_decode24(rawdata1,rawdata2,rawdata3); 
+		datosprocesados = HX711_decode24(rawdata1,rawdata2,rawdata3);
      47e:	40 91 1f 01 	lds	r20, 0x011F	; 0x80011f <rawdata3>
      482:	60 91 20 01 	lds	r22, 0x0120	; 0x800120 <rawdata2>
      486:	80 91 21 01 	lds	r24, 0x0121	; 0x800121 <rawdata1>
@@ -767,13 +767,13 @@ int main(void)
      49e:	20 91 16 01 	lds	r18, 0x0116	; 0x800116 <__data_end>
      4a2:	21 11       	cpse	r18, r1
      4a4:	09 c0       	rjmp	.+18     	; 0x4b8 <__EEPROM_REGION_LENGTH__+0xb8>
-		HX711_tare_fromRaw(&cal, datosprocesados);
+			HX711_tare_fromRaw(&cal, datosprocesados);
      4a6:	ab 01       	movw	r20, r22
      4a8:	bc 01       	movw	r22, r24
      4aa:	80 e0       	ldi	r24, 0x00	; 0
      4ac:	91 e0       	ldi	r25, 0x01	; 1
      4ae:	0e 94 ec 00 	call	0x1d8	; 0x1d8 <HX711_tare_fromRaw>
-		tare_flag = 1;
+			tare_flag = 1;
      4b2:	81 e0       	ldi	r24, 0x01	; 1
      4b4:	80 93 16 01 	sts	0x0116, r24	; 0x800116 <__data_end>
 		}
@@ -877,7 +877,7 @@ int main(void)
 		I2C_Master_Stop();
      56e:	0e 94 af 01 	call	0x35e	; 0x35e <I2C_Master_Stop>
 
-		if(rxdato1 == 'D'){ 
+		if(rxdato1 == 'D'){
      572:	80 91 70 01 	lds	r24, 0x0170	; 0x800170 <rxdato1>
      576:	84 34       	cpi	r24, 0x44	; 68
      578:	39 f4       	brne	.+14     	; 0x588 <__EEPROM_REGION_LENGTH__+0x188>
@@ -1043,7 +1043,6 @@ int main(void)
 	}
      66a:	d9 ce       	rjmp	.-590    	; 0x41e <__EEPROM_REGION_LENGTH__+0x1e>
 	
-}
      66c:	1f 91       	pop	r17
      66e:	0f 91       	pop	r16
      670:	08 95       	ret

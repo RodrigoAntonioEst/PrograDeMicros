@@ -43,7 +43,7 @@ int main(void)
 	HX711_tare_fromRaw(&cal, datosprocesados);
 	while (1)
 	{
-		//funcion para pedir peso 
+		//funcion para pedir peso
 		if(!I2C_Master_Start()) return;
 
 		if(!I2C_Master_Write(SLAVE2_W))
@@ -69,10 +69,10 @@ int main(void)
 		I2C_Master_Read(&rawdata2,1);
 		I2C_Master_Read(&rawdata3,0);
 		I2C_Master_Stop();
-		datosprocesados = HX711_decode24(rawdata1,rawdata2,rawdata3); 
+		datosprocesados = HX711_decode24(rawdata1,rawdata2,rawdata3);
 		if(tare_flag == 0){
-		HX711_tare_fromRaw(&cal, datosprocesados);
-		tare_flag = 1;
+			HX711_tare_fromRaw(&cal, datosprocesados);
+			tare_flag = 1;
 		}
 		masa = HX711_toUnits(&cal,datosprocesados);
 		dtostrf(masa, 0, 2, masa_str);
@@ -103,7 +103,7 @@ int main(void)
 		I2C_Master_Read(&rxdato1,0);
 		I2C_Master_Stop();
 
-		if(rxdato1 == 'D'){ 
+		if(rxdato1 == 'D'){
 			flagstep = 'O';
 			motorflag = 'L';
 			

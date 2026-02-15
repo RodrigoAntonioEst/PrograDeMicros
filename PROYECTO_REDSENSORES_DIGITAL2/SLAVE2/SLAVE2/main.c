@@ -122,4 +122,3 @@ ISR(PCINT2_vect){
 	else DATOS = 0X00;
 }
 
-

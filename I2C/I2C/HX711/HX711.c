@@ -31,30 +31,29 @@ uint8_t HX711_isReady(void){
 
 // Lee 24 bits + 1 pulso extra (A, ganancia 128)
 int32_t HX711_readRaw24_A128(void){
-    uint32_t data = 0;
+	uint32_t data = 0;
 
-    while(!HX711_isReady()); // DT=0 cuando hay dato listo
+	// Si no está listo, devolvé el último o 0 (pero NO te quedés pegado)
+	if(!HX711_isReady()) return 0;
 
-    for(uint8_t i = 0; i < 24; i++){
-        HX711_PORT |= (1 << HX711_SCK);
-        _delay_us(1);
+	for(uint8_t i = 0; i < 24; i++){
+		HX711_PORT |= (1 << HX711_SCK);
+		_delay_us(1);
 
-        data <<= 1;
-        if(HX711_PIN & (1 << HX711_DT)) data |= 1;
+		data <<= 1;
+		if(HX711_PIN & (1 << HX711_DT)) data |= 1;
 
-        HX711_PORT &= ~(1 << HX711_SCK);
-        _delay_us(1);
-    }
+		HX711_PORT &= ~(1 << HX711_SCK);
+		_delay_us(1);
+	}
 
-    // 1 pulso extra -> selecciona A128 para la próxima conversión
-    HX711_PORT |= (1 << HX711_SCK);
-    _delay_us(1);
-    HX711_PORT &= ~(1 << HX711_SCK);
-    _delay_us(1);
+	HX711_PORT |= (1 << HX711_SCK);
+	_delay_us(1);
+	HX711_PORT &= ~(1 << HX711_SCK);
+	_delay_us(1);
 
-    // sign extend 24->32
-    if(data & 0x800000UL) data |= 0xFF000000UL;
-    return (int32_t)data;
+	if(data & 0x800000UL) data |= 0xFF000000UL;
+	return (int32_t)data;
 }
 
 // -------------------------------------------------------------------------------

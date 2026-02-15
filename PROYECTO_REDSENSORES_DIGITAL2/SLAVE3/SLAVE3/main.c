@@ -76,19 +76,6 @@ int main(void)
 			}	
 		}
 		
-		
-		if(buffer == 'O'){
-			flagstep = 1;
-		}
-		else if(buffer == 'K'){
-			flagstep = 0;
-		}
-		if(flagstep == 1){
-			PORTD = stepper[step];
-		}
-		else {
-			PORTD &= ~((1<<PORTD5)|(1<<PORTD4)|(1<<PORTD6)|(1<<PORTD7));
-		}
 	}
     }
 
@@ -141,7 +128,6 @@ ISR(TWI_vect)
         case 0xC0: // dato transmitido, NACK recibido (ya no quieren m?s)
         case 0xC8: // ?ltimo dato transmitido, ACK recibido
             // volver a modo ?listo/escucha?
-			
 			TWCR = 0;
 			DATOS = 0;
 			pesadataflag = 0;
@@ -174,5 +160,16 @@ ISR(TIMER1_OVF_vect){
 	TCNT1 = 65106;
 	step++;
 	if(step>7) step = 0;
+	if(buffer == 'O'){
+		flagstep = 1;
+	}
+	else if(buffer == 'K'){
+		flagstep = 0;
+	}
+	if(flagstep == 1){
+		PORTD = stepper[step];
+	}
+	else {
+		PORTD &= ~((1<<PORTD5)|(1<<PORTD4)|(1<<PORTD6)|(1<<PORTD7));
+	}
 }
-
