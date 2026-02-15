@@ -69,12 +69,13 @@ int main(void)
 			rawdata3 = (rawdata&0xFF);
 			datasaparda[0] = rawdata1;
 			datasaparda[1] = rawdata2;
-			datasaparda[2] = rawdata3;	
+			datasaparda[2] = rawdata3;
+			if(buffer == 'W'  || pesadataflag){
+				DATOS = datasaparda[i];
+				pesadataflag = 1;
+			}	
 		}
-		if(buffer == 'W'  || pesadataflag){
-			DATOS = datasaparda[i];
-			pesadataflag = 1;
-		}
+		
 		
 		if(buffer == 'O'){
 			flagstep = 1;
@@ -96,7 +97,7 @@ void setup(void){
 	cli();
 	//PONEMOS PD2 COMO ENTRADA
 	DDRD &= ~(1<<DDD1);
-	//PORTD |= (1<<PORTD1);
+	PORTD |= (1<<PORTD1);
 	//Configuramos la interrupcion de pinchage para portD
 	PCICR |= (1<<PCIE2);
 	//CONFIGURAMOS PARA PD1
@@ -162,11 +163,11 @@ ISR(TWI_vect)
 /****************************************/
 //FUNCIONES DE INTERRUPCION
 ISR(PCINT2_vect){
-	//DATOS = 0;
-	if (buffer == 'S'){
-		if ((PIND & (1<<PIND1))){
+	if ((PIND & (1<<PIND1))){
 			DATOS = 'A';
-		}
+	}
+	else{ 
+		DATOS = 0X00;
 	}
 }
 ISR(TIMER1_OVF_vect){

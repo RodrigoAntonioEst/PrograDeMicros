@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "I2C/I2C.h"
 #include "TIMER1/TIMER1.h"
 #include "UART/UART_RECEIVER.h"
@@ -28,6 +29,8 @@ HX711_Cal cal = {.offset = 0, .scale = 420.0f};
 float masa = 0;
 uint8_t tare_flag = 0;
 char buffer[20];
+char out[40];
+char masa_str[16];
 
 int main(void)
 {
@@ -72,8 +75,9 @@ int main(void)
 		tare_flag = 1;
 		}
 		masa = HX711_toUnits(&cal,datosprocesados);
-		dtostrf(masa, 6, 2, buffer);
-		cadena(buffer);
+		dtostrf(masa, 0, 2, masa_str);
+		snprintf(out, sizeof(out), "Masa: %s g\r\n", masa_str);
+		cadena(out);
 		//Rutia para encender el stepper -------------------------------------------------------------------
 		if(!I2C_Master_Start()) return;
 

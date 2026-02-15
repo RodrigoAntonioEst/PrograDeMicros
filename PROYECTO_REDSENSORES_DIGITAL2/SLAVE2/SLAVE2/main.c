@@ -18,6 +18,7 @@
 #include <avr/interrupt.h>
 #define Slaveadress 0x10
 #include "I2C/I2C.h"
+//#include "PESA/HX711.h"
 void setup(void);
 /****************************************/
 // Globals
@@ -30,6 +31,7 @@ uint8_t estado;
 
 int main(void)
 {
+	
     // LED debug en PB5 (Arduino Nano: D13)
     DDRB  |= (1<<DDB5);
 	
@@ -55,7 +57,7 @@ void setup(void){
 	cli();
 	//PONEMOS PD2 COMO ENTRADA
 	DDRD &= ~(1<<DDD1);
-	//PORTD |= (1<<PORTD1);
+	PORTD |= (1<<PORTD1);
 	//Configuramos la interrupcion de pinchage para portD
 	PCICR |= (1<<PCIE2);
 	//CONFIGURAMOS PARA PD1
@@ -114,12 +116,10 @@ ISR(TWI_vect)
 /****************************************/
 //FUNCIONES DE INTERRUPCION
 ISR(PCINT2_vect){
-	if(buffer == 'D'){
-		if (!(PIND & (1<<PIND1))){
-			PINB = PINB5;
+	if (!(PIND & (1<<PIND1))){
 			DATOS = 'D';
-		}
 	}
+	else DATOS = 0X00;
 }
 
 

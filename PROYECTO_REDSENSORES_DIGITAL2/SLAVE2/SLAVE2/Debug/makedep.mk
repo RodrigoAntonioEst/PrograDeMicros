@@ -6,3 +6,5 @@ I2C\I2C.c
 
 main.c
 
+PESA\HX711.c
+
