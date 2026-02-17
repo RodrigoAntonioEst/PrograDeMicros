@@ -33,7 +33,7 @@ uint8_t HX711_isReady(void){
 int32_t HX711_readRaw24_A128(void){
     uint32_t data = 0;
 
-    while(!HX711_isReady()); // DT=0 cuando hay dato listo
+	//while(!HX711_isReady()); // DT=0 cuando hay dato listo
 
     for(uint8_t i = 0; i < 24; i++){
         HX711_PORT |= (1 << HX711_SCK);

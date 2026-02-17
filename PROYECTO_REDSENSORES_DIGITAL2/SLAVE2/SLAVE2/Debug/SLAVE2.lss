@@ -3,31 +3,31 @@ SLAVE2.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  0000026a  2**0
+  0 .data         00000000  00800100  00800100  00000270  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000001f6  00000000  00000000  00000074  2**1
+  1 .text         000001fc  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000003  00800100  00800100  0000026a  2**0
+  2 .bss          00000003  00800100  00800100  00000270  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  0000026a  2**0
+  3 .comment      00000030  00000000  00000000  00000270  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  0000029c  2**2
+  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000002a0  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000088  00000000  00000000  000002dc  2**0
+  5 .debug_aranges 00000088  00000000  00000000  000002e0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   000008c4  00000000  00000000  00000364  2**0
+  6 .debug_info   000008c4  00000000  00000000  00000368  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000774  00000000  00000000  00000c28  2**0
+  7 .debug_abbrev 00000774  00000000  00000000  00000c2c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   0000055d  00000000  00000000  0000139c  2**0
+  8 .debug_line   00000563  00000000  00000000  000013a0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000124  00000000  00000000  000018fc  2**2
+  9 .debug_frame  00000124  00000000  00000000  00001904  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000449  00000000  00000000  00001a20  2**0
+ 10 .debug_str    00000449  00000000  00000000  00001a28  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00000215  00000000  00000000  00001e69  2**0
+ 11 .debug_loc    00000215  00000000  00000000  00001e71  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000068  00000000  00000000  0000207e  2**0
+ 12 .debug_ranges 00000068  00000000  00000000  00002086  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -72,7 +72,7 @@ Disassembly of section .text:
   74:	11 e0       	ldi	r17, 0x01	; 1
   76:	a0 e0       	ldi	r26, 0x00	; 0
   78:	b1 e0       	ldi	r27, 0x01	; 1
-  7a:	e6 ef       	ldi	r30, 0xF6	; 246
+  7a:	ec ef       	ldi	r30, 0xFC	; 252
   7c:	f1 e0       	ldi	r31, 0x01	; 1
   7e:	02 c0       	rjmp	.+4      	; 0x84 <__do_copy_data+0x10>
   80:	05 90       	lpm	r0, Z+
@@ -95,7 +95,7 @@ Disassembly of section .text:
   96:	b2 07       	cpc	r27, r18
   98:	e1 f7       	brne	.-8      	; 0x92 <.do_clear_bss_loop>
   9a:	0e 94 70 00 	call	0xe0	; 0xe0 <main>
-  9e:	0c 94 f9 00 	jmp	0x1f2	; 0x1f2 <_exit>
+  9e:	0c 94 fc 00 	jmp	0x1f8	; 0x1f8 <_exit>
 
 000000a2 <__bad_interrupt>:
   a2:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -203,9 +203,9 @@ int main(void)
  11a:	8b b1       	in	r24, 0x0b	; 11
  11c:	8e 7f       	andi	r24, 0xFE	; 254
  11e:	8b b9       	out	0x0b, r24	; 11
-			PORTD &= ~(1<<PORTD2);
+			PORTD |= (1<<PORTD2);
  120:	8b b1       	in	r24, 0x0b	; 11
- 122:	8b 7f       	andi	r24, 0xFB	; 251
+ 122:	84 60       	ori	r24, 0x04	; 4
  124:	8b b9       	out	0x0b, r24	; 11
  126:	ea cf       	rjmp	.-44     	; 0xfc <main+0x1c>
 
@@ -340,26 +340,30 @@ ISR(PCINT2_vect){
  1d0:	0f 92       	push	r0
  1d2:	11 24       	eor	r1, r1
  1d4:	8f 93       	push	r24
+	if(buffer == 'D'){
+ 1d6:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <buffer>
+ 1da:	84 34       	cpi	r24, 0x44	; 68
+ 1dc:	39 f4       	brne	.+14     	; 0x1ec <__vector_5+0x22>
 	if (!(PIND & (1<<PIND1))){
- 1d6:	49 99       	sbic	0x09, 1	; 9
- 1d8:	04 c0       	rjmp	.+8      	; 0x1e2 <__vector_5+0x18>
+ 1de:	49 99       	sbic	0x09, 1	; 9
+ 1e0:	03 c0       	rjmp	.+6      	; 0x1e8 <__vector_5+0x1e>
 			DATOS = 'D';
- 1da:	84 e4       	ldi	r24, 0x44	; 68
- 1dc:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
- 1e0:	02 c0       	rjmp	.+4      	; 0x1e6 <__vector_5+0x1c>
+ 1e2:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 1e6:	02 c0       	rjmp	.+4      	; 0x1ec <__vector_5+0x22>
 	}
 	else DATOS = 0X00;
- 1e2:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 1e8:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <__DATA_REGION_ORIGIN__>
 }
- 1e6:	8f 91       	pop	r24
- 1e8:	0f 90       	pop	r0
- 1ea:	0f be       	out	0x3f, r0	; 63
- 1ec:	0f 90       	pop	r0
- 1ee:	1f 90       	pop	r1
- 1f0:	18 95       	reti
+}
+ 1ec:	8f 91       	pop	r24
+ 1ee:	0f 90       	pop	r0
+ 1f0:	0f be       	out	0x3f, r0	; 63
+ 1f2:	0f 90       	pop	r0
+ 1f4:	1f 90       	pop	r1
+ 1f6:	18 95       	reti
 
-000001f2 <_exit>:
- 1f2:	f8 94       	cli
+000001f8 <_exit>:
+ 1f8:	f8 94       	cli
 
-000001f4 <__stop_program>:
- 1f4:	ff cf       	rjmp	.-2      	; 0x1f4 <__stop_program>
+000001fa <__stop_program>:
+ 1fa:	ff cf       	rjmp	.-2      	; 0x1fa <__stop_program>

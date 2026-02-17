@@ -48,7 +48,7 @@ int main(void)
 		}
 		else if(buffer == 'L'){
 			PORTD &= ~(1<<PORTD0);
-			PORTD &= ~(1<<PORTD2);
+			PORTD |= (1<<PORTD2);
 		}	
     }
 }
@@ -116,9 +116,11 @@ ISR(TWI_vect)
 /****************************************/
 //FUNCIONES DE INTERRUPCION
 ISR(PCINT2_vect){
+	if(buffer == 'D'){
 	if (!(PIND & (1<<PIND1))){
 			DATOS = 'D';
 	}
 	else DATOS = 0X00;
+}
 }
 

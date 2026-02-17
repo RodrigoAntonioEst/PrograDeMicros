@@ -112,13 +112,26 @@ int main(void)
 		//rutina para regresar el elevador
 		if(!I2C_Master_Start()) return;
 		
+		if(!I2C_Master_Write(SLAVE2_W))
+		{
+			I2C_Master_Stop();
+			return;
+		}
+		I2C_Master_Write(flagstep);
+		I2C_Master_Stop();
+		
+		//regresa el elevador
+		if(!I2C_Master_Start()) return;
+		
 		if(!I2C_Master_Write(SLAVE1_W))
 		{
 			I2C_Master_Stop();
 			return;
 		}
-		I2C_Master_Write(motorflag);
-		I2C_Master_Stop();
+
+		I2C_Master_Write('D');
+		
+		
 		
 		//Rutina para mandar el valor de step
 		
