@@ -46,7 +46,9 @@ UART_HandleTypeDef huart2;
 volatile uint8_t JG1 = 0;
 volatile uint8_t JG2 = 0;
 volatile uint8_t flag = 0;
-
+volatile uint8_t INC = 0;
+volatile uint8_t DISPFLAG = 0;
+volatile uint8_t PLAYFLAG = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -100,6 +102,74 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  //Muestra 5 hasta que el usuario presione el boton de iniciar
+	  if((!DISPFLAG) | (INC == 0)){
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 1);
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 0);
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, 0);
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, 1);
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0);
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
+	  }
+	  //muestra 4 cuando INC es 1
+	  if((INC == 1) && DISPFLAG){
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 1);
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 0);
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 0);
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, 1);
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, 1);
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0);
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
+	  }
+	  //muestra 3 cuando inc es 2
+	  else if((INC == 2) && DISPFLAG){
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 0);
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 0);
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, 0);
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, 1);
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1);
+		  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
+
+	  }
+	  //muestra 2 cuando inc es 3
+	  else if((INC == 3) && DISPFLAG){
+	  		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);
+	  		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 0);
+	  		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 1);
+	  		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, 0);
+	  		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, 0);
+	  		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1);
+	  		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
+
+	  }
+	  //muestra 1 cuando inc es 4
+	  else if((INC == 4) && DISPFLAG){
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 1);
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 0);
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 0);
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, 1);
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, 1);
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1);
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
+
+	  }
+	  //muestra 0 inc es 5
+	  else if((INC == 5) && DISPFLAG){
+		  	  PLAYFLAG = 1;
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 0);
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 0);
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, 0);
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, 0);
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0);
+	  	  	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
+	  }
+	  if(DISPFLAG){
+	  INC++;
+	  }
+	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -212,7 +282,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_4, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_10
+                          |GPIO_PIN_12|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6
+                          |GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -234,15 +306,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB0 PB1 PB2 PB4 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_4;
+  /*Configure GPIO pins : PB0 PB1 PB2 PB10
+                           PB12 PB4 PB5 PB6
+                           PB7 PB8 PB9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_10
+                          |GPIO_PIN_12|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6
+                          |GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PUSH2_Pin PUSH1_Pin */
-  GPIO_InitStruct.Pin = PUSH2_Pin|PUSH1_Pin;
+  /*Configure GPIO pins : INICIO_Pin PUSH2_Pin PUSH1_Pin */
+  GPIO_InitStruct.Pin = INICIO_Pin|PUSH2_Pin|PUSH1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -259,7 +335,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
  if(GPIO_Pin == PUSH1_Pin){
-	 if(flag == 0){
+	 if((flag == 0) && (PLAYFLAG == 1)){
 	 JG1++;
 	 }
 	 if((JG2 < 4 && JG1 < 4) ){
@@ -299,13 +375,22 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, 0);
 		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, 0);
 		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, 0);
+		 //DISP gano jugador 1
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 1);
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 0);
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 0);
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, 1);
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, 1);
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1);
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
+
 	 }
  }
  else if(GPIO_Pin == PUSH2_Pin){
-	 if(flag == 0){
+	 if(flag == 0 && (PLAYFLAG == 1)){
 	 JG2++;
 	 }
-	 if((JG2 < 4 && JG1 < 4)){
+	 if((JG2 < 4 && JG1 < 4 && PLAYFLAG)){
 		 if(JG2 == 1){
 			 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, 1);
 			 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, 0);
@@ -342,7 +427,33 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, 0);
 		 HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, 0);
 		 HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, 0);
+		 //display gano JG2
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 0);
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, 1);
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, 0);
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, 0);
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1);
+		 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
 	 }
+ }
+ else if(GPIO_Pin == INICIO_Pin){
+	 PLAYFLAG = 0;
+	 DISPFLAG = 1;
+	 JG1 = 0;
+	 JG2 = 0;
+	 INC = 0;
+	 flag = 0;
+	 //APAGAMOS LOS LEDS DEL JUGADOR 1
+	 HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, 0);
+	 HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, 0);
+	 HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, 0);
+	 HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, 0);
+	 //APAGAMOS LOS LEDS DEL JUGADOR 2
+	 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, 0);
+	 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, 0);
+	 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, 0);
+	 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, 0);
  }
 }
 /* USER CODE END 4 */
