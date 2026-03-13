@@ -21,7 +21,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stdint.h"
+#include <string.h>
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,8 +48,8 @@ DMA_HandleTypeDef hdma_adc1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-uint16_t ADCVALOR1 = 0;
-uint16_t ADCVALOR2 = 0;
+char *Y;
+char *X;
 uint16_t ADC_CONVERSION[2];
 /* USER CODE END PV */
 
@@ -311,6 +313,19 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
+	if(ADC_CONVERSION[0] <= 2000){
+	        Y = "Arriba";
+	    }
+	    else{
+	        Y = "Abajo";
+	    }
+
+	    if(ADC_CONVERSION[1] <= 2000){
+	        X = "Derecha";
+	    }
+	    else{
+	        X = "Izquierda";
+	    }
 
 }
 /* USER CODE END 4 */
@@ -326,6 +341,7 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+
   }
   /* USER CODE END Error_Handler_Debug */
 }
