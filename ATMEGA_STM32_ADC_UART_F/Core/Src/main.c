@@ -48,7 +48,7 @@ DMA_HandleTypeDef hdma_adc1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-char *Y;
+char *Y;//variables
 char *X;
 uint16_t ADC_CONVERSION[2];
 /* USER CODE END PV */
