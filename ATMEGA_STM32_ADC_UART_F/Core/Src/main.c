@@ -52,10 +52,9 @@ UART_HandleTypeDef huart2;
 char *Y;//variables
 char *X;
 uint16_t ADC_CONVERSION[2];
-uint8_t temp[2];
+uint8_t temp;
 uint8_t indx = 0;
 uint8_t buffer[10];
-char msg[] = "Hola desde USART2\r\n";
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -109,7 +108,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADC_CONVERSION, 2);
-  HAL_UART_Receive_IT(&huart1, temp, 1);
+  HAL_UART_Receive_IT(&huart1, &temp , 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -371,14 +370,23 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 	    }
 
 }
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	memcpy(buffer+indx, temp, 1);
-	indx++;
-	if(indx >= 10){
-		indx = 0;
-	}
-	HAL_UART_Receive_IT(&huart1, temp, 1);
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == USART1)
+    {
+        HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+
+        buffer[indx] = temp;
+        indx++;
+
+        if (indx >= 10)
+        {
+        	HAL_UART_Transmit(&huart2, (uint8_t*)"Arriba\r\n", 8, 10);
+            indx = 0;
+        }
+
+        HAL_UART_Receive_IT(&huart1, &temp, 1);
+    }
 }
 /* USER CODE END 4 */
 
