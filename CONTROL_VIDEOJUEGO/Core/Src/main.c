@@ -49,9 +49,9 @@ UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-volatile uint16_t ADCVal[2];
+volatile uint16_t ADC_value[2];
 
-uint8_t dat;
+uint8_t temp;
 
 
 /* USER CODE END PV */
@@ -106,8 +106,8 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  HAL_ADC_Start_DMA(&hadc1,(uint32_t *)ADCVal,2);
-  HAL_UART_Receive_IT(&huart1, &dat,1);
+  HAL_ADC_Start_DMA(&hadc1,(uint32_t *)ADC_value,2);
+  HAL_UART_Receive_IT(&huart1, &temp,1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -118,26 +118,26 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  HAL_Delay(500);
-	  if(ADCVal[0]<1000)
+	  if(ADC_value[0]<1000)
 	  {
-		  char mens[] ="arriba c1\r\n";
-		  HAL_UART_Transmit(&huart2,(uint8_t*)mens,strlen(mens),1000);
+		  char men[] ="STM arriba\r\n";
+		  HAL_UART_Transmit(&huart2,(uint8_t*)men,strlen(men),1000);
 	  }
-	  else if(ADCVal[0]>3000)
+	  else if(ADC_value[0]>3000)
 	  {
-		  char mens[] = "abajo c1\r\n";
-		  HAL_UART_Transmit(&huart2,(uint8_t*)mens,strlen(mens),1000);
+		  char men[] = "STM abajo\r\n";
+		  HAL_UART_Transmit(&huart2,(uint8_t*)men,strlen(men),1000);
 	  }
-	  if(ADCVal[1]>3000)
+	  if(ADC_value[1]>3000)
 	  {
-		  char mens[] ="izquierda c1\r\n";
-		  HAL_UART_Transmit(&huart2, (uint8_t*)mens,strlen(mens),1000);
+		  char men[] ="STM izquierda\r\n";
+		  HAL_UART_Transmit(&huart2, (uint8_t*)men,strlen(men),1000);
 	  }
 
-	  else if(ADCVal[1]<1000)
+	  else if(ADC_value[1]<1000)
 	  {
-		  char mens[] ="derecha c1\r\n";
-		  HAL_UART_Transmit(&huart2, (uint8_t*)mens,strlen(mens),1000);
+		  char men[] ="STM derecha\r\n";
+		  HAL_UART_Transmit(&huart2, (uint8_t*)men,strlen(men),1000);
 	  }
   }
   /* USER CODE END 3 */
@@ -383,29 +383,29 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if (huart->Instance == USART1) // Verifica que la interrupción sea del USART1
 	    {
-				if(dat == 'A'){
+				if(temp == 'A'){
 					HAL_UART_Transmit(&huart2, (uint8_t*)"ATMEGA ARRIBA\r\n", 14, 10);
 				}
-				else if(dat == 'B'){
+				else if(temp == 'B'){
 					HAL_UART_Transmit(&huart2, (uint8_t*)"ATMEGA ABAJO\r\n", 13, 10);
 				}
-				else if(dat == 'C'){
+				else if(temp == 'C'){
 					HAL_UART_Transmit(&huart2, (uint8_t*)"ATMEGA IZQUIERDA\r\n", 17, 10);
 				}
-				else if(dat == 'D'){
+				else if(temp == 'D'){
 					HAL_UART_Transmit(&huart2, (uint8_t*)"ATMEGA DERECHA\r\n", 14, 10);
 				}
-				else if(dat == 'E'){
+				else if(temp == 'E'){
 					HAL_UART_Transmit(&huart2, (uint8_t*)"ATMEGA A\r\n", 9, 10);
 				}
-				else if(dat == 'F'){
+				else if(temp == 'F'){
 					HAL_UART_Transmit(&huart2, (uint8_t*)"ATMEGA B\r\n", 9, 10);
 				}
 				else {
 					HAL_UART_Transmit(&huart2, (uint8_t*)"Comando desconocido\r\n", 21, 10);
 				}
 	        }
-	 	 HAL_UART_Receive_IT(&huart1, &dat, 1);
+	 	 HAL_UART_Receive_IT(&huart1, &temp, 1);
 	    }
 
 /* USER CODE END 4 */

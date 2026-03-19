@@ -356,38 +356,57 @@ static void MX_GPIO_Init(void)
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 	if(ADC_CONVERSION[0] <= 2000){
 	        Y = "Arriba";
+	        char men[] ="STM arriba\r\n";
+	        HAL_UART_Transmit(&huart2,(uint8_t*)men,strlen(men),1000);
 	    }
 	    else{
 	        Y = "Abajo";
+	        char men[] = "STM abajo\r\n";
+	        HAL_UART_Transmit(&huart2,(uint8_t*)men,strlen(men),1000);
 	    }
 
 	    if(ADC_CONVERSION[1] <= 2000){
 	        X = "Derecha";
+	        char men[] ="STM derecha\r\n";
+	        HAL_UART_Transmit(&huart2, (uint8_t*)men,strlen(men),1000);
 
 	    }
 	    else{
 	        X = "Izquierda";
+	        char men[] ="STM izquierda\r\n";
+	        HAL_UART_Transmit(&huart2, (uint8_t*)men,strlen(men),1000);
 	    }
 
 }
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    if (huart->Instance == USART1)
-    {
-        HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+	if (huart->Instance == USART1) // Verifica que la interrupción sea del USART1
+	    {
+				if(temp == 'A'){
+					HAL_UART_Transmit(&huart2, (uint8_t*)"ATMEGA ARRIBA\r\n", 14, 10);
+				}
+				else if(temp == 'B'){
+					HAL_UART_Transmit(&huart2, (uint8_t*)"ATMEGA ABAJO\r\n", 13, 10);
+				}
+				else if(temp == 'C'){
+					HAL_UART_Transmit(&huart2, (uint8_t*)"ATMEGA IZQUIERDA\r\n", 17, 10);
+				}
+				else if(temp == 'D'){
+					HAL_UART_Transmit(&huart2, (uint8_t*)"ATMEGA DERECHA\r\n", 14, 10);
+				}
+				else if(temp == 'E'){
+					HAL_UART_Transmit(&huart2, (uint8_t*)"ATMEGA A\r\n", 9, 10);
+				}
+				else if(temp == 'F'){
+					HAL_UART_Transmit(&huart2, (uint8_t*)"ATMEGA B\r\n", 9, 10);
+				}
+				else {
+					HAL_UART_Transmit(&huart2, (uint8_t*)"Comando desconocido\r\n", 21, 10);
+				}
+	        }
+	 	 HAL_UART_Receive_IT(&huart1, &temp, 1);
+	    }
 
-        buffer[indx] = temp;
-        indx++;
-
-        if (indx >= 10)
-        {
-        	HAL_UART_Transmit(&huart2, (uint8_t*)"Arriba\r\n", 8, 10);
-            indx = 0;
-        }
-
-        HAL_UART_Receive_IT(&huart1, &temp, 1);
-    }
-}
 /* USER CODE END 4 */
 
 /**
