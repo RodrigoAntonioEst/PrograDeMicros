@@ -3,29 +3,29 @@ ARDUINO_UART_STM32.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000038  00800100  000001c6  0000023a  2**0
+  0 .data         0000002a  00800100  000001c6  0000023a  2**0
                   CONTENTS, ALLOC, LOAD, DATA
   1 .text         000001c6  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  00000272  2**0
+  2 .comment      00000030  00000000  00000000  00000264  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000002a4  2**2
+  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000294  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000060  00000000  00000000  000002e4  2**0
+  4 .debug_aranges 00000060  00000000  00000000  000002d4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   000008c7  00000000  00000000  00000344  2**0
+  5 .debug_info   000008c7  00000000  00000000  00000334  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000722  00000000  00000000  00000c0b  2**0
+  6 .debug_abbrev 00000722  00000000  00000000  00000bfb  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000003b5  00000000  00000000  0000132d  2**0
+  7 .debug_line   000003b5  00000000  00000000  0000131d  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  000000e0  00000000  00000000  000016e4  2**2
+  8 .debug_frame  000000e0  00000000  00000000  000016d4  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    000003f5  00000000  00000000  000017c4  2**0
+  9 .debug_str    000003f5  00000000  00000000  000017b4  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    0000015c  00000000  00000000  00001bb9  2**0
+ 10 .debug_loc    0000015c  00000000  00000000  00001ba9  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000040  00000000  00000000  00001d15  2**0
+ 11 .debug_ranges 00000040  00000000  00000000  00001d05  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -75,7 +75,7 @@ Disassembly of section .text:
   7e:	02 c0       	rjmp	.+4      	; 0x84 <__do_copy_data+0x10>
   80:	05 90       	lpm	r0, Z+
   82:	0d 92       	st	X+, r0
-  84:	a8 33       	cpi	r26, 0x38	; 56
+  84:	aa 32       	cpi	r26, 0x2A	; 42
   86:	b1 07       	cpc	r27, r17
   88:	d9 f7       	brne	.-10     	; 0x80 <__do_copy_data+0xc>
   8a:	0e 94 5e 00 	call	0xbc	; 0xbc <main>
@@ -128,7 +128,7 @@ int main(void)
   be:	0e 94 b3 00 	call	0x166	; 0x166 <UART_RECEIVER>
 	setup();
   c2:	0e 94 4b 00 	call	0x96	; 0x96 <setup>
-	cadena("Inicio\r\n");
+	cadena("Inicio");
   c6:	80 e0       	ldi	r24, 0x00	; 0
   c8:	91 e0       	ldi	r25, 0x01	; 1
   ca:	0e 94 ce 00 	call	0x19c	; 0x19c <cadena>
@@ -161,8 +161,8 @@ ISR(PCINT1_vect){
 	if (!(PINC & (1<<PINC0))){
   f2:	30 99       	sbic	0x06, 0	; 6
   f4:	05 c0       	rjmp	.+10     	; 0x100 <__vector_4+0x30>
-		cadena("Derecha\r\n");
-  f6:	89 e0       	ldi	r24, 0x09	; 9
+		cadena("Derecha");
+  f6:	87 e0       	ldi	r24, 0x07	; 7
   f8:	91 e0       	ldi	r25, 0x01	; 1
   fa:	0e 94 ce 00 	call	0x19c	; 0x19c <cadena>
   fe:	22 c0       	rjmp	.+68     	; 0x144 <__vector_4+0x74>
@@ -170,8 +170,8 @@ ISR(PCINT1_vect){
 	else if (!(PINC & (1<<PINC1))){
  100:	31 99       	sbic	0x06, 1	; 6
  102:	05 c0       	rjmp	.+10     	; 0x10e <__vector_4+0x3e>
-		cadena("Arriba\r\n");
- 104:	83 e1       	ldi	r24, 0x13	; 19
+		cadena("Arriba");
+ 104:	8f e0       	ldi	r24, 0x0F	; 15
  106:	91 e0       	ldi	r25, 0x01	; 1
  108:	0e 94 ce 00 	call	0x19c	; 0x19c <cadena>
  10c:	1b c0       	rjmp	.+54     	; 0x144 <__vector_4+0x74>
@@ -179,8 +179,8 @@ ISR(PCINT1_vect){
 	else if (!(PINC & (1<<PINC2))){
  10e:	32 99       	sbic	0x06, 2	; 6
  110:	05 c0       	rjmp	.+10     	; 0x11c <__vector_4+0x4c>
-		cadena("Abajo\r\n");
- 112:	8c e1       	ldi	r24, 0x1C	; 28
+		cadena("Abajo");
+ 112:	86 e1       	ldi	r24, 0x16	; 22
  114:	91 e0       	ldi	r25, 0x01	; 1
  116:	0e 94 ce 00 	call	0x19c	; 0x19c <cadena>
  11a:	14 c0       	rjmp	.+40     	; 0x144 <__vector_4+0x74>
@@ -188,8 +188,8 @@ ISR(PCINT1_vect){
 	else if (!(PINC & (1<<PINC3))){
  11c:	33 99       	sbic	0x06, 3	; 6
  11e:	05 c0       	rjmp	.+10     	; 0x12a <__vector_4+0x5a>
-		cadena("Izquierda\r\n");
- 120:	84 e2       	ldi	r24, 0x24	; 36
+		cadena("Izquierda");
+ 120:	8c e1       	ldi	r24, 0x1C	; 28
  122:	91 e0       	ldi	r25, 0x01	; 1
  124:	0e 94 ce 00 	call	0x19c	; 0x19c <cadena>
  128:	0d c0       	rjmp	.+26     	; 0x144 <__vector_4+0x74>
@@ -197,8 +197,8 @@ ISR(PCINT1_vect){
 	else if (!(PINC & (1<<PINC4))){
  12a:	34 99       	sbic	0x06, 4	; 6
  12c:	05 c0       	rjmp	.+10     	; 0x138 <__vector_4+0x68>
-		cadena("A\r\n");
- 12e:	80 e3       	ldi	r24, 0x30	; 48
+		cadena("A");
+ 12e:	86 e2       	ldi	r24, 0x26	; 38
  130:	91 e0       	ldi	r25, 0x01	; 1
  132:	0e 94 ce 00 	call	0x19c	; 0x19c <cadena>
  136:	06 c0       	rjmp	.+12     	; 0x144 <__vector_4+0x74>
@@ -206,8 +206,8 @@ ISR(PCINT1_vect){
 	else if (!(PINC & (1<<PINC5))){
  138:	35 99       	sbic	0x06, 5	; 6
  13a:	04 c0       	rjmp	.+8      	; 0x144 <__vector_4+0x74>
-		cadena("B\r\n");
- 13c:	84 e3       	ldi	r24, 0x34	; 52
+		cadena("B");
+ 13c:	88 e2       	ldi	r24, 0x28	; 40
  13e:	91 e0       	ldi	r25, 0x01	; 1
  140:	0e 94 ce 00 	call	0x19c	; 0x19c <cadena>
 	}

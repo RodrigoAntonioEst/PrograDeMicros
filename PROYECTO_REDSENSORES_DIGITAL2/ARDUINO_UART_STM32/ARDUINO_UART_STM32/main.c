@@ -19,7 +19,7 @@ int main(void)
 {
 	UART_RECEIVER(103);
 	setup();
-	cadena("Inicio\r\n");
+	cadena("Inicio");
 	/* Replace with your application code */
 	while (1)
 	{
@@ -40,21 +40,21 @@ void setup(){
 // Interrupt routines
 ISR(PCINT1_vect){
 	if (!(PINC & (1<<PINC0))){
-		cadena("Derecha\r\n");
+		cadena("Derecha");
 	}
 	else if (!(PINC & (1<<PINC1))){
-		cadena("Arriba\r\n");
+		cadena("Arriba");
 	}
 	else if (!(PINC & (1<<PINC2))){
-		cadena("Abajo\r\n");
+		cadena("Abajo");
 	}
 	else if (!(PINC & (1<<PINC3))){
-		cadena("Izquierda\r\n");
+		cadena("Izquierda");
 	}
 	else if (!(PINC & (1<<PINC4))){
-		cadena("A\r\n");
+		cadena("A");
 	}
 	else if (!(PINC & (1<<PINC5))){
-		cadena("B\r\n");
+		cadena("B");
 	}
 }

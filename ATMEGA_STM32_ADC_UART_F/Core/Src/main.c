@@ -45,12 +45,17 @@
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
+UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 char *Y;//variables
 char *X;
 uint16_t ADC_CONVERSION[2];
+uint8_t temp[2];
+uint8_t indx = 0;
+uint8_t buffer[10];
+char msg[] = "Hola desde USART2\r\n";
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,6 +64,7 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -100,14 +106,17 @@ int main(void)
   MX_DMA_Init();
   MX_ADC1_Init();
   MX_USART2_UART_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADC_CONVERSION, 2);
+  HAL_UART_Receive_IT(&huart1, temp, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -224,6 +233,39 @@ static void MX_ADC1_Init(void)
 }
 
 /**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 9600;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -322,11 +364,21 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 
 	    if(ADC_CONVERSION[1] <= 2000){
 	        X = "Derecha";
+
 	    }
 	    else{
 	        X = "Izquierda";
 	    }
 
+}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+	memcpy(buffer+indx, temp, 1);
+	indx++;
+	if(indx >= 10){
+		indx = 0;
+	}
+	HAL_UART_Receive_IT(&huart1, temp, 1);
 }
 /* USER CODE END 4 */
 
