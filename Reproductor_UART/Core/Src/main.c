@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,6 +33,13 @@ typedef struct
     uint32_t freq;
     uint32_t duration;
 } Note_t;
+
+typedef enum
+{
+    MODE_STOP = 0,
+    MODE_PWM  = 1,
+    MODE_DAC  = 2
+} PlayerMode_t;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -52,7 +60,12 @@ typedef struct
 #define NOTE_A5  880
 #define NOTE_B5  988
 
-#define REST     0
+#define REST              0
+#define GAP_MS 5
+#define DAC_SAMPLES       32
+#define TIMER6_CLK_HZ     84000000UL   // con tu configuración actual
+#define PWM_REPEATS       2
+#define DAC_REPEATS       1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -61,62 +74,74 @@ typedef struct
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+DAC_HandleTypeDef hdac;
+DMA_HandleTypeDef hdma_dac1;
+
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim6;
 
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-Note_t melody[] =
+uint8_t rxByte;
+volatile PlayerMode_t currentMode = MODE_STOP;
+volatile uint8_t showMenu = 1;
+volatile uint8_t dacRunning = 0;
+
+/* Melodía PWM: la tuya (Mario aprox) */
+const Note_t melody_pwm[] =
 {
-    {NOTE_E5, 180},
-    {NOTE_E5, 180},
-    {REST,    80},
-    {NOTE_E5, 180},
-    {REST,    80},
-    {NOTE_C5, 180},
-    {NOTE_E5, 180},
-    {NOTE_G5, 320},
-    {REST,   200},
+    {NOTE_E5, 180}, {NOTE_E5, 180}, {REST, 80},  {NOTE_E5, 180},
+    {REST, 80},     {NOTE_C5, 180}, {NOTE_E5, 180}, {NOTE_G5, 320},
+    {REST, 200},
 
-    {NOTE_G4, 180},
-    {REST,   200},
-    {NOTE_C5, 180},
-    {REST,    80},
-    {NOTE_G4, 180},
-    {REST,    80},
-    {NOTE_E4, 180},
-    {REST,    80},
+    {NOTE_G4, 180}, {REST, 200}, {NOTE_C5, 180}, {REST, 80},
+    {NOTE_G4, 180}, {REST, 80},  {NOTE_E4, 180}, {REST, 80},
 
-    {NOTE_A4, 180},
-    {NOTE_B4, 180},
-    {NOTE_A4, 180},
-    {NOTE_G4, 180},
-    {NOTE_E5, 180},
-    {NOTE_G5, 180},
-    {NOTE_A5, 220},
-    {REST,   120},
+    {NOTE_A4, 180}, {NOTE_B4, 180}, {NOTE_A4, 180}, {NOTE_G4, 180},
+    {NOTE_E5, 180}, {NOTE_G5, 180}, {NOTE_A5, 220}, {REST, 120},
 
-    {NOTE_F5, 180},
-    {NOTE_G5, 180},
-    {REST,    80},
-    {NOTE_E5, 180},
-    {REST,    80},
-    {NOTE_C5, 180},
-    {NOTE_D5, 180},
-    {NOTE_B4, 220},
-    {REST,   200}
+    {NOTE_F5, 180}, {NOTE_G5, 180}, {REST, 80},  {NOTE_E5, 180},
+    {REST, 80},     {NOTE_C5, 180}, {NOTE_D5, 180}, {NOTE_B4, 220},
+    {REST, 200}
 };
 
-uint32_t melody_len = sizeof(melody) / sizeof(melody[0]);
-volatile uint8_t selector = 0;
-uint8_t temp;
+const uint32_t melody_pwm_len = sizeof(melody_pwm) / sizeof(melody_pwm[0]);
+
+/* Melodía DAC: distinta */
+const Note_t melody_dac[] =
+{
+    {NOTE_E4, 250}, {NOTE_E4, 250}, {NOTE_F4, 250}, {NOTE_G4, 250},
+    {NOTE_G4, 250}, {NOTE_F4, 250}, {NOTE_E4, 250}, {NOTE_D4, 250},
+    {NOTE_C4, 250}, {NOTE_C4, 250}, {NOTE_D4, 250}, {NOTE_E4, 250},
+    {NOTE_E4, 375}, {NOTE_D4, 125}, {NOTE_D4, 500},
+
+    {NOTE_E4, 250}, {NOTE_E4, 250}, {NOTE_F4, 250}, {NOTE_G4, 250},
+    {NOTE_G4, 250}, {NOTE_F4, 250}, {NOTE_E4, 250}, {NOTE_D4, 250},
+    {NOTE_C4, 250}, {NOTE_C4, 250}, {NOTE_D4, 250}, {NOTE_E4, 250},
+    {NOTE_D4, 375}, {NOTE_C4, 125}, {NOTE_C4, 500}
+};
+
+const uint32_t melody_dac_len = sizeof(melody_dac) / sizeof(melody_dac[0]);
+
+/* Tabla seno de 32 muestras para el DAC */
+const uint16_t sineLUT[DAC_SAMPLES] =
+{
+    2048,2399,2737,3048,3321,3545,3711,3813,
+    3848,3813,3711,3545,3321,3048,2737,2399,
+    2048,1697,1359,1048,775,551,385,283,
+    248,283,385,551,775,1048,1359,1697
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_DAC_Init(void);
+static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -124,11 +149,53 @@ static void MX_USART2_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 /* USER CODE BEGIN 0 */
+void SendText(char *txt)
+{
+    HAL_UART_Transmit(&huart2, (uint8_t*)txt, strlen(txt), 1000);
+}
+
+void PrintMenu(void)
+{
+    char menu[] =
+        "\r\n========== REPRODUCTOR ==========\r\n"
+        "1 -> Reproducir melodia PWM\r\n"
+        "2 -> Reproducir melodia DAC\r\n"
+        "0 -> Detener audio\r\n"
+        "m -> Mostrar menu otra vez\r\n"
+        "================================\r\n";
+    SendText(menu);
+}
+
+uint8_t WaitMsInterruptible(uint32_t time_ms, PlayerMode_t expectedMode)
+{
+    uint32_t elapsed = 0;
+
+    while (elapsed < time_ms)
+    {
+        if (currentMode != expectedMode)
+        {
+            return 0;
+        }
+
+        HAL_Delay(5);
+        elapsed += 5;
+    }
+
+    return 1;
+}
+
+/* ================= PWM ================= */
+
+void PWM_Stop(void)
+{
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
+}
+
 void Buzzer_SetFrequency(uint32_t freq_hz)
 {
     if (freq_hz == 0)
     {
-        __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
+        PWM_Stop();
         return;
     }
 
@@ -139,21 +206,115 @@ void Buzzer_SetFrequency(uint32_t freq_hz)
     __HAL_TIM_SET_COUNTER(&htim2, 0);
 }
 
-void PlayNote(uint32_t freq_hz, uint32_t duration_ms)
+void PlaySongPWM(const Note_t *song, uint32_t length, uint8_t repeats)
 {
-    Buzzer_SetFrequency(freq_hz);
-    HAL_Delay(duration_ms);
+    for (uint8_t r = 0; r < repeats; r++)
+    {
+        for (uint32_t i = 0; i < length; i++)
+        {
+            if (currentMode != MODE_PWM)
+            {
+                PWM_Stop();
+                return;
+            }
 
-    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
-    HAL_Delay(20);
+            Buzzer_SetFrequency(song[i].freq);
+
+            if (!WaitMsInterruptible(song[i].duration, MODE_PWM))
+            {
+                PWM_Stop();
+                return;
+            }
+
+            PWM_Stop();
+
+            if (!WaitMsInterruptible(GAP_MS, MODE_PWM))
+            {
+                PWM_Stop();
+                return;
+            }
+        }
+    }
+
+    PWM_Stop();
 }
 
-void PlayMelody(Note_t *song, uint32_t length)
+/* ================= DAC ================= */
+
+void DAC_Stop(void)
 {
-    for (uint32_t i = 0; i < length; i++)
+    if (dacRunning)
     {
-        PlayNote(song[i].freq, song[i].duration);
+        HAL_TIM_Base_Stop(&htim6);
+        HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_1);
+        dacRunning = 0;
     }
+}
+
+void DAC_SetFrequency(uint32_t freq_hz)
+{
+    if (freq_hz == 0)
+    {
+        DAC_Stop();
+        return;
+    }
+
+    uint32_t sample_rate = freq_hz * DAC_SAMPLES;
+    uint32_t arr = (TIMER6_CLK_HZ / sample_rate) - 1UL;
+
+    if (arr < 1)
+    {
+        arr = 1;
+    }
+
+    if (arr > 0xFFFF)
+    {
+        arr = 0xFFFF;
+    }
+
+    __HAL_TIM_SET_PRESCALER(&htim6, 0);
+    __HAL_TIM_SET_AUTORELOAD(&htim6, arr);
+    __HAL_TIM_SET_COUNTER(&htim6, 0);
+
+    if (!dacRunning)
+    {
+        HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)sineLUT, DAC_SAMPLES, DAC_ALIGN_12B_R);
+        HAL_TIM_Base_Start(&htim6);
+        dacRunning = 1;
+    }
+}
+
+void PlaySongDAC(const Note_t *song, uint32_t length, uint8_t repeats)
+{
+    for (uint8_t r = 0; r < repeats; r++)
+    {
+        for (uint32_t i = 0; i < length; i++)
+        {
+            if (currentMode != MODE_DAC)
+            {
+                DAC_Stop();
+                return;
+            }
+
+            DAC_SetFrequency(song[i].freq);
+
+            if (!WaitMsInterruptible(song[i].duration, MODE_DAC))
+            {
+                DAC_Stop();
+                return;
+            }
+
+            DAC_Stop();
+
+            if (!WaitMsInterruptible(GAP_MS, MODE_DAC))
+            {
+                DAC_Stop();
+                return;
+            }
+        }
+    }
+
+    DAC_Stop();
 }
 /* USER CODE END 0 */
 
@@ -186,13 +347,15 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_TIM2_Init();
   MX_USART2_UART_Init();
+  MX_DAC_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-  HAL_UART_Receive_IT(&huart2, &temp,1);
-  char men[] ="Reproducir cancion? ----> 1 apagar cancion ----> 0\r\n";
-  HAL_UART_Transmit(&huart2,(uint8_t*)men,strlen(men),1000);
+  HAL_UART_Receive_IT(&huart2, &rxByte, 1);
+  PrintMenu();
 
   /* USER CODE END 2 */
 
@@ -200,19 +363,46 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(selector == 1){
-	  PlayMelody(melody, melody_len);
-	  HAL_Delay(500);
-	  if(selector == 0){
-		  PlayMelody(0,0);
-	  }
-	  }
+	  if (showMenu)
+	        {
+	            PrintMenu();
+	            showMenu = 0;
+	        }
+
+	        switch (currentMode)
+	        {
+	            case MODE_PWM:
+	                PlaySongPWM(melody_pwm, melody_pwm_len, PWM_REPEATS);
+	                if (currentMode == MODE_PWM)
+	                {
+	                    currentMode = MODE_STOP;
+	                    showMenu = 1;
+	                }
+	                break;
+
+	            case MODE_DAC:
+	                PlaySongDAC(melody_dac, melody_dac_len, DAC_REPEATS);
+	                if (currentMode == MODE_DAC)
+	                {
+	                    currentMode = MODE_STOP;
+	                    showMenu = 1;
+	                }
+	                break;
+
+	            case MODE_STOP:
+	            default:
+	                PWM_Stop();
+	                DAC_Stop();
+	                HAL_Delay(10);
+	                break;
+	        }
+	    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
-}
+
 
 /**
   * @brief System Clock Configuration
@@ -259,6 +449,46 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief DAC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_DAC_Init(void)
+{
+
+  /* USER CODE BEGIN DAC_Init 0 */
+
+  /* USER CODE END DAC_Init 0 */
+
+  DAC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN DAC_Init 1 */
+
+  /* USER CODE END DAC_Init 1 */
+
+  /** DAC Initialization
+  */
+  hdac.Instance = DAC;
+  if (HAL_DAC_Init(&hdac) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** DAC channel OUT1 config
+  */
+  sConfig.DAC_Trigger = DAC_TRIGGER_T6_TRGO;
+  sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
+  if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN DAC_Init 2 */
+
+  /* USER CODE END DAC_Init 2 */
+
 }
 
 /**
@@ -321,6 +551,44 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * @brief TIM6 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM6_Init(void)
+{
+
+  /* USER CODE BEGIN TIM6_Init 0 */
+
+  /* USER CODE END TIM6_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM6_Init 1 */
+
+  /* USER CODE END TIM6_Init 1 */
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 0;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 65535;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM6_Init 2 */
+
+  /* USER CODE END TIM6_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -350,6 +618,22 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 
 }
 
@@ -395,21 +679,39 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	if (huart->Instance == USART2) // Verifica que la interrupción sea del USART1
-	    {
-				if(temp == '1'){
-					selector = 1;
-					char men[] ="Reproducir cancion? ----> 1 apagar cancion ----> 0\r\n";
-					HAL_UART_Transmit(&huart2,(uint8_t*)men,strlen(men),1000);
-				}
-				else if (temp == '2'){
-					selector = 0;
-					char men[] ="Reproducir cancion? ----> 1 apagar cancion ----> 0\r\n";
-					HAL_UART_Transmit(&huart2,(uint8_t*)men,strlen(men),1000);
-				}
-	        }
-	 	 HAL_UART_Receive_IT(&huart2, &temp, 1);
-	    }
+    if (huart->Instance == USART2)
+    {
+        switch (rxByte)
+        {
+            case '1':
+                currentMode = MODE_PWM;
+                SendText("\r\nPWM seleccionado\r\n");
+                break;
+
+            case '2':
+                currentMode = MODE_DAC;
+                SendText("\r\nDAC seleccionado\r\n");
+                break;
+
+            case '0':
+                currentMode = MODE_STOP;
+                SendText("\r\nAudio detenido\r\n");
+                break;
+
+            case 'm':
+            case 'M':
+                showMenu = 1;
+                break;
+
+            default:
+                SendText("\r\nComando invalido\r\n");
+                showMenu = 1;
+                break;
+        }
+
+        HAL_UART_Receive_IT(&huart2, &rxByte, 1);
+    }
+}
 /* USER CODE END 4 */
 
 /**
