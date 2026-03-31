@@ -129,6 +129,12 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="TIMER0\TIMER0.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="TIMER0\TIMER0.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="UART\UART.c">
       <SubType>compile</SubType>
     </Compile>
@@ -138,6 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ADC" />
+    <Folder Include="TIMER0" />
     <Folder Include="UART" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
