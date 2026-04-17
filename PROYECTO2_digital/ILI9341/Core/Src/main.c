@@ -85,7 +85,12 @@ static void MX_USART3_UART_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+//funcion para poder leer imagen de la SD
+FRESULT LCD_DrawImageFromSD(const char *filename,
+                            uint16_t x,
+                            uint16_t y,
+                            uint16_t width,
+                            uint16_t height);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -132,7 +137,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   	HAL_UART_Receive_IT(&huart3, &rxByte, 1);
   	//codigo para poder leer la microSD
-  	HAL_Delay(500);
+  	/*HAL_Delay(500);
   	//montamos el sistema
   	fres = f_mount(&fs, "/", 0);
   	if(fres == FR_OK){
@@ -142,7 +147,7 @@ int main(void)
   		transmit_uart("Micro SD card's mount error\n");
   	}
   	//abrimos archivo ya sea en lectura o escritura o en ambos y append
-  	fres = f_open(&fil, "prueba.txt", FA_OPEN_APPEND | FA_READ | FA_READ);
+  	fres = f_open(&fil, "prueba.txt", FA_OPEN_APPEND | FA_READ | FA_WRITE);
   	if(fres == FR_OK){
   		transmit_uart("File opened for reading\n");
   	}
@@ -191,11 +196,17 @@ int main(void)
   	  	}
   	  	else if(fres != FR_OK){
   	  		transmit_uart("The microSD was not unmounted\n");
-  	  	}
+  	  	}*/
   	//cerramos el archivo
 
 	LCD_Init();
+	HAL_Delay(100);
 
+	if (LCD_DrawImageFromSD("0:/STAGE3.bin", 0, 0, 320, 240) == FR_OK) {
+	    transmit_uart("Fondo cargado desde SD\r\n");
+	} else {
+	    transmit_uart("Error cargando fondo desde SD\r\n");
+	}
 	//LCD_Clear(0x00);
 	//FillRect(unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned int c);
 	//FillRect(0, 0, 319, 239, 0x0DFE);
@@ -204,7 +215,7 @@ int main(void)
 	//LCD_Bitmap(unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned char bitmap[]);
 
 	//---- Desplegamos la pantalla de inicio del juego ----//
-	LCD_Bitmap(0, 0, 320, 240, INICIO);
+	//LCD_Bitmap(0, 0, 320, 240, INICIO);
 
 	//LCD_Bitmap(100, 100, 24, 30, sonic);
 
@@ -488,8 +499,7 @@ static void MX_USART3_UART_Init(void)
   huart3.Init.Mode = UART_MODE_TX_RX;
   huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart3) != HAL_OK)
-  {
+  if (HAL_UART_Init(&huart3) != HAL_OK)  {
     Error_Handler();
   }
   /* USER CODE BEGIN USART3_Init 2 */
@@ -595,6 +605,82 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
         HAL_UART_Receive_IT(&huart3, &rxByte, 1);
     }
+}
+
+//logica para poder leer imagenes desde la SD y poder enviarlos a la pantalla
+FRESULT LCD_DrawImageFromSD(const char *filename,
+                            uint16_t x,
+                            uint16_t y,
+                            uint16_t width,
+                            uint16_t height)
+{
+    FRESULT fres_local;
+    UINT bytesRead;
+    char msg[100];
+    uint16_t lineBuffer[320];
+
+    if (width > 320) {
+        transmit_uart("Error: width > 320\r\n");
+        return FR_INVALID_PARAMETER;
+    }
+
+    fres_local = f_mount(&fs, "/", 1);
+    if (fres_local != FR_OK) {
+        sprintf(msg, "Mount error: %d\r\n", fres_local);
+        transmit_uart(msg);
+        return fres_local;
+    }
+
+    fres_local = f_open(&fil, filename, FA_READ);
+    if (fres_local != FR_OK) {
+        sprintf(msg, "Open error: %d\r\n", fres_local);
+        transmit_uart(msg);
+        f_mount(NULL, "/", 1);
+        return fres_local;
+    }
+
+    HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_RESET);   // CS low
+    SetWindows(x, y, x + width - 1, y + height - 1);
+    HAL_GPIO_WritePin(GPIOA, LCD_RS_Pin, GPIO_PIN_SET);     // RS high
+
+    for (uint16_t row = 0; row < height; row++) {
+
+        fres_local = f_read(&fil, lineBuffer, width * 2, &bytesRead);
+        if (fres_local != FR_OK) {
+            sprintf(msg, "Read error row %d: %d\r\n", row, fres_local);
+            transmit_uart(msg);
+            f_close(&fil);
+            HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_SET);
+            f_mount(NULL, "/", 1);
+            return fres_local;
+        }
+
+        if (bytesRead != width * 2) {
+            sprintf(msg, "Partial read row %d\r\n", row);
+            transmit_uart(msg);
+            f_close(&fil);
+            HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_SET);
+            f_mount(NULL, "/", 1);
+            return FR_INT_ERR;
+        }
+
+        // AQUI va la inversion de bytes
+        for (uint16_t i = 0; i < width; i++) {
+            lineBuffer[i] = (lineBuffer[i] >> 8) | (lineBuffer[i] << 8);
+        }
+
+        for (uint16_t col = 0; col < width; col++) {
+            LCD_DATA(lineBuffer[col] >> 8);
+            LCD_DATA(lineBuffer[col] & 0xFF);
+        }
+    }
+
+    HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_SET);     // CS high
+    f_close(&fil);
+    f_mount(NULL, "/", 1);
+
+    transmit_uart("Image drawn successfully\r\n");
+    return FR_OK;
 }
 /* USER CODE END 4 */
 
