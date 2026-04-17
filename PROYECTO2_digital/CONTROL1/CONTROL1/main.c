@@ -73,13 +73,13 @@ ISR(ADC_vect){
 		pinADC(1,1); //se configura que canal del ADC queremos leer
 		POTENCIOMETRO1 = ADCH; //Se carga el valor leido por el ADC a la variable.
 		if(POTENCIOMETRO1 < 100){
-			writechar('2');
-			cadena("H"); // abajo
+			writechar('1');
+			cadena("U"); // abajo
 			cadena("\n");
 		}
 		else if(POTENCIOMETRO1 > 160){
-			writechar('2');
-			cadena("G"); // arriba
+			writechar('1');
+			cadena("D"); // arriba
 			cadena("\n");
 		}
 		
@@ -89,13 +89,13 @@ ISR(ADC_vect){
 		pinADC(0,1); //se configura que canal del ADC queremos leer
 		POTENCIOMETRO2 = ADCH; //Se carga el valor leido por el ADC a la variable.
 		if(POTENCIOMETRO2 < 100){
-			writechar('2');
-			cadena("J"); // izquierda
+			writechar('1');
+			cadena("L"); // izquierda
 			cadena("\n");
 		}
 		else if(POTENCIOMETRO2 > 160){
-			writechar('2');
-			cadena("K"); // derecha
+			writechar('1');
+			cadena("R"); // derecha
 			cadena("\n");
 		}
 		break;
@@ -123,40 +123,40 @@ ISR(PCINT2_vect){
 	//Rutina para leer los botones desde D2 hasta D7
 	if(!(PIND & (1 << PIND2)) && ANTIREBOTE6 == 0){
 		ANTIREBOTE1 = 65;
-		writechar('2');
+		writechar('1');
 		cadena("A");
 		cadena("\n");
 	}
 	if(!(PIND & (1 << PIND3)) && ANTIREBOTE6 == 0){
 		ANTIREBOTE2 = 50;
-		writechar('2');
+		writechar('1');
 		cadena("B");
 		cadena("\n");
 	}
 	if(!(PIND & (1 << PIND4)) && ANTIREBOTE6 == 0){
 		ANTIREBOTE3 = 50;
-		writechar('2');
-		cadena("C");
+		writechar('1');
+		cadena("Y");
 		cadena("\n");
 	}
 	if(!(PIND & (1 << PIND5)) && ANTIREBOTE6 == 0){
 		ANTIREBOTE4 = 50;
 		writechar('1');
-		cadena("D");
+		cadena("X");
 		cadena("\n");
 		
 	}
 	if(!(PIND & (1 << PIND6)) && ANTIREBOTE6 == 0){
 		ANTIREBOTE5 = 50;
-		writechar('2');
-		cadena("E");
+		writechar('1');
+		cadena("W");
 		cadena("\n");
 		
 	}
 	if(!(PIND & (1 << PIND7)) && ANTIREBOTE6 == 0){
 		ANTIREBOTE6 = 65;
-		writechar('2');
-		cadena("F");
+		writechar('1');
+		cadena("Z");
 		cadena("\n");
 	}
 }
