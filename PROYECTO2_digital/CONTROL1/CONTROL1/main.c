@@ -22,12 +22,22 @@ volatile uint8_t POT_SELECT = 0;
 volatile uint8_t POTENCIOMETRO1 = 0;
 volatile uint8_t POTENCIOMETRO2 = 0;
 char buffer[4];
+
 volatile uint8_t ANTIREBOTE1 = 0;
 volatile uint8_t ANTIREBOTE2 = 0;
 volatile uint8_t ANTIREBOTE3 = 0;
 volatile uint8_t ANTIREBOTE4 = 0;
 volatile uint8_t ANTIREBOTE5 = 0;
 volatile uint8_t ANTIREBOTE6 = 0;
+
+// Contadores para mantener repeticion mientras el boton siga presionado
+volatile uint8_t HOLD1 = 0;
+volatile uint8_t HOLD2 = 0;
+volatile uint8_t HOLD3 = 0;
+volatile uint8_t HOLD4 = 0;
+volatile uint8_t HOLD5 = 0;
+volatile uint8_t HOLD6 = 0;
+
 volatile uint8_t estadoPB1 = 1;
 volatile uint8_t estadoPB2 = 1;
 volatile uint8_t estadoPB3 = 1;
@@ -42,7 +52,7 @@ int main(void)
 	init_ADC(1,128,0);
 	UART_INIT(103);
 	TIMER0_INIT(0,64,6);
-	/* Replace with your application code */
+
 	while (1)
 	{
 	}
@@ -50,18 +60,25 @@ int main(void)
 /****************************************/
 // NON-Interrupt subroutines
 void setup(){
-	//Desactivamos interrupciones globales
 	cli();
-	//declaramos como entrada
-	DDRD &= ~((1<<DDD2)|(1<<DDD3)|(1<<DDD4)|(1<<DDD5)|(1<<DDD6)|(1<<DDD7)); 
-	//configuramos el pullup
-	PORTD |= (1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4)|(1<<PORTD5)|(1<<PORTD6)|(1<<PORTD7);
-	//------------- Configuracion de pinchage --------------//
-	//activamos pines deseados
-	PCMSK2 = (1<<PCINT18)|(1<<PCINT19)|(1<<PCINT20)|(1<<PCINT21)|(1<<PCINT22)|(1<<PCINT23);
-	//Activamos interrupcion
-	PCICR = (1<<PCIE2);
-	//activamos interrupciones globales
+
+	// -------- PORTD: solo D2, D3, D4 y D5 como entradas --------
+	DDRD &= ~((1<<DDD2)|(1<<DDD3)|(1<<DDD4)|(1<<DDD5));
+	PORTD |= (1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4)|(1<<PORTD5);
+
+	// -------- PORTC: PC4 y PC5 como entradas --------
+	DDRC &= ~((1<<DDC4)|(1<<DDC5));
+	PORTC |= (1<<PORTC4)|(1<<PORTC5);
+
+	// PORTD -> D2, D3, D4, D5
+	PCMSK2 = (1<<PCINT18)|(1<<PCINT19)|(1<<PCINT20)|(1<<PCINT21);
+
+	// PORTC -> C4, C5
+	PCMSK1 = (1<<PCINT12)|(1<<PCINT13);
+
+	// Activamos interrupciones en PORTD y PORTC
+	PCICR = (1<<PCIE2)|(1<<PCIE1);
+
 	sei();
 }
 /****************************************/
@@ -69,94 +86,192 @@ void setup(){
 ISR(ADC_vect){
 	switch(POT_SELECT){
 		case 0:
-		//Realizamos lectura del potenciometro 1
-		pinADC(1,1); //se configura que canal del ADC queremos leer
-		POTENCIOMETRO1 = ADCH; //Se carga el valor leido por el ADC a la variable.
+		pinADC(1,1);
+		POTENCIOMETRO1 = ADCH;
 		if(POTENCIOMETRO1 < 100){
-			writechar('1');
-			cadena("U"); // abajo
-			cadena("\n");
+			//writechar('1');
+			//cadena("U");
+			//cadena("\n");
 		}
 		else if(POTENCIOMETRO1 > 160){
-			writechar('1');
-			cadena("D"); // arriba
-			cadena("\n");
+			//writechar('1');
+			//cadena("D");
+			//cadena("\n");
 		}
-		
 		break;
+
 		case 1:
-		//Realizamos lectura del potenciometro 2
-		pinADC(0,1); //se configura que canal del ADC queremos leer
-		POTENCIOMETRO2 = ADCH; //Se carga el valor leido por el ADC a la variable.
+		pinADC(0,1);
+		POTENCIOMETRO2 = ADCH;
 		if(POTENCIOMETRO2 < 100){
-			writechar('1');
-			cadena("L"); // izquierda
-			cadena("\n");
+			//writechar('1');
+			//cadena("L");
+			//cadena("\n");
 		}
 		else if(POTENCIOMETRO2 > 160){
-			writechar('1');
-			cadena("R"); // derecha
-			cadena("\n");
+			//writechar('1');
+			//cadena("R");
+			//cadena("\n");
 		}
 		break;
+
 		default:
-		//NADA
 		break;
 	}
-	//luego de cada vuelta se aumenta el contador para leer el pot indicado
+
 	POT_SELECT++;
-	if(POT_SELECT > 1) POT_SELECT = 0; //reiniciamos pot select
-	//se inicia la conversion otra vez
+	if(POT_SELECT > 1) POT_SELECT = 0;
+
 	ADCSRA |= (1 << ADSC);
 }
+
 ISR(TIMER0_OVF_vect){
-	//Se cuenta cada 1 milisegundo para poder hacer la secuencia de antirebote digital
+	// antirebote
 	if(ANTIREBOTE1 > 0) ANTIREBOTE1--;
 	if(ANTIREBOTE2 > 0) ANTIREBOTE2--;
 	if(ANTIREBOTE3 > 0) ANTIREBOTE3--;
 	if(ANTIREBOTE4 > 0) ANTIREBOTE4--;
 	if(ANTIREBOTE5 > 0) ANTIREBOTE5--;
 	if(ANTIREBOTE6 > 0) ANTIREBOTE6--;
+
+	// ---------------- REPETICION MIENTRAS SIGA PRESIONADO ----------------
+	// A -> PC5
+	if(!(PINC & (1 << PINC5))){
+		if(HOLD1 < 255) HOLD1++;
+		if(HOLD1 >= 30){   // espera inicial
+			writechar('1');
+			cadena("A");
+			cadena("\n");
+			HOLD1 = 25;    // repeticion continua
+		}
+	}else{
+		HOLD1 = 0;
+	}
+
+	// B -> PC4
+	if(!(PINC & (1 << PINC4))){
+		if(HOLD2 < 255) HOLD2++;
+		if(HOLD2 >= 30){
+			writechar('1');
+			cadena("B");
+			cadena("\n");
+			HOLD2 = 25;
+		}
+	}else{
+		HOLD2 = 0;
+	}
+
+	// Y -> D4
+	if(!(PIND & (1 << PIND4))){
+		if(HOLD3 < 255) HOLD3++;
+		if(HOLD3 >= 30){
+			writechar('1');
+			cadena("Y");
+			cadena("\n");
+			HOLD3 = 25;
+		}
+	}else{
+		HOLD3 = 0;
+	}
+
+	// X -> D5
+	if(!(PIND & (1 << PIND5))){
+		if(HOLD4 < 255) HOLD4++;
+		if(HOLD4 >= 30){
+			writechar('1');
+			cadena("X");
+			cadena("\n");
+			HOLD4 = 25;
+		}
+	}else{
+		HOLD4 = 0;
+	}
+
+	// W -> D2
+	if(!(PIND & (1 << PIND2))){
+		if(HOLD5 < 255) HOLD5++;
+		if(HOLD5 >= 30){
+			writechar('1');
+			cadena("W");
+			cadena("\n");
+			HOLD5 = 25;
+		}
+	}else{
+		HOLD5 = 0;
+	}
+
+	// Z -> D3
+	if(!(PIND & (1 << PIND3))){
+		if(HOLD6 < 255) HOLD6++;
+		if(HOLD6 >= 30){
+			writechar('1');
+			cadena("Z");
+			cadena("\n");
+			HOLD6 = 25;
+		}
+	}else{
+		HOLD6 = 0;
+	}
+
 	TCNT0 = 6;
 }
+
+// Interrupcion para PORTD
 ISR(PCINT2_vect){
-	//Rutina para leer los botones desde D2 hasta D7
-	if(!(PIND & (1 << PIND2)) && ANTIREBOTE6 == 0){
-		ANTIREBOTE1 = 65;
+	// W en D2
+	if(!(PIND & (1 << PIND2)) && ANTIREBOTE5 == 0){
+		ANTIREBOTE5 = 100;
+		HOLD5 = 0;
 		writechar('1');
-		cadena("A");
+		cadena("W");
 		cadena("\n");
 	}
+
+	// Z en D3
 	if(!(PIND & (1 << PIND3)) && ANTIREBOTE6 == 0){
-		ANTIREBOTE2 = 50;
+		ANTIREBOTE6 = 100;
+		HOLD6 = 0;
 		writechar('1');
-		cadena("B");
+		cadena("Z");
 		cadena("\n");
 	}
-	if(!(PIND & (1 << PIND4)) && ANTIREBOTE6 == 0){
-		ANTIREBOTE3 = 50;
+
+	// Y en D4
+	if(!(PIND & (1 << PIND4)) && ANTIREBOTE3 == 0){
+		ANTIREBOTE3 = 100;
+		HOLD3 = 0;
 		writechar('1');
 		cadena("Y");
 		cadena("\n");
 	}
-	if(!(PIND & (1 << PIND5)) && ANTIREBOTE6 == 0){
-		ANTIREBOTE4 = 50;
+
+	// X en D5
+	if(!(PIND & (1 << PIND5)) && ANTIREBOTE4 == 0){
+		ANTIREBOTE4 = 100;
+		HOLD4 = 0;
 		writechar('1');
 		cadena("X");
 		cadena("\n");
-		
 	}
-	if(!(PIND & (1 << PIND6)) && ANTIREBOTE6 == 0){
-		ANTIREBOTE5 = 50;
+}
+
+// Interrupcion para PORTC
+ISR(PCINT1_vect){
+	// B en PC4
+	if(!(PINC & (1 << PINC4)) && ANTIREBOTE2 == 0){
+		ANTIREBOTE2 = 100;
+		HOLD2 = 0;
 		writechar('1');
-		cadena("W");
+		cadena("B");
 		cadena("\n");
-		
 	}
-	if(!(PIND & (1 << PIND7)) && ANTIREBOTE6 == 0){
-		ANTIREBOTE6 = 65;
+
+	// A en PC5
+	if(!(PINC & (1 << PINC5)) && ANTIREBOTE1 == 0){
+		ANTIREBOTE1 = 100;
+		HOLD1 = 0;
 		writechar('1');
-		cadena("Z");
+		cadena("A");
 		cadena("\n");
 	}
 }

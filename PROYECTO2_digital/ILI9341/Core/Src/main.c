@@ -36,6 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define CHUNK_ROWS 20
 SPI_HandleTypeDef hspi1;
 FATFS fs;
 FATFS *pfs;
@@ -58,10 +59,7 @@ UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-extern uint16_t STAGE2[];
-extern uint16_t STAGE1[];
-extern uint16_t INICIO[];
-extern uint16_t STAGE3[];
+
 //Declaramos variable que lleva el control de
 volatile uint8_t estado = 0;
 uint8_t rxByte;
@@ -76,6 +74,12 @@ volatile uint8_t stage3 = 0;
 uint8_t dato_disparo = 'A';
 uint8_t dato_inicio = 'S';
 uint8_t flag_inicio = 0;
+static uint8_t blockBuffer[320 * CHUNK_ROWS * 2];
+volatile uint8_t inicio = 0;
+volatile uint16_t x_rojo = 0;
+volatile uint16_t y_rojo = 23;
+volatile uint16_t x_celeste = 0;
+volatile uint16_t y_celeste = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -86,11 +90,11 @@ static void MX_SPI1_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 //funcion para poder leer imagen de la SD
-FRESULT LCD_DrawImageFromSD(const char *filename,
-                            uint16_t x,
-                            uint16_t y,
-                            uint16_t width,
-                            uint16_t height);
+FRESULT LCD_DrawImageFromSD_Fast(const char *filename,
+                                 uint16_t x,
+                                 uint16_t y,
+                                 uint16_t width,
+                                 uint16_t height);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -202,7 +206,16 @@ int main(void)
 	LCD_Init();
 	HAL_Delay(100);
 
-	if (LCD_DrawImageFromSD("0:/STAGE3.bin", 0, 0, 320, 240) == FR_OK) {
+	fres = f_mount(&fs, "/", 1);
+	if (fres == FR_OK) {
+	    transmit_uart("SD montada correctamente\r\n");
+	} else {
+	    char msg[50];
+	    sprintf(msg, "Mount error: %d\r\n", fres);
+	    transmit_uart(msg);
+	}
+
+	if (LCD_DrawImageFromSD_Fast("0:/INICIO.bin", 0, 0, 320, 240) == FR_OK) {
 	    transmit_uart("Fondo cargado desde SD\r\n");
 	} else {
 	    transmit_uart("Error cargando fondo desde SD\r\n");
@@ -241,7 +254,7 @@ int main(void)
 	//LCD_BitmapTransparent(100, 116-36, 40, 40, TANK, 0x079f);
 	//LCD_Sprite(int x, int y, int width, int height, unsigned char bitmap[], int columns, int index, char flip, char offset);
 
-	//LCD_Sprite(100, 116-29, 40, 40, TANK, 1, 0, 0, 0);
+	//LCD_Sprite(100, 116-29, 14, 13, TANK_DERECHA_ROJO, 1, 0, 0, 0);
 
 
 	//  LCD_Print("Hola Mundo", 20, 100, 1, 0x001F, 0xCAB9);
@@ -283,6 +296,7 @@ int main(void)
 	                      break;
 
 	                  case 'U':
+
 	                      break;
 
 	                  case 'D':
@@ -292,6 +306,9 @@ int main(void)
 	                      break;
 
 	                  case 'R':
+	                	  if(stage1 | stage2 | stage3){
+
+	                	  }
 	                      break;
 	              }
 	          }
@@ -327,8 +344,14 @@ int main(void)
 	          case 1:
 	              if (stage1 == 0)
 	              {
+	            	  stage2 = 0;
 	                  stage1 = 1;
-	                  LCD_Bitmap(0, 0, 320, 240, STAGE1);
+	                  stage3 = 0;
+
+	                  LCD_DrawImageFromSD_Fast("0:/STAGE1.bin", 0, 0, 320, 240);
+	                  LCD_Sprite(x_rojo,y_rojo, 14, 13, TANK_DERECHA_ROJO, 1, 0, 0, 0);
+	                  LCD_Sprite(x_celeste,y_celeste, 14, 13, TANK_IZQUIERDA_CELESTE, 1, 0, 0, 0);
+
 	              }
 	              break;
 
@@ -336,7 +359,9 @@ int main(void)
 	        	  if(stage2 == 0){
 	        	  	    stage2 = 1;
 	        	  	    stage1 = 0;
-	        	  	    LCD_Bitmap(0, 0, 320, 240, STAGE2);
+	        	  	    stage3 = 0;
+	        	  	  LCD_DrawImageFromSD_Fast("0:/STAGE2.bin", 0, 0, 320, 240);
+
 	        	  	}
 	              break;
 	          case 3:
@@ -344,7 +369,7 @@ int main(void)
 	        		  stage2 = 0;
 	        		  stage1 = 0;
 	        		  stage3 = 1;
-	        		  //LCD_Bitmap(0, 0, 320, 240, STAGE3);
+	        		  LCD_DrawImageFromSD_Fast("0:/STAGE3.bin", 0, 0, 320, 240);
 	        	  }
 	        	  break;
 	          default:
@@ -428,7 +453,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -499,7 +524,8 @@ static void MX_USART3_UART_Init(void)
   huart3.Init.Mode = UART_MODE_TX_RX;
   huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart3) != HAL_OK)  {
+  if (HAL_UART_Init(&huart3) != HAL_OK)
+  {
     Error_Handler();
   }
   /* USER CODE BEGIN USART3_Init 2 */
@@ -608,76 +634,71 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 }
 
 //logica para poder leer imagenes desde la SD y poder enviarlos a la pantalla
-FRESULT LCD_DrawImageFromSD(const char *filename,
-                            uint16_t x,
-                            uint16_t y,
-                            uint16_t width,
-                            uint16_t height)
+FRESULT LCD_DrawImageFromSD_Fast(const char *filename,
+                                 uint16_t x,
+                                 uint16_t y,
+                                 uint16_t width,
+                                 uint16_t height)
 {
     FRESULT fres_local;
     UINT bytesRead;
     char msg[100];
-    uint16_t lineBuffer[320];
+
 
     if (width > 320) {
         transmit_uart("Error: width > 320\r\n");
         return FR_INVALID_PARAMETER;
     }
 
-    fres_local = f_mount(&fs, "/", 1);
-    if (fres_local != FR_OK) {
-        sprintf(msg, "Mount error: %d\r\n", fres_local);
-        transmit_uart(msg);
-        return fres_local;
-    }
-
     fres_local = f_open(&fil, filename, FA_READ);
     if (fres_local != FR_OK) {
         sprintf(msg, "Open error: %d\r\n", fres_local);
         transmit_uart(msg);
-        f_mount(NULL, "/", 1);
         return fres_local;
     }
 
-    HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_RESET);   // CS low
+    HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_RESET);
     SetWindows(x, y, x + width - 1, y + height - 1);
-    HAL_GPIO_WritePin(GPIOA, LCD_RS_Pin, GPIO_PIN_SET);     // RS high
+    HAL_GPIO_WritePin(GPIOA, LCD_RS_Pin, GPIO_PIN_SET);
 
-    for (uint16_t row = 0; row < height; row++) {
+    uint16_t rowsRemaining = height;
+    while (rowsRemaining > 0) {
 
-        fres_local = f_read(&fil, lineBuffer, width * 2, &bytesRead);
+        uint16_t rowsToRead = (rowsRemaining > CHUNK_ROWS) ? CHUNK_ROWS : rowsRemaining;
+        uint32_t bytesToRead = width * rowsToRead * 2;
+
+        fres_local = f_read(&fil, blockBuffer, bytesToRead, &bytesRead);
         if (fres_local != FR_OK) {
-            sprintf(msg, "Read error row %d: %d\r\n", row, fres_local);
+            sprintf(msg, "Read error: %d\r\n", fres_local);
             transmit_uart(msg);
             f_close(&fil);
             HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_SET);
-            f_mount(NULL, "/", 1);
             return fres_local;
         }
 
-        if (bytesRead != width * 2) {
-            sprintf(msg, "Partial read row %d\r\n", row);
-            transmit_uart(msg);
+        if (bytesRead != bytesToRead) {
+            transmit_uart("Partial read\r\n");
             f_close(&fil);
             HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_SET);
-            f_mount(NULL, "/", 1);
             return FR_INT_ERR;
         }
 
-        // AQUI va la inversion de bytes
-        for (uint16_t i = 0; i < width; i++) {
-            lineBuffer[i] = (lineBuffer[i] >> 8) | (lineBuffer[i] << 8);
+        for (uint32_t i = 0; i < bytesToRead; i += 2) {
+            uint8_t hi = blockBuffer[i];
+            uint8_t lo = blockBuffer[i + 1];
+
+            // Si los colores salen mal, intercambia:
+            // uint8_t temp = hi; hi = lo; lo = temp;
+
+            LCD_DATA(hi);
+            LCD_DATA(lo);
         }
 
-        for (uint16_t col = 0; col < width; col++) {
-            LCD_DATA(lineBuffer[col] >> 8);
-            LCD_DATA(lineBuffer[col] & 0xFF);
-        }
+        rowsRemaining -= rowsToRead;
     }
 
-    HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_SET);     // CS high
+    HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_SET);
     f_close(&fil);
-    f_mount(NULL, "/", 1);
 
     transmit_uart("Image drawn successfully\r\n");
     return FR_OK;
