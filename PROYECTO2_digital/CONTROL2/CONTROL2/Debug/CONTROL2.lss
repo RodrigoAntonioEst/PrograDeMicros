@@ -1,5 +1,5 @@
 
-CONTROL1.elf:     file format elf32-avr
+CONTROL2.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
@@ -440,14 +440,14 @@ void setup(){
  264:	8c 63       	ori	r24, 0x3C	; 60
  266:	8b b9       	out	0x0b, r24	; 11
 
-	// -------- PORTC: PC4 y PC5 como entradas --------
-	DDRC &= ~((1<<DDC4)|(1<<DDC5));
+	// -------- PORTC: PC3 y PC4 como entradas --------
+	DDRC &= ~((1<<DDC3)|(1<<DDC4));
  268:	87 b1       	in	r24, 0x07	; 7
- 26a:	8f 7c       	andi	r24, 0xCF	; 207
+ 26a:	87 7e       	andi	r24, 0xE7	; 231
  26c:	87 b9       	out	0x07, r24	; 7
-	PORTC |= (1<<PORTC4)|(1<<PORTC5);
+	PORTC |= (1<<PORTC3)|(1<<PORTC4);
  26e:	88 b1       	in	r24, 0x08	; 8
- 270:	80 63       	ori	r24, 0x30	; 48
+ 270:	88 61       	ori	r24, 0x18	; 24
  272:	88 b9       	out	0x08, r24	; 8
 
 	// PORTD -> D2, D3, D4, D5
@@ -455,9 +455,9 @@ void setup(){
  274:	8c e3       	ldi	r24, 0x3C	; 60
  276:	80 93 6d 00 	sts	0x006D, r24	; 0x80006d <__TEXT_REGION_LENGTH__+0x7f806d>
 
-	// PORTC -> C4, C5
-	PCMSK1 = (1<<PCINT12)|(1<<PCINT13);
- 27a:	80 e3       	ldi	r24, 0x30	; 48
+	// PORTC -> C3, C4
+	PCMSK1 = (1<<PCINT11)|(1<<PCINT12);
+ 27a:	88 e1       	ldi	r24, 0x18	; 24
  27c:	80 93 6c 00 	sts	0x006C, r24	; 0x80006c <__TEXT_REGION_LENGTH__+0x7f806c>
 
 	// Activamos interrupciones en PORTD y PORTC
@@ -670,9 +670,9 @@ ISR(TIMER0_OVF_vect){
  3e2:	80 93 14 01 	sts	0x0114, r24	; 0x800114 <ANTIREBOTE6>
 
 	// ---------------- REPETICION MIENTRAS SIGA PRESIONADO ----------------
-	// A -> PC5
-	if(!(PINC & (1 << PINC5))){
- 3e6:	35 99       	sbic	0x06, 5	; 6
+	// A -> PC3
+	if(!(PINC & (1 << PINC3))){
+ 3e6:	33 99       	sbic	0x06, 3	; 6
  3e8:	1c c0       	rjmp	.+56     	; 0x422 <__EEPROM_REGION_LENGTH__+0x22>
 		if(HOLD1 < 255) HOLD1++;
  3ea:	80 91 13 01 	lds	r24, 0x0113	; 0x800113 <HOLD1>
@@ -681,12 +681,12 @@ ISR(TIMER0_OVF_vect){
  3f2:	80 91 13 01 	lds	r24, 0x0113	; 0x800113 <HOLD1>
  3f6:	8f 5f       	subi	r24, 0xFF	; 255
  3f8:	80 93 13 01 	sts	0x0113, r24	; 0x800113 <HOLD1>
-		if(HOLD1 >= 30){   // espera inicial
+		if(HOLD1 >= 30){
  3fc:	80 91 13 01 	lds	r24, 0x0113	; 0x800113 <HOLD1>
  400:	8e 31       	cpi	r24, 0x1E	; 30
  402:	88 f0       	brcs	.+34     	; 0x426 <__EEPROM_REGION_LENGTH__+0x26>
-			writechar('1');
- 404:	81 e3       	ldi	r24, 0x31	; 49
+			writechar('2');
+ 404:	82 e3       	ldi	r24, 0x32	; 50
  406:	0e 94 d8 03 	call	0x7b0	; 0x7b0 <writechar>
 			cadena("A");
  40a:	80 e0       	ldi	r24, 0x00	; 0
@@ -696,7 +696,7 @@ ISR(TIMER0_OVF_vect){
  412:	82 e0       	ldi	r24, 0x02	; 2
  414:	91 e0       	ldi	r25, 0x01	; 1
  416:	0e 94 df 03 	call	0x7be	; 0x7be <cadena>
-			HOLD1 = 25;    // repeticion continua
+			HOLD1 = 25;
  41a:	89 e1       	ldi	r24, 0x19	; 25
  41c:	80 93 13 01 	sts	0x0113, r24	; 0x800113 <HOLD1>
  420:	02 c0       	rjmp	.+4      	; 0x426 <__EEPROM_REGION_LENGTH__+0x26>
@@ -721,8 +721,8 @@ ISR(TIMER0_OVF_vect){
  43c:	80 91 12 01 	lds	r24, 0x0112	; 0x800112 <HOLD2>
  440:	8e 31       	cpi	r24, 0x1E	; 30
  442:	88 f0       	brcs	.+34     	; 0x466 <__EEPROM_REGION_LENGTH__+0x66>
-			writechar('1');
- 444:	81 e3       	ldi	r24, 0x31	; 49
+			writechar('2');
+ 444:	82 e3       	ldi	r24, 0x32	; 50
  446:	0e 94 d8 03 	call	0x7b0	; 0x7b0 <writechar>
 			cadena("B");
  44a:	84 e0       	ldi	r24, 0x04	; 4
@@ -757,8 +757,8 @@ ISR(TIMER0_OVF_vect){
  47c:	80 91 11 01 	lds	r24, 0x0111	; 0x800111 <HOLD3>
  480:	8e 31       	cpi	r24, 0x1E	; 30
  482:	88 f0       	brcs	.+34     	; 0x4a6 <__EEPROM_REGION_LENGTH__+0xa6>
-			writechar('1');
- 484:	81 e3       	ldi	r24, 0x31	; 49
+			writechar('2');
+ 484:	82 e3       	ldi	r24, 0x32	; 50
  486:	0e 94 d8 03 	call	0x7b0	; 0x7b0 <writechar>
 			cadena("U");
  48a:	86 e0       	ldi	r24, 0x06	; 6
@@ -793,8 +793,8 @@ ISR(TIMER0_OVF_vect){
  4bc:	80 91 10 01 	lds	r24, 0x0110	; 0x800110 <HOLD4>
  4c0:	8e 31       	cpi	r24, 0x1E	; 30
  4c2:	88 f0       	brcs	.+34     	; 0x4e6 <__EEPROM_REGION_LENGTH__+0xe6>
-			writechar('1');
- 4c4:	81 e3       	ldi	r24, 0x31	; 49
+			writechar('2');
+ 4c4:	82 e3       	ldi	r24, 0x32	; 50
  4c6:	0e 94 d8 03 	call	0x7b0	; 0x7b0 <writechar>
 			cadena("R");
  4ca:	88 e0       	ldi	r24, 0x08	; 8
@@ -829,8 +829,8 @@ ISR(TIMER0_OVF_vect){
  4fc:	80 91 0f 01 	lds	r24, 0x010F	; 0x80010f <HOLD5>
  500:	8e 31       	cpi	r24, 0x1E	; 30
  502:	88 f0       	brcs	.+34     	; 0x526 <__EEPROM_REGION_LENGTH__+0x126>
-			writechar('1');
- 504:	81 e3       	ldi	r24, 0x31	; 49
+			writechar('2');
+ 504:	82 e3       	ldi	r24, 0x32	; 50
  506:	0e 94 d8 03 	call	0x7b0	; 0x7b0 <writechar>
 			cadena("D");
  50a:	8a e0       	ldi	r24, 0x0A	; 10
@@ -865,8 +865,8 @@ ISR(TIMER0_OVF_vect){
  53c:	80 91 0e 01 	lds	r24, 0x010E	; 0x80010e <__data_end>
  540:	8e 31       	cpi	r24, 0x1E	; 30
  542:	88 f0       	brcs	.+34     	; 0x566 <__EEPROM_REGION_LENGTH__+0x166>
-			writechar('1');
- 544:	81 e3       	ldi	r24, 0x31	; 49
+			writechar('2');
+ 544:	82 e3       	ldi	r24, 0x32	; 50
  546:	0e 94 d8 03 	call	0x7b0	; 0x7b0 <writechar>
 			cadena("L");
  54a:	8c e0       	ldi	r24, 0x0C	; 12
@@ -941,8 +941,8 @@ ISR(PCINT2_vect){
  5bc:	80 93 15 01 	sts	0x0115, r24	; 0x800115 <ANTIREBOTE5>
 		HOLD5 = 0;
  5c0:	10 92 0f 01 	sts	0x010F, r1	; 0x80010f <HOLD5>
-		writechar('1');
- 5c4:	81 e3       	ldi	r24, 0x31	; 49
+		writechar('2');
+ 5c4:	82 e3       	ldi	r24, 0x32	; 50
  5c6:	0e 94 d8 03 	call	0x7b0	; 0x7b0 <writechar>
 		cadena("D");
  5ca:	8a e0       	ldi	r24, 0x0A	; 10
@@ -966,8 +966,8 @@ ISR(PCINT2_vect){
  5e8:	80 93 14 01 	sts	0x0114, r24	; 0x800114 <ANTIREBOTE6>
 		HOLD6 = 0;
  5ec:	10 92 0e 01 	sts	0x010E, r1	; 0x80010e <__data_end>
-		writechar('1');
- 5f0:	81 e3       	ldi	r24, 0x31	; 49
+		writechar('2');
+ 5f0:	82 e3       	ldi	r24, 0x32	; 50
  5f2:	0e 94 d8 03 	call	0x7b0	; 0x7b0 <writechar>
 		cadena("L");
  5f6:	8c e0       	ldi	r24, 0x0C	; 12
@@ -991,8 +991,8 @@ ISR(PCINT2_vect){
  614:	80 93 17 01 	sts	0x0117, r24	; 0x800117 <ANTIREBOTE3>
 		HOLD3 = 0;
  618:	10 92 11 01 	sts	0x0111, r1	; 0x800111 <HOLD3>
-		writechar('1');
- 61c:	81 e3       	ldi	r24, 0x31	; 49
+		writechar('2');
+ 61c:	82 e3       	ldi	r24, 0x32	; 50
  61e:	0e 94 d8 03 	call	0x7b0	; 0x7b0 <writechar>
 		cadena("U");
  622:	86 e0       	ldi	r24, 0x06	; 6
@@ -1016,8 +1016,8 @@ ISR(PCINT2_vect){
  640:	80 93 16 01 	sts	0x0116, r24	; 0x800116 <ANTIREBOTE4>
 		HOLD4 = 0;
  644:	10 92 10 01 	sts	0x0110, r1	; 0x800110 <HOLD4>
-		writechar('1');
- 648:	81 e3       	ldi	r24, 0x31	; 49
+		writechar('2');
+ 648:	82 e3       	ldi	r24, 0x32	; 50
  64a:	0e 94 d8 03 	call	0x7b0	; 0x7b0 <writechar>
 		cadena("R");
  64e:	88 e0       	ldi	r24, 0x08	; 8
@@ -1080,8 +1080,8 @@ ISR(PCINT1_vect){
  6b0:	80 93 18 01 	sts	0x0118, r24	; 0x800118 <ANTIREBOTE2>
 		HOLD2 = 0;
  6b4:	10 92 12 01 	sts	0x0112, r1	; 0x800112 <HOLD2>
-		writechar('1');
- 6b8:	81 e3       	ldi	r24, 0x31	; 49
+		writechar('2');
+ 6b8:	82 e3       	ldi	r24, 0x32	; 50
  6ba:	0e 94 d8 03 	call	0x7b0	; 0x7b0 <writechar>
 		cadena("B");
  6be:	84 e0       	ldi	r24, 0x04	; 4
@@ -1093,9 +1093,9 @@ ISR(PCINT1_vect){
  6ca:	0e 94 df 03 	call	0x7be	; 0x7be <cadena>
 	}
 
-	// A en PC5
-	if(!(PINC & (1 << PINC5)) && ANTIREBOTE1 == 0){
- 6ce:	35 99       	sbic	0x06, 5	; 6
+	// A en PC3
+	if(!(PINC & (1 << PINC3)) && ANTIREBOTE1 == 0){
+ 6ce:	33 99       	sbic	0x06, 3	; 6
  6d0:	14 c0       	rjmp	.+40     	; 0x6fa <__vector_4+0x7a>
  6d2:	80 91 19 01 	lds	r24, 0x0119	; 0x800119 <ANTIREBOTE1>
  6d6:	81 11       	cpse	r24, r1
@@ -1105,8 +1105,8 @@ ISR(PCINT1_vect){
  6dc:	80 93 19 01 	sts	0x0119, r24	; 0x800119 <ANTIREBOTE1>
 		HOLD1 = 0;
  6e0:	10 92 13 01 	sts	0x0113, r1	; 0x800113 <HOLD1>
-		writechar('1');
- 6e4:	81 e3       	ldi	r24, 0x31	; 49
+		writechar('2');
+ 6e4:	82 e3       	ldi	r24, 0x32	; 50
  6e6:	0e 94 d8 03 	call	0x7b0	; 0x7b0 <writechar>
 		cadena("A");
  6ea:	80 e0       	ldi	r24, 0x00	; 0

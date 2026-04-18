@@ -78,8 +78,27 @@ static uint8_t blockBuffer[320 * CHUNK_ROWS * 2];
 volatile uint8_t inicio = 0;
 volatile uint16_t x_rojo = 0;
 volatile uint16_t y_rojo = 23;
-volatile uint16_t x_celeste = 0;
-volatile uint16_t y_celeste = 0;
+volatile uint16_t x_celeste = 320-14;
+volatile uint16_t y_celeste = 240-13;
+
+//varibles para poder hacer logica de colisiones
+#define STAGE_W         320
+#define STAGE_H         240
+#define TANK_W          14
+#define TANK_H          13
+#define MOVE_STEP       2
+#define COLOR_CAMINO    0x0000
+#define STAGE1_FILE     "0:/STAGE1.bin"
+
+typedef enum {
+    DIR_UP = 0,
+    DIR_DOWN,
+    DIR_LEFT,
+    DIR_RIGHT
+} TankDir;
+
+volatile TankDir dir_rojo = DIR_RIGHT;
+volatile TankDir dir_celeste = DIR_LEFT;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -95,6 +114,22 @@ FRESULT LCD_DrawImageFromSD_Fast(const char *filename,
                                  uint16_t y,
                                  uint16_t width,
                                  uint16_t height);
+
+//prototipos para poder hacer colisiones
+uint16_t LeerPixelStage1(uint16_t x, uint16_t y);
+uint8_t PuntoTransitable(uint16_t x, uint16_t y);
+uint8_t PuedeMoverTanqueRojo(uint16_t newX, uint16_t newY, TankDir dir);
+FRESULT LCD_DrawRegionFromSD(const char *filename,
+                             uint16_t srcX, uint16_t srcY,
+                             uint16_t width, uint16_t height,
+                             uint16_t dstX, uint16_t dstY);
+const uint16_t *SpriteTanqueRojo(TankDir dir);
+void DibujarTanqueRojo(void);
+void MoverTanqueRojo(TankDir dir);
+uint8_t PuedeMoverTanqueCeleste(uint16_t newX, uint16_t newY, TankDir dir);
+const uint16_t *SpriteTanqueCeleste(TankDir dir);
+void DibujarTanqueCeleste(void);
+void MoverTanqueCeleste(TankDir dir);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -296,19 +331,19 @@ int main(void)
 	                      break;
 
 	                  case 'U':
-
+	                	  if (stage1) MoverTanqueRojo(DIR_UP);
 	                      break;
 
 	                  case 'D':
+	                	  if (stage1) MoverTanqueRojo(DIR_DOWN);
 	                      break;
 
 	                  case 'L':
+	                	  if (stage1) MoverTanqueRojo(DIR_LEFT);
 	                      break;
 
 	                  case 'R':
-	                	  if(stage1 | stage2 | stage3){
-
-	                	  }
+	                	  if (stage1) MoverTanqueRojo(DIR_RIGHT);
 	                      break;
 	              }
 	          }
@@ -323,15 +358,19 @@ int main(void)
 	                      break;
 
 	                  case 'L':
+	                      if (stage1) MoverTanqueCeleste(DIR_LEFT);
 	                      break;
 
 	                  case 'R':
+	                      if (stage1) MoverTanqueCeleste(DIR_RIGHT);
 	                      break;
 
 	                  case 'U':
+	                      if (stage1) MoverTanqueCeleste(DIR_UP);
 	                      break;
 
 	                  case 'D':
+	                      if (stage1) MoverTanqueCeleste(DIR_DOWN);
 	                      break;
 	              }
 	          }
@@ -344,13 +383,26 @@ int main(void)
 	          case 1:
 	              if (stage1 == 0)
 	              {
-	            	  stage2 = 0;
-	                  stage1 = 1;
-	                  stage3 = 0;
+	            	  if (stage1 == 0)
+	            	      {
+	            		  //dibujar sprite de tanque rojo
+	            	          stage2 = 0;
+	            	          stage1 = 1;
+	            	          stage3 = 0;
 
-	                  LCD_DrawImageFromSD_Fast("0:/STAGE1.bin", 0, 0, 320, 240);
-	                  LCD_Sprite(x_rojo,y_rojo, 14, 13, TANK_DERECHA_ROJO, 1, 0, 0, 0);
-	                  LCD_Sprite(x_celeste,y_celeste, 14, 13, TANK_IZQUIERDA_CELESTE, 1, 0, 0, 0);
+	            	          x_rojo = 33;
+	            	          y_rojo = 45;
+	            	          dir_rojo = DIR_RIGHT;
+
+	            	          LCD_DrawImageFromSD_Fast("0:/STAGE1.bin", 0, 0, 320, 240);
+	            	          DibujarTanqueRojo();
+
+	            	      //dibujar sprite de tanque celeste
+	            	          x_celeste = STAGE_W - TANK_W;
+	            	          y_celeste = STAGE_H - TANK_H;
+	            	          dir_celeste = DIR_LEFT;
+	            	          DibujarTanqueCeleste();
+	            	      }
 
 	              }
 	              break;
@@ -360,7 +412,16 @@ int main(void)
 	        	  	    stage2 = 1;
 	        	  	    stage1 = 0;
 	        	  	    stage3 = 0;
-	        	  	  LCD_DrawImageFromSD_Fast("0:/STAGE2.bin", 0, 0, 320, 240);
+	        	  	    LCD_DrawImageFromSD_Fast("0:/STAGE2.bin", 0, 0, 320, 240);
+	        	  	    //DIBUJAMOS TANQUE ROJO
+	        	  	    x_rojo = 31;
+	        	  	  	y_rojo = 200;
+	        	  	  	DibujarTanqueRojo();
+
+	        	  	  	x_celeste = 195 - TANK_W;
+	        	  	  	y_celeste = 69 - TANK_H;
+	        	  	  	dir_celeste = DIR_LEFT;
+	        	  	  	DibujarTanqueCeleste();
 
 	        	  	}
 	              break;
@@ -702,6 +763,256 @@ FRESULT LCD_DrawImageFromSD_Fast(const char *filename,
 
     transmit_uart("Image drawn successfully\r\n");
     return FR_OK;
+}
+
+//---- Funciones para lograr colisiones ----//
+uint16_t LeerPixelStage1(uint16_t x, uint16_t y)
+{
+    UINT br;
+    uint8_t pix[2];
+    DWORD offset;
+
+    if (x >= STAGE_W || y >= STAGE_H) return 0xFFFF;
+
+    offset = ((DWORD)y * STAGE_W + x) * 2;
+
+    if (f_open(&fil, STAGE1_FILE, FA_READ) != FR_OK) return 0xFFFF;
+    if (f_lseek(&fil, offset) != FR_OK) {
+        f_close(&fil);
+        return 0xFFFF;
+    }
+    if (f_read(&fil, pix, 2, &br) != FR_OK || br != 2) {
+        f_close(&fil);
+        return 0xFFFF;
+    }
+
+    f_close(&fil);
+    return ((uint16_t)pix[0] << 8) | pix[1];
+}
+
+uint8_t PuntoTransitable(uint16_t x, uint16_t y)
+{
+    uint16_t color = LeerPixelStage1(x, y);
+    return (color == COLOR_CAMINO);
+}
+
+uint8_t PuedeMoverTanqueRojo(uint16_t newX, uint16_t newY, TankDir dir)
+{
+    uint16_t left, right, top, bottom, midX, midY;
+
+    if (newX > (STAGE_W - TANK_W)) return 0;
+    if (newY > (STAGE_H - TANK_H)) return 0;
+
+    left   = newX;
+    right  = newX + TANK_W - 1;
+    top    = newY;
+    bottom = newY + TANK_H - 1;
+    midX   = newX + (TANK_W / 2);
+    midY   = newY + (TANK_H / 2);
+
+    switch (dir)
+    {
+        case DIR_RIGHT:
+            if (!PuntoTransitable(right, top)) return 0;
+            if (!PuntoTransitable(right, midY)) return 0;
+            if (!PuntoTransitable(right, bottom)) return 0;
+            break;
+
+        case DIR_LEFT:
+            if (!PuntoTransitable(left, top)) return 0;
+            if (!PuntoTransitable(left, midY)) return 0;
+            if (!PuntoTransitable(left, bottom)) return 0;
+            break;
+
+        case DIR_UP:
+            if (!PuntoTransitable(left, top)) return 0;
+            if (!PuntoTransitable(midX, top)) return 0;
+            if (!PuntoTransitable(right, top)) return 0;
+            break;
+
+        case DIR_DOWN:
+            if (!PuntoTransitable(left, bottom)) return 0;
+            if (!PuntoTransitable(midX, bottom)) return 0;
+            if (!PuntoTransitable(right, bottom)) return 0;
+            break;
+    }
+
+    return 1;
+}
+
+FRESULT LCD_DrawRegionFromSD(const char *filename,
+                             uint16_t srcX, uint16_t srcY,
+                             uint16_t width, uint16_t height,
+                             uint16_t dstX, uint16_t dstY)
+{
+    FRESULT fr;
+    UINT br;
+    uint32_t rowBytes = width * 2;
+
+    fr = f_open(&fil, filename, FA_READ);
+    if (fr != FR_OK) return fr;
+
+    HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_RESET);
+    SetWindows(dstX, dstY, dstX + width - 1, dstY + height - 1);
+    HAL_GPIO_WritePin(GPIOA, LCD_RS_Pin, GPIO_PIN_SET);
+
+    for (uint16_t row = 0; row < height; row++)
+    {
+        DWORD offset = (((DWORD)(srcY + row) * STAGE_W) + srcX) * 2;
+
+        fr = f_lseek(&fil, offset);
+        if (fr != FR_OK) {
+            HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_SET);
+            f_close(&fil);
+            return fr;
+        }
+
+        fr = f_read(&fil, blockBuffer, rowBytes, &br);
+        if (fr != FR_OK || br != rowBytes) {
+            HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_SET);
+            f_close(&fil);
+            return FR_INT_ERR;
+        }
+
+        for (uint32_t i = 0; i < rowBytes; i += 2)
+        {
+            LCD_DATA(blockBuffer[i]);
+            LCD_DATA(blockBuffer[i + 1]);
+        }
+    }
+
+    HAL_GPIO_WritePin(GPIOB, LCD_CS_Pin, GPIO_PIN_SET);
+    f_close(&fil);
+    return FR_OK;
+}
+
+const uint16_t *SpriteTanqueRojo(TankDir dir)
+{
+    switch (dir)
+    {
+        case DIR_UP:    return TANK_ARRIBA_ROJO;
+        case DIR_DOWN:  return TANK_ABAJO_ROJO;
+        case DIR_LEFT:  return TANK_IZQUIERDA_ROJO;
+        case DIR_RIGHT: return TANK_DERECHA_ROJO;
+        default:        return TANK_DERECHA_ROJO;
+    }
+}
+
+void DibujarTanqueRojo(void)
+{
+    LCD_Sprite(x_rojo, y_rojo, TANK_W, TANK_H, SpriteTanqueRojo(dir_rojo), 1, 0, 0, 0);
+}
+void MoverTanqueRojo(TankDir dir)
+{
+    int16_t newX = x_rojo;
+    int16_t newY = y_rojo;
+
+    switch (dir)
+    {
+        case DIR_UP:    newY -= MOVE_STEP; break;
+        case DIR_DOWN:  newY += MOVE_STEP; break;
+        case DIR_LEFT:  newX -= MOVE_STEP; break;
+        case DIR_RIGHT: newX += MOVE_STEP; break;
+    }
+
+    if (newX < 0 || newY < 0) return;
+    if (!PuedeMoverTanqueRojo((uint16_t)newX, (uint16_t)newY, dir)) return;
+
+    // Restaurar fondo donde estaba el tanque
+    LCD_DrawRegionFromSD(STAGE1_FILE, x_rojo, y_rojo, TANK_W, TANK_H, x_rojo, y_rojo);
+
+    // Actualizar posición y dirección
+    x_rojo = (uint16_t)newX;
+    y_rojo = (uint16_t)newY;
+    dir_rojo = dir;
+
+    // Dibujar tanque en nueva posición
+    DibujarTanqueRojo();
+}
+uint8_t PuedeMoverTanqueCeleste(uint16_t newX, uint16_t newY, TankDir dir)
+{
+    uint16_t left, right, top, bottom, midX, midY;
+
+    if (newX > (STAGE_W - TANK_W)) return 0;
+    if (newY > (STAGE_H - TANK_H)) return 0;
+
+    left   = newX;
+    right  = newX + TANK_W - 1;
+    top    = newY;
+    bottom = newY + TANK_H - 1;
+    midX   = newX + (TANK_W / 2);
+    midY   = newY + (TANK_H / 2);
+
+    switch (dir)
+    {
+        case DIR_RIGHT:
+            if (!PuntoTransitable(right, top)) return 0;
+            if (!PuntoTransitable(right, midY)) return 0;
+            if (!PuntoTransitable(right, bottom)) return 0;
+            break;
+
+        case DIR_LEFT:
+            if (!PuntoTransitable(left, top)) return 0;
+            if (!PuntoTransitable(left, midY)) return 0;
+            if (!PuntoTransitable(left, bottom)) return 0;
+            break;
+
+        case DIR_UP:
+            if (!PuntoTransitable(left, top)) return 0;
+            if (!PuntoTransitable(midX, top)) return 0;
+            if (!PuntoTransitable(right, top)) return 0;
+            break;
+
+        case DIR_DOWN:
+            if (!PuntoTransitable(left, bottom)) return 0;
+            if (!PuntoTransitable(midX, bottom)) return 0;
+            if (!PuntoTransitable(right, bottom)) return 0;
+            break;
+    }
+
+    return 1;
+}
+
+const uint16_t *SpriteTanqueCeleste(TankDir dir)
+{
+    switch (dir)
+    {
+        case DIR_UP:    return TANK_ARRIBA_CELESTE;
+        case DIR_DOWN:  return TANK_ABAJO_CELESTE;
+        case DIR_LEFT:  return TANK_IZQUIERDA_CELESTE;
+        case DIR_RIGHT: return TANK_DERECHA_CELESTE;
+        default:        return TANK_IZQUIERDA_CELESTE;
+    }
+}
+
+void DibujarTanqueCeleste(void)
+{
+    LCD_Sprite(x_celeste, y_celeste, TANK_W, TANK_H, SpriteTanqueCeleste(dir_celeste), 1, 0, 0, 0);
+}
+
+void MoverTanqueCeleste(TankDir dir)
+{
+    int16_t newX = x_celeste;
+    int16_t newY = y_celeste;
+
+    switch (dir)
+    {
+        case DIR_UP:    newY -= MOVE_STEP; break;
+        case DIR_DOWN:  newY += MOVE_STEP; break;
+        case DIR_LEFT:  newX -= MOVE_STEP; break;
+        case DIR_RIGHT: newX += MOVE_STEP; break;
+    }
+
+    if (newX < 0 || newY < 0) return;
+    if (!PuedeMoverTanqueCeleste((uint16_t)newX, (uint16_t)newY, dir)) return;
+
+    LCD_DrawRegionFromSD(STAGE1_FILE, x_celeste, y_celeste, TANK_W, TANK_H, x_celeste, y_celeste);
+
+    x_celeste = (uint16_t)newX;
+    y_celeste = (uint16_t)newY;
+    dir_celeste = dir;
+
+    DibujarTanqueCeleste();
 }
 /* USER CODE END 4 */
 

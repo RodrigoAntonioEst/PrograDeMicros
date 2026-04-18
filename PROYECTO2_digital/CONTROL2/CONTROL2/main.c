@@ -1,5 +1,5 @@
 /*
- * CONTROL1.c
+ * CONTROL2.c
  *
  * Created: 26/03/2026 19:25:03
  * Author : rodro
@@ -66,15 +66,15 @@ void setup(){
 	DDRD &= ~((1<<DDD2)|(1<<DDD3)|(1<<DDD4)|(1<<DDD5));
 	PORTD |= (1<<PORTD2)|(1<<PORTD3)|(1<<PORTD4)|(1<<PORTD5);
 
-	// -------- PORTC: PC4 y PC5 como entradas --------
-	DDRC &= ~((1<<DDC4)|(1<<DDC5));
-	PORTC |= (1<<PORTC4)|(1<<PORTC5);
+	// -------- PORTC: PC3 y PC4 como entradas --------
+	DDRC &= ~((1<<DDC3)|(1<<DDC4));
+	PORTC |= (1<<PORTC3)|(1<<PORTC4);
 
 	// PORTD -> D2, D3, D4, D5
 	PCMSK2 = (1<<PCINT18)|(1<<PCINT19)|(1<<PCINT20)|(1<<PCINT21);
 
-	// PORTC -> C4, C5
-	PCMSK1 = (1<<PCINT12)|(1<<PCINT13);
+	// PORTC -> C3, C4
+	PCMSK1 = (1<<PCINT11)|(1<<PCINT12);
 
 	// Activamos interrupciones en PORTD y PORTC
 	PCICR = (1<<PCIE2)|(1<<PCIE1);
@@ -135,14 +135,14 @@ ISR(TIMER0_OVF_vect){
 	if(ANTIREBOTE6 > 0) ANTIREBOTE6--;
 
 	// ---------------- REPETICION MIENTRAS SIGA PRESIONADO ----------------
-	// A -> PC5
-	if(!(PINC & (1 << PINC5))){
+	// A -> PC3
+	if(!(PINC & (1 << PINC3))){
 		if(HOLD1 < 255) HOLD1++;
-		if(HOLD1 >= 30){   // espera inicial
-			writechar('1');
+		if(HOLD1 >= 30){
+			writechar('2');
 			cadena("A");
 			cadena("\n");
-			HOLD1 = 25;    // repeticion continua
+			HOLD1 = 25;
 		}
 	}else{
 		HOLD1 = 0;
@@ -152,7 +152,7 @@ ISR(TIMER0_OVF_vect){
 	if(!(PINC & (1 << PINC4))){
 		if(HOLD2 < 255) HOLD2++;
 		if(HOLD2 >= 30){
-			writechar('1');
+			writechar('2');
 			cadena("B");
 			cadena("\n");
 			HOLD2 = 25;
@@ -165,7 +165,7 @@ ISR(TIMER0_OVF_vect){
 	if(!(PIND & (1 << PIND4))){
 		if(HOLD3 < 255) HOLD3++;
 		if(HOLD3 >= 30){
-			writechar('1');
+			writechar('2');
 			cadena("U");
 			cadena("\n");
 			HOLD3 = 25;
@@ -178,7 +178,7 @@ ISR(TIMER0_OVF_vect){
 	if(!(PIND & (1 << PIND5))){
 		if(HOLD4 < 255) HOLD4++;
 		if(HOLD4 >= 30){
-			writechar('1');
+			writechar('2');
 			cadena("R");
 			cadena("\n");
 			HOLD4 = 25;
@@ -191,7 +191,7 @@ ISR(TIMER0_OVF_vect){
 	if(!(PIND & (1 << PIND2))){
 		if(HOLD5 < 255) HOLD5++;
 		if(HOLD5 >= 30){
-			writechar('1');
+			writechar('2');
 			cadena("D");
 			cadena("\n");
 			HOLD5 = 25;
@@ -204,7 +204,7 @@ ISR(TIMER0_OVF_vect){
 	if(!(PIND & (1 << PIND3))){
 		if(HOLD6 < 255) HOLD6++;
 		if(HOLD6 >= 30){
-			writechar('1');
+			writechar('2');
 			cadena("L");
 			cadena("\n");
 			HOLD6 = 25;
@@ -222,7 +222,7 @@ ISR(PCINT2_vect){
 	if(!(PIND & (1 << PIND2)) && ANTIREBOTE5 == 0){
 		ANTIREBOTE5 = 100;
 		HOLD5 = 0;
-		writechar('1');
+		writechar('2');
 		cadena("D");
 		cadena("\n");
 	}
@@ -231,7 +231,7 @@ ISR(PCINT2_vect){
 	if(!(PIND & (1 << PIND3)) && ANTIREBOTE6 == 0){
 		ANTIREBOTE6 = 100;
 		HOLD6 = 0;
-		writechar('1');
+		writechar('2');
 		cadena("L");
 		cadena("\n");
 	}
@@ -240,7 +240,7 @@ ISR(PCINT2_vect){
 	if(!(PIND & (1 << PIND4)) && ANTIREBOTE3 == 0){
 		ANTIREBOTE3 = 100;
 		HOLD3 = 0;
-		writechar('1');
+		writechar('2');
 		cadena("U");
 		cadena("\n");
 	}
@@ -249,7 +249,7 @@ ISR(PCINT2_vect){
 	if(!(PIND & (1 << PIND5)) && ANTIREBOTE4 == 0){
 		ANTIREBOTE4 = 100;
 		HOLD4 = 0;
-		writechar('1');
+		writechar('2');
 		cadena("R");
 		cadena("\n");
 	}
@@ -261,16 +261,16 @@ ISR(PCINT1_vect){
 	if(!(PINC & (1 << PINC4)) && ANTIREBOTE2 == 0){
 		ANTIREBOTE2 = 100;
 		HOLD2 = 0;
-		writechar('1');
+		writechar('2');
 		cadena("B");
 		cadena("\n");
 	}
 
-	// A en PC5
-	if(!(PINC & (1 << PINC5)) && ANTIREBOTE1 == 0){
+	// A en PC3
+	if(!(PINC & (1 << PINC3)) && ANTIREBOTE1 == 0){
 		ANTIREBOTE1 = 100;
 		HOLD1 = 0;
-		writechar('1');
+		writechar('2');
 		cadena("A");
 		cadena("\n");
 	}
