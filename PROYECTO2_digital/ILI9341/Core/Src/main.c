@@ -71,8 +71,12 @@ volatile uint8_t comandoListo = 0;
 volatile uint8_t stage1 = 0;
 volatile uint8_t stage2 = 0;
 volatile uint8_t stage3 = 0;
-uint8_t dato_disparo = 'A';
+uint8_t dato_play = 'A';
 uint8_t dato_inicio = 'S';
+uint8_t dato_disparo = 'D';
+uint8_t dato_colision = 'C';
+uint8_t dato_muerte = 'M';
+uint8_t dato_game = 'B';
 uint8_t flag_inicio = 0;
 static uint8_t blockBuffer[320 * CHUNK_ROWS * 2];
 volatile uint8_t inicio = 0;
@@ -115,6 +119,10 @@ volatile Bala bala_roja = {0, 0, 0, DIR_RIGHT};
 volatile Bala bala_celeste = {0, 0, 0, DIR_LEFT};
 
 uint32_t lastBulletTick = 0;
+uint8_t collisionMap[STAGE_H][STAGE_W];
+uint8_t vida_rojo = 3;
+uint8_t vida_celeste = 3;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -163,6 +171,9 @@ void ActualizarBala(Bala *bala);
 void ActualizarBalas(void);
 void BorrarFranjaBala(const Bala *bala);
 void BorrarBalaCompleta(const Bala *bala);
+FRESULT CargarMapaColision(const char *filename);
+uint8_t PixelTransitableRAM(uint16_t x, uint16_t y);
+uint8_t BalaImpactaTanque(const Bala *bala, uint16_t tankX, uint16_t tankY, TankDir tankDir);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -337,7 +348,7 @@ int main(void)
 		  //---- logica iniciar musica de fondo inicio ----//
 		  if(flag_inicio == 0){
 			  flag_inicio = 1;
-			  //HAL_UART_Transmit(&huart3, &dato_inicio, 1, 100);
+			  HAL_UART_Transmit(&huart3, &dato_inicio, 1, 100);
 		  }
 		  //---- fin de logica ----//
 
@@ -353,17 +364,20 @@ int main(void)
 	                  case 'A':
 	                      if (estado == 0){
 	                    	  estado = 1;
-	                    	  HAL_UART_Transmit(&huart3, &dato_disparo, 1, 100);
+	                    	  HAL_UART_Transmit(&huart3, &dato_play, 1, 100);
 	                      }
 	                      break;
 
 	                  case 'B':
 	                	  /*if(estado == 1){
 	                		  //estado = 2;
-	                		  HAL_UART_Transmit(&huart3, &dato_disparo, 1, 100);
+
 	                		  if (EnJuego()) DispararBalaRoja();
 	                	  }*/
-	                	  if (EnJuego()) DispararBalaRoja();
+	                	  if (EnJuego()) {
+	                		  HAL_UART_Transmit(&huart3, &dato_disparo, 1, 100);
+	                		  DispararBalaRoja();
+	                	  }
 	                      break;
 
 	                  case 'U':
@@ -390,12 +404,15 @@ int main(void)
 	                  case 'A':
 	                	  if (estado == 0){
 	                	  	     estado = 1;
-	                	  	     HAL_UART_Transmit(&huart3, &dato_disparo, 1, 100);
+	                	  	     HAL_UART_Transmit(&huart3, &dato_play, 1, 100);
 	                	 }
 	                      break;
 
 	                  case 'B':
-	                	  if (EnJuego()) DispararBalaCeleste();
+	                	  if (EnJuego()) {
+	                		  HAL_UART_Transmit(&huart3, &dato_disparo, 1, 100);
+	                		  DispararBalaCeleste();
+	                	  }
 	                      break;
 
 	                  case 'L':
@@ -439,6 +456,7 @@ int main(void)
 	            	          dir_rojo = DIR_RIGHT;
 
 	            	          LCD_DrawImageFromSD_Fast("0:/STAGE1.bin", 0, 0, 320, 240);
+	            	          CargarMapaColision("0:/STAGE1.bin");
 	            	          DibujarTanqueRojo();
 
 	            	      //dibujar sprite de tanque celeste
@@ -467,10 +485,12 @@ int main(void)
 
 	          case 2:
 	        	  if(stage2 == 0){
+	        		  	  HAL_UART_Transmit(&huart3, &dato_game, 1, 100);
 	        	          stage2 = 1;
 	        	          stage1 = 0;
 	        	          stage3 = 0;
 	        	          LCD_DrawImageFromSD_Fast("0:/STAGE2.bin", 0, 0, 320, 240);
+	        	          CargarMapaColision("0:/STAGE2.bin");
 
 	        	          x_rojo = 30;
 	        	          y_rojo = 187;
@@ -497,20 +517,22 @@ int main(void)
 	              break;
 	          case 3:
 	        	  if(stage3 == 0){
+	        		  HAL_UART_Transmit(&huart3, &dato_game, 1, 100);
 	        		  stage2 = 0;
 	        		  stage1 = 0;
 	        		  stage3 = 1;
 	        		  LCD_DrawImageFromSD_Fast("0:/STAGE3.bin", 0, 0, 320, 240);
+	        		  CargarMapaColision("0:/STAGE3.bin");
 	        		  x_rojo = 266;
-	        		 	        	          y_rojo = 93;
-	        		 	        	          dir_rojo = DIR_RIGHT;
-	        		 	        	          DibujarTanqueRojo();
+	        		 y_rojo = 93;
+	        		 dir_rojo = DIR_RIGHT;
+	        		 DibujarTanqueRojo();
 
-	        		 	        	          x_celeste = 9;   //- TANK_W;
-	        		 	        	          y_celeste = 97; //- TANK_H;
-	        		 	        	          dir_celeste = DIR_LEFT;
-	        		 	        	          DibujarTanqueCeleste();
-	        		 	        	         //Vidas player 1
+	        		 x_celeste = 9;   //- TANK_W;
+	        		 y_celeste = 97; //- TANK_H;
+	        		 dir_celeste = DIR_LEFT;
+	        		 DibujarTanqueCeleste();
+	        		 //Vidas player 1
 	        		 LCD_Bitmap(107, 0, 10, 7, VIDAS);
 	        		 LCD_Bitmap(107+10+2, 0, 10, 7, VIDAS);
 	        		 LCD_Bitmap(119+2+10, 0, 10,7, VIDAS);
@@ -979,27 +1001,27 @@ uint8_t PuedeMoverTanque(uint16_t newX, uint16_t newY, TankDir dir)
     switch (dir)
     {
         case DIR_RIGHT:
-            if (LeerPixelStageActual(right, top) != COLOR_CAMINO) return 0;
-            if (LeerPixelStageActual(right, midY) != COLOR_CAMINO) return 0;
-            if (LeerPixelStageActual(right, bottom) != COLOR_CAMINO) return 0;
+            if (!PixelTransitableRAM(right, top)) return 0;
+            if (!PixelTransitableRAM(right, midY)) return 0;
+            if (!PixelTransitableRAM(right, bottom)) return 0;
             break;
 
         case DIR_LEFT:
-            if (LeerPixelStageActual(left, top) != COLOR_CAMINO) return 0;
-            if (LeerPixelStageActual(left, midY) != COLOR_CAMINO) return 0;
-            if (LeerPixelStageActual(left, bottom) != COLOR_CAMINO) return 0;
+            if (!PixelTransitableRAM(left, top)) return 0;
+            if (!PixelTransitableRAM(left, midY)) return 0;
+            if (!PixelTransitableRAM(left, bottom)) return 0;
             break;
 
         case DIR_UP:
-            if (LeerPixelStageActual(left, top) != COLOR_CAMINO) return 0;
-            if (LeerPixelStageActual(midX, top) != COLOR_CAMINO) return 0;
-            if (LeerPixelStageActual(right, top) != COLOR_CAMINO) return 0;
+            if (!PixelTransitableRAM(left, top)) return 0;
+            if (!PixelTransitableRAM(midX, top)) return 0;
+            if (!PixelTransitableRAM(right, top)) return 0;
             break;
 
         case DIR_DOWN:
-            if (LeerPixelStageActual(left, bottom) != COLOR_CAMINO) return 0;
-            if (LeerPixelStageActual(midX, bottom) != COLOR_CAMINO) return 0;
-            if (LeerPixelStageActual(right, bottom) != COLOR_CAMINO) return 0;
+            if (!PixelTransitableRAM(left, bottom)) return 0;
+            if (!PixelTransitableRAM(midX, bottom)) return 0;
+            if (!PixelTransitableRAM(right, bottom)) return 0;
             break;
     }
 
@@ -1170,33 +1192,22 @@ uint8_t PuedeMoverBala(int16_t newX, int16_t newY, TankDir dir)
     if ((newX + BALA_W - 1) >= STAGE_W) return 0;
     if ((newY + BALA_H - 1) >= STAGE_H) return 0;
 
-    uint16_t px = 0;
-    uint16_t py = 0;
-
     switch (dir)
     {
         case DIR_RIGHT:
-            px = (uint16_t)(newX + BALA_W - 1);
-            py = (uint16_t)(newY + 1);
-            break;
+            return PixelTransitableRAM((uint16_t)(newX + BALA_W - 1), (uint16_t)(newY + 1));
 
         case DIR_LEFT:
-            px = (uint16_t)newX;
-            py = (uint16_t)(newY + 1);
-            break;
+            return PixelTransitableRAM((uint16_t)newX, (uint16_t)(newY + 1));
 
         case DIR_UP:
-            px = (uint16_t)(newX + 1);
-            py = (uint16_t)newY;
-            break;
+            return PixelTransitableRAM((uint16_t)(newX + 1), (uint16_t)newY);
 
         case DIR_DOWN:
-            px = (uint16_t)(newX + 1);
-            py = (uint16_t)(newY + BALA_H - 1);
-            break;
+            return PixelTransitableRAM((uint16_t)(newX + 1), (uint16_t)(newY + BALA_H - 1));
     }
 
-    return (LeerPixelStageActual(px, py) == COLOR_CAMINO);
+    return 0;
 }
 
 void DibujarBala(const Bala *bala)
@@ -1355,15 +1366,120 @@ void ActualizarBala(Bala *bala)
         case DIR_DOWN:  newY += BALA_STEP; break;
     }
 
+    bala->x = newX;
+    bala->y = newY;
+
+    // --- colision contra jugador enemigo ---
+    if (bala == (Bala *)&bala_roja)
+    {
+        if (BalaImpactaTanque((const Bala *)bala, x_celeste, y_celeste, dir_celeste))
+        {
+            BorrarBalaCompleta((const Bala *)bala);
+            bala->activa = 0;
+
+            // aqui metes tu logica
+            // ejemplo: vida_celeste--;
+            // flag_hit_celeste = 1;
+            if(stage1){
+				HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+				vida_celeste--;
+				x_celeste = STAGE_W - TANK_W;
+				y_celeste = STAGE_H - TANK_H;
+				dir_celeste = DIR_LEFT;
+				DibujarTanqueCeleste();
+				if(vida_celeste == 0){
+					HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
+					estado=2;
+				}
+				return;
+            }
+            else if(stage2){
+            	HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+            	x_celeste = 195 - TANK_W;
+                y_celeste = 69 - TANK_H;
+                dir_celeste = DIR_LEFT;
+                DibujarTanqueCeleste();
+                if(vida_celeste == 0){
+                	HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
+                	estado=2;
+                }
+            	return;
+            }
+            else if(stage3){
+            	HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+            	x_celeste = 9;
+            	y_celeste = 97;
+            	dir_celeste = DIR_LEFT;
+            	DibujarTanqueCeleste();
+                if(vida_celeste == 0){
+            	   HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
+            	   estado=2;
+            	}
+            	return;
+            }
+        }
+    }
+    else if (bala == (Bala *)&bala_celeste)
+    {
+        if (BalaImpactaTanque((const Bala *)bala, x_rojo, y_rojo, dir_rojo))
+        {
+            BorrarBalaCompleta((const Bala *)bala);
+            bala->activa = 0;
+
+            // aqui metes tu logica
+            // ejemplo: vida_rojo--;
+            // flag_hit_rojo = 1;
+            if(stage1){
+				HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+				vida_rojo--;
+				x_rojo = 33;
+				y_rojo = 45;
+				dir_rojo = DIR_RIGHT;
+				DibujarTanqueRojo();
+				if(vida_rojo == 0){
+					HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
+					estado=2;
+				}
+				return;
+            }
+            else if(stage2){
+            	HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+            	vida_rojo--;
+            	x_rojo = 30;
+            	y_rojo = 187;
+            	dir_rojo = DIR_RIGHT;
+            	DibujarTanqueRojo();
+            	if(vida_rojo == 0){
+            		HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
+            		estado=3;
+            	}
+            	return;
+            }
+            else if(stage3){
+              HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+              vida_rojo--;
+          	  x_rojo = 266;
+          	  y_rojo = 93;
+          	  dir_rojo = DIR_RIGHT;
+          	  DibujarTanqueRojo();
+          	  if(vida_rojo == 0){
+          		  HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
+          		  estado=4;
+          	  }
+          	  return;
+            }
+        }
+    }
+
+    // --- colision contra pared ---
     if (!PuedeMoverBala(newX, newY, bala->dir))
     {
+        bala->x = oldX;
+        bala->y = oldY;
         BorrarBalaCompleta((const Bala *)bala);
         bala->activa = 0;
         return;
     }
-
-    bala->x = newX;
-    bala->y = newY;
 
     DibujarBala((const Bala *)bala);
 
@@ -1372,7 +1488,6 @@ void ActualizarBala(Bala *bala)
     balaVieja.y = oldY;
     BorrarFranjaBala(&balaVieja);
 }
-
 void ActualizarBalas(void)
 {
     uint32_t now = HAL_GetTick();
@@ -1382,6 +1497,68 @@ void ActualizarBalas(void)
 
     ActualizarBala((Bala *)&bala_roja);
     ActualizarBala((Bala *)&bala_celeste);
+}
+FRESULT CargarMapaColision(const char *filename)
+{
+    FRESULT fr;
+    UINT br;
+    uint8_t pix[2];
+
+    fr = f_open(&fil, filename, FA_READ);
+    if (fr != FR_OK) return fr;
+
+    for (uint16_t y = 0; y < STAGE_H; y++)
+    {
+        for (uint16_t x = 0; x < STAGE_W; x++)
+        {
+            fr = f_read(&fil, pix, 2, &br);
+            if (fr != FR_OK || br != 2)
+            {
+                f_close(&fil);
+                return FR_INT_ERR;
+            }
+
+            uint16_t color = ((uint16_t)pix[0] << 8) | pix[1];
+
+            if (color == COLOR_CAMINO)
+                collisionMap[y][x] = 1;
+            else
+                collisionMap[y][x] = 0;
+        }
+    }
+
+    f_close(&fil);
+    return FR_OK;
+}
+
+uint8_t PixelTransitableRAM(uint16_t x, uint16_t y)
+{
+    if (x >= STAGE_W || y >= STAGE_H) return 0;
+    return collisionMap[y][x];
+}
+uint8_t BalaImpactaTanque(const Bala *bala, uint16_t tankX, uint16_t tankY, TankDir tankDir)
+{
+    if (!bala->activa) return 0;
+
+    uint16_t tankW = SpriteWidth(tankDir);
+    uint16_t tankH = SpriteHeight(tankDir);
+
+    int16_t balaLeft   = bala->x;
+    int16_t balaRight  = bala->x + BALA_W - 1;
+    int16_t balaTop    = bala->y;
+    int16_t balaBottom = bala->y + BALA_H - 1;
+
+    int16_t tankLeft   = tankX;
+    int16_t tankRight  = tankX + tankW - 1;
+    int16_t tankTop    = tankY;
+    int16_t tankBottom = tankY + tankH - 1;
+
+    if (balaRight < tankLeft)   return 0;
+    if (balaLeft > tankRight)   return 0;
+    if (balaBottom < tankTop)   return 0;
+    if (balaTop > tankBottom)   return 0;
+
+    return 1;
 }
 /* USER CODE END 4 */
 
