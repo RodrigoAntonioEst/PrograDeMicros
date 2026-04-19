@@ -99,6 +99,22 @@ typedef enum {
 
 volatile TankDir dir_rojo = DIR_RIGHT;
 volatile TankDir dir_celeste = DIR_LEFT;
+#define BALA_W 3
+#define BALA_H 3
+#define BALA_STEP 3
+#define BALA_INTERVAL_MS 5
+
+typedef struct {
+    uint8_t activa;
+    int16_t x;
+    int16_t y;
+    TankDir dir;
+} Bala;
+
+volatile Bala bala_roja = {0, 0, 0, DIR_RIGHT};
+volatile Bala bala_celeste = {0, 0, 0, DIR_LEFT};
+
+uint32_t lastBulletTick = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -138,6 +154,15 @@ void BorrarFranjaMovimiento(uint16_t oldX, uint16_t oldY, TankDir dir);
 uint16_t SpriteWidth(TankDir dir);
 uint16_t SpriteHeight(TankDir dir);
 void BorrarSpriteAnterior(uint16_t oldX, uint16_t oldY, TankDir oldDir, TankDir newDir);
+uint8_t PuedeMoverBala(int16_t newX, int16_t newY, TankDir dir);
+void DibujarBala(const Bala *bala);
+void BorrarBala(const Bala *bala);
+void DispararBalaRoja(void);
+void DispararBalaCeleste(void);
+void ActualizarBala(Bala *bala);
+void ActualizarBalas(void);
+void BorrarFranjaBala(const Bala *bala);
+void BorrarBalaCompleta(const Bala *bala);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -146,6 +171,7 @@ void transmit_uart(char *string){
 	uint8_t len = strlen(string);
 	HAL_UART_Transmit(&huart2, (uint8_t*) string, len, 200);
 }
+
 /* USER CODE END 0 */
 
 /**
@@ -332,11 +358,12 @@ int main(void)
 	                      break;
 
 	                  case 'B':
-	                	  if(estado == 1){
-	                		  estado = 2;
+	                	  /*if(estado == 1){
+	                		  //estado = 2;
 	                		  HAL_UART_Transmit(&huart3, &dato_disparo, 1, 100);
-	                	  }
-
+	                		  if (EnJuego()) DispararBalaRoja();
+	                	  }*/
+	                	  if (EnJuego()) DispararBalaRoja();
 	                      break;
 
 	                  case 'U':
@@ -361,9 +388,14 @@ int main(void)
 	              switch (rxAction)
 	              {
 	                  case 'A':
+	                	  if (estado == 0){
+	                	  	     estado = 1;
+	                	  	     HAL_UART_Transmit(&huart3, &dato_disparo, 1, 100);
+	                	 }
 	                      break;
 
 	                  case 'B':
+	                	  if (EnJuego()) DispararBalaCeleste();
 	                      break;
 
 	                  case 'L':
@@ -386,6 +418,9 @@ int main(void)
 	      }
 	      //---- Fin de logica para detectar controles ----//
 
+	      //logica para balas
+	      ActualizarBalas();
+	      //fin de logica para balas
 	      //---- Logica para poder ver en que estado estamos ----//
 	      switch (estado)
 	      {
@@ -420,11 +455,14 @@ int main(void)
 	            	          LCD_Bitmap(107, 11, 10, 7, VIDAS);
 	            	          LCD_Bitmap(107+10+2, 11, 10, 7, VIDAS);
 	            	          LCD_Bitmap(119+2+10, 11, 10, 7, VIDAS);
+	            	          bala_roja.activa = 0;
+	            	          bala_celeste.activa = 0;
 
-	            	          LCD_Sprite(40, 60, 3, 3, BALAS, 1, 0, 0, 0);
+
 
 
 	              }
+
 	              break;
 
 	          case 2:
@@ -453,6 +491,8 @@ int main(void)
 	        	          LCD_Bitmap(107, 9, 10, 7, VIDAS);
 	        	          LCD_Bitmap(107+10+2, 9, 10, 7, VIDAS);
 	        	          LCD_Bitmap(119+2+10, 9, 10, 7, VIDAS);
+	        	          bala_roja.activa = 0;
+	        	          bala_celeste.activa = 0;
 	        	      }
 	              break;
 	          case 3:
@@ -479,6 +519,8 @@ int main(void)
 	        		 LCD_Bitmap(107, 11, 10, 7, VIDAS);
 	        		 LCD_Bitmap(107+10+2, 11, 10, 7, VIDAS);
 	        		 LCD_Bitmap(119+2+10, 11, 10, 7, VIDAS);
+	        		 bala_roja.activa = 0;
+	        		 bala_celeste.activa = 0;
 	        	  }
 	        	  break;
 	          default:
@@ -1121,6 +1163,225 @@ void MoverTanqueCelesteStage(TankDir dir)
     dir_celeste = dir;
 
     DibujarTanqueCeleste();
+}
+uint8_t PuedeMoverBala(int16_t newX, int16_t newY, TankDir dir)
+{
+    if (newX < 0 || newY < 0) return 0;
+    if ((newX + BALA_W - 1) >= STAGE_W) return 0;
+    if ((newY + BALA_H - 1) >= STAGE_H) return 0;
+
+    uint16_t px = 0;
+    uint16_t py = 0;
+
+    switch (dir)
+    {
+        case DIR_RIGHT:
+            px = (uint16_t)(newX + BALA_W - 1);
+            py = (uint16_t)(newY + 1);
+            break;
+
+        case DIR_LEFT:
+            px = (uint16_t)newX;
+            py = (uint16_t)(newY + 1);
+            break;
+
+        case DIR_UP:
+            px = (uint16_t)(newX + 1);
+            py = (uint16_t)newY;
+            break;
+
+        case DIR_DOWN:
+            px = (uint16_t)(newX + 1);
+            py = (uint16_t)(newY + BALA_H - 1);
+            break;
+    }
+
+    return (LeerPixelStageActual(px, py) == COLOR_CAMINO);
+}
+
+void DibujarBala(const Bala *bala)
+{
+    if (!bala->activa) return;
+    LCD_Sprite((uint16_t)bala->x, (uint16_t)bala->y, BALA_W, BALA_H, BALAS, 1, 0, 0, 0);
+}
+
+void BorrarFranjaBala(const Bala *bala)
+{
+    if (!bala->activa) return;
+
+    uint16_t borrarX = (BALA_STEP < BALA_W) ? BALA_STEP : BALA_W;
+    uint16_t borrarY = (BALA_STEP < BALA_H) ? BALA_STEP : BALA_H;
+
+    switch (bala->dir)
+    {
+        case DIR_RIGHT:
+            for (uint16_t i = 0; i < borrarX; i++)
+            {
+                V_line((uint16_t)bala->x + i, (uint16_t)bala->y, BALA_H, COLOR_CAMINO);
+            }
+            break;
+
+        case DIR_LEFT:
+            for (uint16_t i = 0; i < borrarX; i++)
+            {
+                V_line((uint16_t)bala->x + BALA_W - 1 - i, (uint16_t)bala->y, BALA_H, COLOR_CAMINO);
+            }
+            break;
+
+        case DIR_UP:
+            for (uint16_t i = 0; i < borrarY; i++)
+            {
+                H_line((uint16_t)bala->x, (uint16_t)bala->y + BALA_H - 1 - i, BALA_W, COLOR_CAMINO);
+            }
+            break;
+
+        case DIR_DOWN:
+            for (uint16_t i = 0; i < borrarY; i++)
+            {
+                H_line((uint16_t)bala->x, (uint16_t)bala->y + i, BALA_W, COLOR_CAMINO);
+            }
+            break;
+    }
+}
+
+void BorrarBalaCompleta(const Bala *bala)
+{
+    H_line((uint16_t)bala->x, (uint16_t)bala->y, BALA_W, COLOR_CAMINO);
+    H_line((uint16_t)bala->x, (uint16_t)bala->y + 1, BALA_W, COLOR_CAMINO);
+    H_line((uint16_t)bala->x, (uint16_t)bala->y + 2, BALA_W, COLOR_CAMINO);
+}
+
+void DispararBalaRoja(void)
+{
+    if (!EnJuego()) return;
+    if (bala_roja.activa) return;
+
+    uint16_t w = SpriteWidth(dir_rojo);
+    uint16_t h = SpriteHeight(dir_rojo);
+
+    bala_roja.dir = dir_rojo;
+    bala_roja.activa = 1;
+
+    switch (dir_rojo)
+    {
+        case DIR_RIGHT:
+            bala_roja.x = x_rojo + w;
+            bala_roja.y = y_rojo + (h / 2) - 1;
+            break;
+
+        case DIR_LEFT:
+            bala_roja.x = x_rojo - BALA_W;
+            bala_roja.y = y_rojo + (h / 2) - 1;
+            break;
+
+        case DIR_UP:
+            bala_roja.x = x_rojo + (w / 2) - 1;
+            bala_roja.y = y_rojo - BALA_H;
+            break;
+
+        case DIR_DOWN:
+            bala_roja.x = x_rojo + (w / 2) - 1;
+            bala_roja.y = y_rojo + h;
+            break;
+    }
+
+    if (!PuedeMoverBala(bala_roja.x, bala_roja.y, bala_roja.dir))
+    {
+        bala_roja.activa = 0;
+        return;
+    }
+
+    DibujarBala((const Bala *)&bala_roja);
+}
+
+void DispararBalaCeleste(void)
+{
+    if (!EnJuego()) return;
+    if (bala_celeste.activa) return;
+
+    uint16_t w = SpriteWidth(dir_celeste);
+    uint16_t h = SpriteHeight(dir_celeste);
+
+    bala_celeste.dir = dir_celeste;
+    bala_celeste.activa = 1;
+
+    switch (dir_celeste)
+    {
+        case DIR_RIGHT:
+            bala_celeste.x = x_celeste + w;
+            bala_celeste.y = y_celeste + (h / 2) - 1;
+            break;
+
+        case DIR_LEFT:
+            bala_celeste.x = x_celeste - BALA_W;
+            bala_celeste.y = y_celeste + (h / 2) - 1;
+            break;
+
+        case DIR_UP:
+            bala_celeste.x = x_celeste + (w / 2) - 1;
+            bala_celeste.y = y_celeste - BALA_H;
+            break;
+
+        case DIR_DOWN:
+            bala_celeste.x = x_celeste + (w / 2) - 1;
+            bala_celeste.y = y_celeste + h;
+            break;
+    }
+
+    if (!PuedeMoverBala(bala_celeste.x, bala_celeste.y, bala_celeste.dir))
+    {
+        bala_celeste.activa = 0;
+        return;
+    }
+
+    DibujarBala((const Bala *)&bala_celeste);
+}
+
+void ActualizarBala(Bala *bala)
+{
+    if (!bala->activa) return;
+
+    int16_t oldX = bala->x;
+    int16_t oldY = bala->y;
+
+    int16_t newX = bala->x;
+    int16_t newY = bala->y;
+
+    switch (bala->dir)
+    {
+        case DIR_RIGHT: newX += BALA_STEP; break;
+        case DIR_LEFT:  newX -= BALA_STEP; break;
+        case DIR_UP:    newY -= BALA_STEP; break;
+        case DIR_DOWN:  newY += BALA_STEP; break;
+    }
+
+    if (!PuedeMoverBala(newX, newY, bala->dir))
+    {
+        BorrarBalaCompleta((const Bala *)bala);
+        bala->activa = 0;
+        return;
+    }
+
+    bala->x = newX;
+    bala->y = newY;
+
+    DibujarBala((const Bala *)bala);
+
+    Bala balaVieja = *bala;
+    balaVieja.x = oldX;
+    balaVieja.y = oldY;
+    BorrarFranjaBala(&balaVieja);
+}
+
+void ActualizarBalas(void)
+{
+    uint32_t now = HAL_GetTick();
+
+    if ((now - lastBulletTick) < BALA_INTERVAL_MS) return;
+    lastBulletTick = now;
+
+    ActualizarBala((Bala *)&bala_roja);
+    ActualizarBala((Bala *)&bala_celeste);
 }
 /* USER CODE END 4 */
 
