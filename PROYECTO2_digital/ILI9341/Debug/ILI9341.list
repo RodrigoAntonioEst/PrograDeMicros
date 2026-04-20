@@ -4892,9 +4892,9 @@ static void MX_USART3_UART_Init(void)
  800225c:	4b11      	ldr	r3, [pc, #68]	@ (80022a4 <MX_USART3_UART_Init+0x4c>)
  800225e:	4a12      	ldr	r2, [pc, #72]	@ (80022a8 <MX_USART3_UART_Init+0x50>)
  8002260:	601a      	str	r2, [r3, #0]
-  huart3.Init.BaudRate = 9600;
+  huart3.Init.BaudRate = 115200;
  8002262:	4b10      	ldr	r3, [pc, #64]	@ (80022a4 <MX_USART3_UART_Init+0x4c>)
- 8002264:	f44f 5216 	mov.w	r2, #9600	@ 0x2580
+ 8002264:	f44f 32e1 	mov.w	r2, #115200	@ 0x1c200
  8002268:	605a      	str	r2, [r3, #4]
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
  800226a:	4b0e      	ldr	r3, [pc, #56]	@ (80022a4 <MX_USART3_UART_Init+0x4c>)
@@ -7618,9 +7618,9 @@ void ActualizarBala(Bala *bala)
  8003498:	4959      	ldr	r1, [pc, #356]	@ (8003600 <ActualizarBala+0x310>)
  800349a:	4857      	ldr	r0, [pc, #348]	@ (80035f8 <ActualizarBala+0x308>)
  800349c:	f002 f9de 	bl	800585c <HAL_UART_Transmit>
-            	   estado=5;
+            	   estado=4;
  80034a0:	4b58      	ldr	r3, [pc, #352]	@ (8003604 <ActualizarBala+0x314>)
- 80034a2:	2205      	movs	r2, #5
+ 80034a2:	2204      	movs	r2, #4
  80034a4:	701a      	strb	r2, [r3, #0]
             	}
             	return;
@@ -7809,9 +7809,9 @@ void ActualizarBala(Bala *bala)
  80035d0:	490b      	ldr	r1, [pc, #44]	@ (8003600 <ActualizarBala+0x310>)
  80035d2:	4809      	ldr	r0, [pc, #36]	@ (80035f8 <ActualizarBala+0x308>)
  80035d4:	f002 f942 	bl	800585c <HAL_UART_Transmit>
-          		  estado=4;
+          		  estado=5;
  80035d8:	4b0a      	ldr	r3, [pc, #40]	@ (8003604 <ActualizarBala+0x314>)
- 80035da:	2204      	movs	r2, #4
+ 80035da:	2205      	movs	r2, #5
  80035dc:	701a      	strb	r2, [r3, #0]
           	  }
           	  return;
