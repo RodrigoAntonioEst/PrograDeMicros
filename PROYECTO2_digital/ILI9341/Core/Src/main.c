@@ -77,6 +77,7 @@ uint8_t dato_disparo = 'D';
 uint8_t dato_colision = 'C';
 uint8_t dato_muerte = 'M';
 uint8_t dato_game = 'B';
+uint8_t dato_gandor = 'W';
 uint8_t flag_inicio = 0;
 static uint8_t blockBuffer[320 * CHUNK_ROWS * 2];
 volatile uint8_t inicio = 0;
@@ -122,6 +123,7 @@ uint32_t lastBulletTick = 0;
 uint8_t collisionMap[STAGE_H][STAGE_W];
 uint8_t vida_rojo = 3;
 uint8_t vida_celeste = 3;
+
 
 /* USER CODE END PV */
 
@@ -479,19 +481,42 @@ int main(void)
 
 
 
-	              }
 
-	              break;
+	              }
+	              switch (vida_rojo){
+	              	            	          	case 0:
+	              	            	          		FillRect(107, 0, 10,7, 0x0000);
+	              	            	          	 break;
+	              	            	          	case 1:
+	              	            	          		FillRect(119,0,10,7, 0x0000);
+	              	            	          	 break;
+	              	            	          	case 2:
+	              	            	          		FillRect(131,0, 10,7, 0x0000);
+	              	            	          	 break;
+	              	            	          }
+	              switch (vida_celeste){
+	              	  	  case 0:
+	              	          FillRect(107, 11, 10,7, 0x0000);
+	              	          break;
+	              	      case 1:
+	              	          FillRect(119, 11,10,7, 0x0000);
+	              	          break;
+	              	      case 2:
+	              	          FillRect(131,11, 10,7, 0x0000);
+	              	      break;
+	                      }
+	          break;
 
 	          case 2:
 	        	  if(stage2 == 0){
-	        		  	  HAL_UART_Transmit(&huart3, &dato_game, 1, 100);
+	        		  	  vida_rojo = 3;
+	        		  	  vida_celeste = 3;
 	        	          stage2 = 1;
 	        	          stage1 = 0;
 	        	          stage3 = 0;
 	        	          LCD_DrawImageFromSD_Fast("0:/STAGE2.bin", 0, 0, 320, 240);
 	        	          CargarMapaColision("0:/STAGE2.bin");
-
+	        	          HAL_UART_Transmit(&huart3, &dato_game, 1, 100);
 	        	          x_rojo = 30;
 	        	          y_rojo = 187;
 	        	          dir_rojo = DIR_RIGHT;
@@ -514,15 +539,39 @@ int main(void)
 	        	          bala_roja.activa = 0;
 	        	          bala_celeste.activa = 0;
 	        	      }
+	        	  switch (vida_rojo){
+	        	  	              	            	          	case 0:
+	        	  	              	            	          		FillRect(107, 0, 10,7, 0x0000);
+	        	  	              	            	          	 break;
+	        	  	              	            	          	case 1:
+	        	  	              	            	          		FillRect(119,0,10,7, 0x0000);
+	        	  	              	            	          	 break;
+	        	  	              	            	          	case 2:
+	        	  	              	            	          		FillRect(131,0, 10,7, 0x0000);
+	        	  	              	            	          	 break;
+	        	  	              	            	          }
+	        	  	              switch (vida_celeste){
+	        	  	              	  	  case 0:
+	        	  	              	          FillRect(107, 9, 10,7, 0x0000);
+	        	  	              	          break;
+	        	  	              	      case 1:
+	        	  	              	          FillRect(119, 9,10,7, 0x0000);
+	        	  	              	          break;
+	        	  	              	      case 2:
+	        	  	              	          FillRect(131,9, 10,7, 0x0000);
+	        	  	              	      break;
+	        	  	                      }
 	              break;
 	          case 3:
 	        	  if(stage3 == 0){
-	        		  HAL_UART_Transmit(&huart3, &dato_game, 1, 100);
+	        		  vida_rojo = 3;
+	        		  vida_celeste = 3;
 	        		  stage2 = 0;
 	        		  stage1 = 0;
 	        		  stage3 = 1;
 	        		  LCD_DrawImageFromSD_Fast("0:/STAGE3.bin", 0, 0, 320, 240);
 	        		  CargarMapaColision("0:/STAGE3.bin");
+	        		  HAL_UART_Transmit(&huart3, &dato_game, 1, 100);
 	        		  x_rojo = 266;
 	        		 y_rojo = 93;
 	        		 dir_rojo = DIR_RIGHT;
@@ -544,7 +593,37 @@ int main(void)
 	        		 bala_roja.activa = 0;
 	        		 bala_celeste.activa = 0;
 	        	  }
+	        	  switch (vida_rojo){
+	        	  	              	            	          	case 0:
+	        	  	              	            	          		FillRect(107, 0, 10,7, 0x0000);
+	        	  	              	            	          	 break;
+	        	  	              	            	          	case 1:
+	        	  	              	            	          		FillRect(119,0,10,7, 0x0000);
+	        	  	              	            	          	 break;
+	        	  	              	            	          	case 2:
+	        	  	              	            	          		FillRect(131,0, 10,7, 0x0000);
+	        	  	              	            	          	 break;
+	        	  	              	            	          }
+	        	  	              switch (vida_celeste){
+	        	  	              	  	  case 0:
+	        	  	              	          FillRect(107, 11, 10,7, 0x0000);
+	        	  	              	          break;
+	        	  	              	      case 1:
+	        	  	              	          FillRect(119, 11,10,7, 0x0000);
+	        	  	              	          break;
+	        	  	              	      case 2:
+	        	  	              	          FillRect(131,11, 10,7, 0x0000);
+	        	  	              	      break;
+	        	  	                      }
 	        	  break;
+	        	  case 4:
+	        		  HAL_UART_Transmit(&huart3, &dato_gandor, 1, 100);
+	        		  LCD_DrawImageFromSD_Fast("0:/Player1wins.bin", 0, 0, 320, 240);
+	        		  break;
+	        	  case 5:
+	        		  HAL_UART_Transmit(&huart3, &dato_gandor, 1, 100);
+	        		  LCD_DrawImageFromSD_Fast("0:/player2wins.bin", 0, 0, 320, 240);
+	        		  break;
 	          default:
 	              break;
 	      }
@@ -1395,25 +1474,27 @@ void ActualizarBala(Bala *bala)
             }
             else if(stage2){
             	HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+            	vida_celeste--;
             	x_celeste = 195 - TANK_W;
                 y_celeste = 69 - TANK_H;
                 dir_celeste = DIR_LEFT;
                 DibujarTanqueCeleste();
                 if(vida_celeste == 0){
                 	HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
-                	estado=2;
+                	estado=3;
                 }
             	return;
             }
             else if(stage3){
             	HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+            	vida_celeste--;
             	x_celeste = 9;
             	y_celeste = 97;
             	dir_celeste = DIR_LEFT;
             	DibujarTanqueCeleste();
                 if(vida_celeste == 0){
             	   HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
-            	   estado=2;
+            	   estado=5;
             	}
             	return;
             }
