@@ -123,7 +123,8 @@ uint32_t lastBulletTick = 0;
 uint8_t collisionMap[STAGE_H][STAGE_W];
 uint8_t vida_rojo = 3;
 uint8_t vida_celeste = 3;
-
+volatile uint8_t contador1 = 0;
+volatile uint8_t contador2 = 0;
 
 /* USER CODE END PV */
 
@@ -176,6 +177,10 @@ void BorrarBalaCompleta(const Bala *bala);
 FRESULT CargarMapaColision(const char *filename);
 uint8_t PixelTransitableRAM(uint16_t x, uint16_t y);
 uint8_t BalaImpactaTanque(const Bala *bala, uint16_t tankX, uint16_t tankY, TankDir tankDir);
+uint8_t TanquesColisionan(uint16_t x1, uint16_t y1, TankDir dir1,
+                          uint16_t x2, uint16_t y2, TankDir dir2);
+uint8_t PuedeMoverTanqueRojo(uint16_t newX, uint16_t newY, TankDir dir);
+uint8_t PuedeMoverTanqueCeleste(uint16_t newX, uint16_t newY, TankDir dir);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -939,9 +944,6 @@ FRESULT LCD_DrawImageFromSD_Fast(const char *filename,
             uint8_t hi = blockBuffer[i];
             uint8_t lo = blockBuffer[i + 1];
 
-            // Si los colores salen mal, intercambia:
-            // uint8_t temp = hi; hi = lo; lo = temp;
-
             LCD_DATA(hi);
             LCD_DATA(lo);
         }
@@ -1227,7 +1229,7 @@ void MoverTanqueRojoStage(TankDir dir)
     }
 
     if (newX < 0 || newY < 0) return;
-    if (!PuedeMoverTanque((uint16_t)newX, (uint16_t)newY, dir)) return;
+    if (!PuedeMoverTanqueRojo((uint16_t)newX, (uint16_t)newY, dir)) return;
 
     BorrarSpriteAnterior(oldX, oldY, oldDir, dir);
 
@@ -1255,7 +1257,7 @@ void MoverTanqueCelesteStage(TankDir dir)
     }
 
     if (newX < 0 || newY < 0) return;
-    if (!PuedeMoverTanque((uint16_t)newX, (uint16_t)newY, dir)) return;
+    if (!PuedeMoverTanqueCeleste((uint16_t)newX, (uint16_t)newY, dir)) return;
 
     BorrarSpriteAnterior(oldX, oldY, oldDir, dir);
 
@@ -1456,17 +1458,25 @@ void ActualizarBala(Bala *bala)
             BorrarBalaCompleta((const Bala *)bala);
             bala->activa = 0;
 
-            // aqui metes tu logica
-            // ejemplo: vida_celeste--;
-            // flag_hit_celeste = 1;
             if(stage1){
 				HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+				uint16_t oldX = x_celeste;
+			    uint16_t oldY = y_celeste;
+				TankDir oldDir = dir_celeste;
+				uint16_t w = SpriteWidth(oldDir);
+				uint16_t h = SpriteHeight(oldDir);
+				FillRect(oldX, oldY, w, h, 0x0000);
+				/*int16_t hitX = bala->x;
+				int16_t hitY = bala->y;
+				FillRect(hitX, hitY, BALA_W, BALA_H, 0x000000);
+				bala->activa = 0;*/
 				vida_celeste--;
 				x_celeste = STAGE_W - TANK_W;
 				y_celeste = STAGE_H - TANK_H;
 				dir_celeste = DIR_LEFT;
 				DibujarTanqueCeleste();
 				if(vida_celeste == 0){
+					contador1++;
 					HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
 					estado=2;
 				}
@@ -1474,12 +1484,23 @@ void ActualizarBala(Bala *bala)
             }
             else if(stage2){
             	HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+            	uint16_t oldX = x_celeste;
+            	uint16_t oldY = y_celeste;
+            	TankDir oldDir = dir_celeste;
+            	uint16_t w = SpriteWidth(oldDir);
+            	uint16_t h = SpriteHeight(oldDir);
+            	FillRect(oldX, oldY, w, h, 0x0000);
+            	/*int16_t hitX = bala->x;
+            	int16_t hitY = bala->y;
+            	FillRect(hitX, hitY, BALA_W, BALA_H, 0x000000);
+            	bala->activa = 0;*/
             	vida_celeste--;
             	x_celeste = 195 - TANK_W;
                 y_celeste = 69 - TANK_H;
                 dir_celeste = DIR_LEFT;
                 DibujarTanqueCeleste();
                 if(vida_celeste == 0){
+                	contador1++;
                 	HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
                 	estado=3;
                 }
@@ -1487,14 +1508,29 @@ void ActualizarBala(Bala *bala)
             }
             else if(stage3){
             	HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+            	uint16_t oldX = x_celeste;
+            	uint16_t oldY = y_celeste;
+                TankDir oldDir = dir_celeste;
+            	uint16_t w = SpriteWidth(oldDir);
+            	uint16_t h = SpriteHeight(oldDir);
+            	FillRect(oldX, oldY, w, h, 0x0000);
+            	/*int16_t hitX = bala->x;
+            	int16_t hitY = bala->y;
+            	FillRect(hitX, hitY, BALA_W, BALA_H, 0x000000);
+            	bala->activa = 0;*/
             	vida_celeste--;
             	x_celeste = 9;
             	y_celeste = 97;
             	dir_celeste = DIR_LEFT;
             	DibujarTanqueCeleste();
                 if(vida_celeste == 0){
+                	contador1++;
             	   HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
-            	   estado=4;
+            	   if(contador1 == 2){
+            		  estado=4;
+            	   }
+            	   else if(contador2 == 2)
+            	   estado=5;
             	}
             	return;
             }
@@ -1512,12 +1548,23 @@ void ActualizarBala(Bala *bala)
             // flag_hit_rojo = 1;
             if(stage1){
 				HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+				uint16_t oldX = x_rojo;
+				uint16_t oldY = y_rojo;
+				TankDir oldDir = dir_rojo;
+				uint16_t w = SpriteWidth(oldDir);
+				uint16_t h = SpriteHeight(oldDir);
+				FillRect(oldX, oldY, w, h, 0x0000);
+				/*int16_t hitX = bala->x;
+				int16_t hitY = bala->y;
+				FillRect(hitX, hitY, BALA_W, BALA_H, 0x000000);
+				bala->activa = 0;*/
 				vida_rojo--;
 				x_rojo = 33;
 				y_rojo = 45;
 				dir_rojo = DIR_RIGHT;
 				DibujarTanqueRojo();
 				if(vida_rojo == 0){
+					contador2++;
 					HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
 					estado=2;
 				}
@@ -1525,12 +1572,23 @@ void ActualizarBala(Bala *bala)
             }
             else if(stage2){
             	HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+            	uint16_t oldX = x_rojo;
+            	uint16_t oldY = y_rojo;
+            	TankDir oldDir = dir_rojo;
+            	uint16_t w = SpriteWidth(oldDir);
+            	uint16_t h = SpriteHeight(oldDir);
+            	FillRect(oldX, oldY, w, h, 0x0000);
+            	/*int16_t hitX = bala->x;
+            	int16_t hitY = bala->y;
+            	FillRect(hitX, hitY, BALA_W, BALA_H, 0x000000);
+            	bala->activa = 0;*/
             	vida_rojo--;
             	x_rojo = 30;
             	y_rojo = 187;
             	dir_rojo = DIR_RIGHT;
             	DibujarTanqueRojo();
             	if(vida_rojo == 0){
+            		contador2++;
             		HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
             		estado=3;
             	}
@@ -1538,16 +1596,33 @@ void ActualizarBala(Bala *bala)
             }
             else if(stage3){
               HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
+              uint16_t oldX = x_rojo;
+              uint16_t oldY = y_rojo;
+              TankDir oldDir = dir_rojo;
+              uint16_t w = SpriteWidth(oldDir);
+              uint16_t h = SpriteHeight(oldDir);
+              FillRect(oldX, oldY, w, h, 0x0000);
+              /*int16_t hitX = bala->x;
+              int16_t hitY = bala->y;
+              FillRect(hitX, hitY, BALA_W, BALA_H, 0x000000);
+              bala->activa = 0;*/
               vida_rojo--;
           	  x_rojo = 266;
           	  y_rojo = 93;
           	  dir_rojo = DIR_RIGHT;
           	  DibujarTanqueRojo();
           	  if(vida_rojo == 0){
+          		  contador2++;
           		  HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
-          		  estado=5;
+          		  if(contador1 == 2){
+          		     estado=4;
+          		  }
+          		  else if(contador2 == 2){
+          		     estado=5;
+          		  }
+          		  return;
           	  }
-          	  return;
+
             }
         }
     }
@@ -1638,6 +1713,51 @@ uint8_t BalaImpactaTanque(const Bala *bala, uint16_t tankX, uint16_t tankY, Tank
     if (balaLeft > tankRight)   return 0;
     if (balaBottom < tankTop)   return 0;
     if (balaTop > tankBottom)   return 0;
+
+    return 1;
+}
+uint8_t TanquesColisionan(uint16_t x1, uint16_t y1, TankDir dir1,
+                          uint16_t x2, uint16_t y2, TankDir dir2)
+{
+    uint16_t w1 = SpriteWidth(dir1);
+    uint16_t h1 = SpriteHeight(dir1);
+    uint16_t w2 = SpriteWidth(dir2);
+    uint16_t h2 = SpriteHeight(dir2);
+
+    int16_t left1   = x1;
+    int16_t right1  = x1 + w1 - 1;
+    int16_t top1    = y1;
+    int16_t bottom1 = y1 + h1 - 1;
+
+    int16_t left2   = x2;
+    int16_t right2  = x2 + w2 - 1;
+    int16_t top2    = y2;
+    int16_t bottom2 = y2 + h2 - 1;
+
+    if (right1 < left2) return 0;
+    if (left1 > right2) return 0;
+    if (bottom1 < top2) return 0;
+    if (top1 > bottom2) return 0;
+
+    return 1;
+}
+
+uint8_t PuedeMoverTanqueRojo(uint16_t newX, uint16_t newY, TankDir dir)
+{
+    if (!PuedeMoverTanque(newX, newY, dir)) return 0;
+
+    if (TanquesColisionan(newX, newY, dir, x_celeste, y_celeste, dir_celeste))
+        return 0;
+
+    return 1;
+}
+
+uint8_t PuedeMoverTanqueCeleste(uint16_t newX, uint16_t newY, TankDir dir)
+{
+    if (!PuedeMoverTanque(newX, newY, dir)) return 0;
+
+    if (TanquesColisionan(newX, newY, dir, x_rojo, y_rojo, dir_rojo))
+        return 0;
 
     return 1;
 }
