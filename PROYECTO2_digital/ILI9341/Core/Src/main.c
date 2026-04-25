@@ -1466,10 +1466,6 @@ void ActualizarBala(Bala *bala)
 				uint16_t w = SpriteWidth(oldDir);
 				uint16_t h = SpriteHeight(oldDir);
 				FillRect(oldX, oldY, w, h, 0x0000);
-				/*int16_t hitX = bala->x;
-				int16_t hitY = bala->y;
-				FillRect(hitX, hitY, BALA_W, BALA_H, 0x000000);
-				bala->activa = 0;*/
 				vida_celeste--;
 				x_celeste = STAGE_W - TANK_W;
 				y_celeste = STAGE_H - TANK_H;
@@ -1490,10 +1486,6 @@ void ActualizarBala(Bala *bala)
             	uint16_t w = SpriteWidth(oldDir);
             	uint16_t h = SpriteHeight(oldDir);
             	FillRect(oldX, oldY, w, h, 0x0000);
-            	/*int16_t hitX = bala->x;
-            	int16_t hitY = bala->y;
-            	FillRect(hitX, hitY, BALA_W, BALA_H, 0x000000);
-            	bala->activa = 0;*/
             	vida_celeste--;
             	x_celeste = 195 - TANK_W;
                 y_celeste = 69 - TANK_H;
@@ -1514,10 +1506,6 @@ void ActualizarBala(Bala *bala)
             	uint16_t w = SpriteWidth(oldDir);
             	uint16_t h = SpriteHeight(oldDir);
             	FillRect(oldX, oldY, w, h, 0x0000);
-            	/*int16_t hitX = bala->x;
-            	int16_t hitY = bala->y;
-            	FillRect(hitX, hitY, BALA_W, BALA_H, 0x000000);
-            	bala->activa = 0;*/
             	vida_celeste--;
             	x_celeste = 9;
             	y_celeste = 97;
@@ -1526,10 +1514,10 @@ void ActualizarBala(Bala *bala)
                 if(vida_celeste == 0){
                 	contador1++;
             	   HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
-            	   if(contador1 == 2){
+            	   if(contador1 >= 2){
             		  estado=4;
             	   }
-            	   else if(contador2 == 2)
+            	   else if(contador2 >= 2)
             	   estado=5;
             	}
             	return;
@@ -1542,10 +1530,6 @@ void ActualizarBala(Bala *bala)
         {
             BorrarBalaCompleta((const Bala *)bala);
             bala->activa = 0;
-
-            // aqui metes tu logica
-            // ejemplo: vida_rojo--;
-            // flag_hit_rojo = 1;
             if(stage1){
 				HAL_UART_Transmit(&huart3, &dato_colision, 1, 100);
 				uint16_t oldX = x_rojo;
@@ -1554,10 +1538,6 @@ void ActualizarBala(Bala *bala)
 				uint16_t w = SpriteWidth(oldDir);
 				uint16_t h = SpriteHeight(oldDir);
 				FillRect(oldX, oldY, w, h, 0x0000);
-				/*int16_t hitX = bala->x;
-				int16_t hitY = bala->y;
-				FillRect(hitX, hitY, BALA_W, BALA_H, 0x000000);
-				bala->activa = 0;*/
 				vida_rojo--;
 				x_rojo = 33;
 				y_rojo = 45;
@@ -1578,10 +1558,6 @@ void ActualizarBala(Bala *bala)
             	uint16_t w = SpriteWidth(oldDir);
             	uint16_t h = SpriteHeight(oldDir);
             	FillRect(oldX, oldY, w, h, 0x0000);
-            	/*int16_t hitX = bala->x;
-            	int16_t hitY = bala->y;
-            	FillRect(hitX, hitY, BALA_W, BALA_H, 0x000000);
-            	bala->activa = 0;*/
             	vida_rojo--;
             	x_rojo = 30;
             	y_rojo = 187;
@@ -1602,10 +1578,6 @@ void ActualizarBala(Bala *bala)
               uint16_t w = SpriteWidth(oldDir);
               uint16_t h = SpriteHeight(oldDir);
               FillRect(oldX, oldY, w, h, 0x0000);
-              /*int16_t hitX = bala->x;
-              int16_t hitY = bala->y;
-              FillRect(hitX, hitY, BALA_W, BALA_H, 0x000000);
-              bala->activa = 0;*/
               vida_rojo--;
           	  x_rojo = 266;
           	  y_rojo = 93;
@@ -1614,10 +1586,10 @@ void ActualizarBala(Bala *bala)
           	  if(vida_rojo == 0){
           		  contador2++;
           		  HAL_UART_Transmit(&huart3, &dato_muerte, 1, 100);
-          		  if(contador1 == 2){
+          		  if(contador1 >= 2){
           		     estado=4;
           		  }
-          		  else if(contador2 == 2){
+          		  else if(contador2 >= 2){
           		     estado=5;
           		  }
           		  return;

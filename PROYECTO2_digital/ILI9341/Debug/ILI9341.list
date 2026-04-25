@@ -7744,28 +7744,28 @@ void ActualizarBala(Bala *bala)
  8003598:	4914      	ldr	r1, [pc, #80]	@ (80035ec <ActualizarBala+0x2fc>)
  800359a:	4811      	ldr	r0, [pc, #68]	@ (80035e0 <ActualizarBala+0x2f0>)
  800359c:	f002 fb76 	bl	8005c8c <HAL_UART_Transmit>
-            	   if(contador1 == 2){
+            	   if(contador1 >= 2){
  80035a0:	4b11      	ldr	r3, [pc, #68]	@ (80035e8 <ActualizarBala+0x2f8>)
  80035a2:	781b      	ldrb	r3, [r3, #0]
  80035a4:	b2db      	uxtb	r3, r3
- 80035a6:	2b02      	cmp	r3, #2
- 80035a8:	d103      	bne.n	80035b2 <ActualizarBala+0x2c2>
+ 80035a6:	2b01      	cmp	r3, #1
+ 80035a8:	d903      	bls.n	80035b2 <ActualizarBala+0x2c2>
             		  estado=4;
  80035aa:	4b11      	ldr	r3, [pc, #68]	@ (80035f0 <ActualizarBala+0x300>)
  80035ac:	2204      	movs	r2, #4
  80035ae:	701a      	strb	r2, [r3, #0]
             	   }
-            	   else if(contador2 == 2)
+            	   else if(contador2 >= 2)
             	   estado=5;
             	}
             	return;
  80035b0:	e187      	b.n	80038c2 <ActualizarBala+0x5d2>
-            	   else if(contador2 == 2)
+            	   else if(contador2 >= 2)
  80035b2:	4b12      	ldr	r3, [pc, #72]	@ (80035fc <ActualizarBala+0x30c>)
  80035b4:	781b      	ldrb	r3, [r3, #0]
  80035b6:	b2db      	uxtb	r3, r3
- 80035b8:	2b02      	cmp	r3, #2
- 80035ba:	f040 8182 	bne.w	80038c2 <ActualizarBala+0x5d2>
+ 80035b8:	2b01      	cmp	r3, #1
+ 80035ba:	f240 8182 	bls.w	80038c2 <ActualizarBala+0x5d2>
             	   estado=5;
  80035be:	4b0c      	ldr	r3, [pc, #48]	@ (80035f0 <ActualizarBala+0x300>)
  80035c0:	2205      	movs	r2, #5
@@ -8103,28 +8103,28 @@ void ActualizarBala(Bala *bala)
  800382a:	4930      	ldr	r1, [pc, #192]	@ (80038ec <ActualizarBala+0x5fc>)
  800382c:	482c      	ldr	r0, [pc, #176]	@ (80038e0 <ActualizarBala+0x5f0>)
  800382e:	f002 fa2d 	bl	8005c8c <HAL_UART_Transmit>
-          		  if(contador1 == 2){
+          		  if(contador1 >= 2){
  8003832:	4b32      	ldr	r3, [pc, #200]	@ (80038fc <ActualizarBala+0x60c>)
  8003834:	781b      	ldrb	r3, [r3, #0]
  8003836:	b2db      	uxtb	r3, r3
- 8003838:	2b02      	cmp	r3, #2
- 800383a:	d103      	bne.n	8003844 <ActualizarBala+0x554>
+ 8003838:	2b01      	cmp	r3, #1
+ 800383a:	d903      	bls.n	8003844 <ActualizarBala+0x554>
           		     estado=4;
  800383c:	4b2c      	ldr	r3, [pc, #176]	@ (80038f0 <ActualizarBala+0x600>)
  800383e:	2204      	movs	r2, #4
  8003840:	701a      	strb	r2, [r3, #0]
           		  }
-          		  else if(contador2 == 2){
+          		  else if(contador2 >= 2){
           		     estado=5;
           		  }
           		  return;
  8003842:	e061      	b.n	8003908 <ActualizarBala+0x618>
-          		  else if(contador2 == 2){
+          		  else if(contador2 >= 2){
  8003844:	4b28      	ldr	r3, [pc, #160]	@ (80038e8 <ActualizarBala+0x5f8>)
  8003846:	781b      	ldrb	r3, [r3, #0]
  8003848:	b2db      	uxtb	r3, r3
- 800384a:	2b02      	cmp	r3, #2
- 800384c:	d15c      	bne.n	8003908 <ActualizarBala+0x618>
+ 800384a:	2b01      	cmp	r3, #1
+ 800384c:	d95c      	bls.n	8003908 <ActualizarBala+0x618>
           		     estado=5;
  800384e:	4b28      	ldr	r3, [pc, #160]	@ (80038f0 <ActualizarBala+0x600>)
  8003850:	2205      	movs	r2, #5
